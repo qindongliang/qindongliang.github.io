@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,linux"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="腾讯云主机初始化"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>腾讯云主机初始化-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">腾讯云主机初始化</h1>
+		
+		<div class="main"><div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>操作系统	CentOS 6.3 32位
+CPU	1核
+内存	1GB
+系统盘	disk-j1wsgrb9	20GB(云硬盘)
+数据盘	0GB
+公网带宽	1Mbps
+镜像名称	CentOS 6.3 32位
+......
+</code></pre></div></div>
+
+<h2 id="更新系统">更新系统</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum update
+yum clean all
+yum makecache
+</code></pre></div></div>
+
+<h2 id="简单修改">简单修改</h2>
+
+<ul>
+  <li>
+    <p>更改主机名</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  hostname  #显示主机名VM_243_11_centos
+  hostname tmaize.net  #临时修改主机名,重启会失效
+  vi /etc/sysconfig/network  #永久修改主机名HOSTNAME=tmaize.net
+  vi /etc/hosts  #修改hosts文件
+      127.0.0.1  localhost tmaize.net
+      ::1        localhost tmaize.net
+  reboot  #重启系统
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>显示中文</p>
+
+    <p>由于是最小化安装，并没有设置语言，当又中文要显示时会乱码
+  这里并不打算更改系统语言，只是让他显示中文不乱码</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  vi /etc/sysconfig/i18n  #LANG="en_US.UTF-8"
+  source /etc/sysconfig/i18n  #让修改内容立刻有效
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="删除旧的内核">删除旧的内核</h2>
+
+<p>更新系统之后若更新了内核，系统并不会自动删除旧内核</p>
+
+<p>所以在启动选项中会有多个内核选项,可以手动使用以下命令删除多余的内核</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uname -a  #查看系统当前内核版本
+Linux tmaize.net 2.6.32-573.18.1.el6.i686 #1 SMP Tue Feb 9 19:51:22 UTC 2016 i686 i686 i386 GNU/Linux
+rpm -qa | grep kernel  #看系统中全部的内核RPM包
+
+	kernel-2.6.32-504.30.3.el6.i686
+	kernel-firmware-2.6.32-573.18.1.el6.noarch
+	kernel-headers-2.6.32-573.18.1.el6.i686
+	dracut-kernel-004-388.el6.noarch
+	kernel-2.6.32-573.18.1.el6.i686
+	libreport-plugin-kerneloops-2.0.9-25.el6.centos.i686
+	kernel-2.6.32-279.el6.i686
+
+#可以看出2.6.32-573.18.1.el6.i686为新的内核2.6.32-504.30.3.el6.i686为旧的内核
+
+yum remove kernel-2.6.32-504.30.3.el6.i686  #删除旧内核的RPM包
+yum remove kernel-2.6.32-279.el6.i686
+</code></pre></div></div>
+
+<h2 id="关闭不用的服务">关闭不用的服务</h2>
+
+<ul>
+  <li>
+    <p>关闭SELinux</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  /usr/sbin/sestatus -v  #查看SELinux状态
+  getenforce  #也可以用这个命令检查
+  setenforce 0  #临时关闭(不用重启机器) 0为permissive模式 1为enforcing模式
+  vi /etc/selinux/config #永久关闭，将SELINUX=enforcing改为SELINUX=disabled
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>关闭防火墙</p>
+
+    <p>由于云主机自带了安全组，所以并不需要开启防火墙</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  service iptables stop  #停止服务 
+  chkconfig iptables off  #开机不再启动
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="安装安全加固组件">安装安全加固组件</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget http://mirrors.tencentyun.com/install/sec/agent.zip
+unzip agent.zip
+bash install.sh
+/usr/local/sa/agent/restart.sh
+/usr/local/sa/agent/check.sh
+</code></pre></div></div>
+
+<h2 id="安装开发包和库文件">安装开发包和库文件</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum groupinstall -y "Development Tools"
+yum install cmake bison-devel ncurses-devel autoconf automake zlib* fiex* libxml* libmcrypt* libtool-ltdl-devel*
+</code></pre></div></div>
+
+<h2 id="开启ssh服务">开启SSH服务</h2>
+
+<ul>
+  <li>
+    <p>查看SSH是否安装</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  rpm -qa | grep ssh
+  若没安装SSH则可输入：yum install openssh-server
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>启动SSH服务</p>
+
+    <p>在Linux中,系统的服务放在了 <code class="highlighter-rouge">/etc/rc.d/init.d/</code>目录下面</p>
+
+    <p>如果我们直接来到<code class="highlighter-rouge">/etc/rc.d/init.d/</code>目录下面,我们敲入了服务名sshd回车</p>
+
+    <p>结果是:<code class="highlighter-rouge">sshd re-exec requires execution with an absolute path</code></p>
+
+    <p>这句是说它是需要一个路径来指定的,于是我们指定为当前目录:<code class="highlighter-rouge">./sshd</code></p>
+
+    <p>正常输出<code class="highlighter-rouge">Usage: ./sshd {start|stop|restart|reload|force-reload|condrestart|try-restart|status}</code></p>
+
+    <p>我们在手动管理这些服务的时候,是需要加上路径的,如在当前目录下面,就加上./表示是当前目录</p>
+
+    <p>我们在一些例如计划任务等的操作中要用命令的绝对路径</p>
+
+    <p>意思是害怕有人恶意把我们的命令替换掉,这样的话就会先从我们当前路径查找,万一有一个恶性命令,那么的话就会出现问题</p>
+
+    <p>另外一种方法是使用init.d目录中的服务的一个命令service</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  重启SSH服务：service sshd restart
+  开启SSH服务：service sshd start
+  停止SSH服务：service sshd stop
+  注意直接采用sshd restart会出错
+  重启后可输入：netstat -antp | grep sshd 查看是否启动22端口
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>设置SSH服务为开机启动</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  输入命令：chkconfig sshd on 即可
+  若是chkconfig sshd off则禁止SSH开机启动
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>使用SSH连接主机</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ssh 127.0.0.1 -p 22
+  报错信息：bash: ssh: command not found
+  原因是只安装了ssh服务却没有安装客户端
+  安装：yum install openssh-clients
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>配置SSH</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  vi /etc/ssh/ssh_config 
+  vi /etc/ssh/sshd_config
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>内网ssh连接速度很慢的解决方案</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  # vi /etc/ssh/sshd_conf
+  修改UseDNS no
+  修改GSSAPIAuthentication no
+  保存退出
+  service sshd restart后再ssh相互连接发现很快
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="安装桌面环境可选">安装桌面环境/可选</h2>
+
+<p>默认最小化安装，在安装系统的时候没有安装桌面组件</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum grouplist  //显示系统已经安装的组件和可以安装的组件 
+yum groupinstall "X Window System"  /安装xwindow 
+yum groupinstall "GNOME Desktop Environment"  //安装GNOME桌面环境
+yum groupinstall "Desktop"  //Centos6.3安装GNOME桌面环境	
+yum groupinstall "KDE (K Desktop Environment)"  //安装KDE桌面环境 
+yum groupremove "GNOME Desktop Environment"  //卸载GNOME桌面环境  
+yum groupremove "KDE (K Desktop Environment)"  //卸载KDE桌面环境
+yum groupinstall "Chinese Support"  //安装中文语言
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p>开启图形界面</p>
+
+    <p>开机为文本界面，由文本界面切换到图形界面</p>
+
+    <p>方法1：运行命令 startx  //需要先配置图形界面信息</p>
+
+    <p>方法2：修改/etc/inittab文件中的</p>
+  </li>
+</ul>
+
+<h2 id="部署vnc服务端可选">部署VNC服务端/可选</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum install tigervnc tigervnc-server -y  //安装vnc软件包
+chkconfig vncserver on  //设置vncserver开机启动
+vncpasswd  //设置vnc登录密码，密码保存在~/.vnc/passwd
+rpm -qc tigervnc-server  //查看vncserver配置文件位置
+
+vim /etc/sysconfig/vncservers  //配置vncserver
+---
+#以用户root启动第一个和第二个桌面
+VNCSERVERS="1:root 2:root"
+# 调整分辨率
+VNCSERVERARGS[1]="-geometry 1024x768"
+VNCSERVERARGS[2]="-geometry 1024x768"
+---
+
+vncserver :1  //启动vncserver
+vncserver :2
+
+vim ~/.vnc/xstartup  修改xstartup文件
+---
+twm &amp;改为gnome-session &amp;
+---
+
+service vncserver restart  //修改配置后重启服务
+
+iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 5901 -j ACCEPT  //配置防火墙
+iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 5902 -j ACCEPT
+//之前已经关闭了防火墙，在云主机的安全组放行端口
+service iptables save
+</code></pre></div></div>
+
+<ul>
+  <li>VNC服务端常用命令</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver -kill :1  //停止vncserver
+vncserver -kill :2
+vncserver :1  //启动vncserver
+vncserver :2
+service vncserver start  //批量启动
+service vncserver restart  //批量重启
+service vncserver stop  //批量停止
+vncserver -list  //查看运行的桌面
+</code></pre></div></div>
+
+<p>至此服务端部署完毕</p>
+
+<p>你可以通过UltraVNC Viewer、TigerVNC Viewer或者RealVNC Viewer访问远程桌面了</p>
+
+<h2 id="创建备份">创建备份</h2>
+
+<p>在主机管理面板里创建硬盘快照（仅支持云硬盘），创建iso镜像，方便重装和恢复</p>
+
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

@@ -1,10 +1,10 @@
 encoding: utf-8
 
 # seo
-title: TMaize'Blog
-description: TMaize'Blog
-keywords: TMaize,Blog,Java,Android,Html,Css,Js,算法
-author: TMaize
+title: 秦东亮的个人驿站
+description: coding change world
+keywords: Java,ELK,Spark,Scala,Hadoop,Solr,Lucene
+author: Qin Dong Liang
 
 # "","/blog"
 context: ""
@@ -14,8 +14,8 @@ domain: "blog.tmaize.net"
 ## 文章url前缀 context/自定义，下面的context为''
 permalink: /posts/:year/:month/:day/:title.html
 
-copyright: 2016
-beianhao: "皖ICP备16016174号"
+copyright: 2018
+beianhao: "京ICP备16016174号"
 
 coderay:
   coderay_tab_width: 4

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,android"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Android中的各种弹窗实现"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Android中的各种弹窗实现-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Android中的各种弹窗实现</h1>
+		
+		<div class="main"><p>在 Android 中实现弹出层方式很多，下面介绍几种常用的</p>
+
+<h2 id="1通过framelayout模拟弹出层">1.通过FrameLayout模拟弹出层</h2>
+
+<p>优点：实现简单，布局也比较好写</p>
+
+<p>缺点：位置在上下左右比较好，其他复杂的布局要写大量的点击事件来阻止点击向下传递</p>
+
+<p>比如实现下面的效果：</p>
+
+<p><img src="01.png" alt="p1" /></p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;FrameLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+    <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+    <span class="na">android:layout_height=</span><span class="s">"match_parent"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;RelativeLayout</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span><span class="nt">&gt;</span>
+
+        <span class="nt">&lt;Button</span>
+            <span class="na">android:id=</span><span class="s">"@+id/but01"</span>
+            <span class="na">android:layout_width=</span><span class="s">"wrap_content"</span>
+            <span class="na">android:layout_height=</span><span class="s">"wrap_content"</span>
+            <span class="na">android:text=</span><span class="s">"Click"</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;/RelativeLayout&gt;</span>
+
+    <span class="c">&lt;!--弹出层一定要放在最后面才会显示在最上层，同时默认隐藏--&gt;</span>
+    <span class="nt">&lt;LinearLayout</span>
+        <span class="na">android:id=</span><span class="s">"@+id/popouter"</span>
+        <span class="na">android:visibility=</span><span class="s">"gone"</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+        <span class="na">android:orientation=</span><span class="s">"vertical"</span><span class="nt">&gt;</span>
+
+        <span class="nt">&lt;LinearLayout</span>
+            <span class="na">android:orientation=</span><span class="s">"horizontal"</span>
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"0dp"</span>
+            <span class="na">android:background=</span><span class="s">"#AAA"</span>
+            <span class="na">android:alpha=</span><span class="s">"0.5"</span>
+            <span class="na">android:id=</span><span class="s">"@+id/popinner1"</span>
+            <span class="na">android:layout_weight=</span><span class="s">"5"</span><span class="nt">&gt;</span>
+
+        <span class="nt">&lt;/LinearLayout&gt;</span>
+
+        <span class="nt">&lt;LinearLayout</span>
+            <span class="na">android:id=</span><span class="s">"@+id/popinner2"</span>
+            <span class="na">android:gravity=</span><span class="s">"center"</span>
+            <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+            <span class="na">android:layout_height=</span><span class="s">"0dp"</span>
+            <span class="na">android:background=</span><span class="s">"#FFF"</span>
+            <span class="na">android:orientation=</span><span class="s">"vertical"</span>
+            <span class="na">android:layout_weight=</span><span class="s">"1"</span><span class="nt">&gt;</span>
+
+            <span class="nt">&lt;Button</span>
+                <span class="na">android:text=</span><span class="s">"弹出的按钮"</span>
+                <span class="na">android:id=</span><span class="s">"@+id/but02"</span>
+                <span class="na">android:layout_width=</span><span class="s">"wrap_content"</span>
+                <span class="na">android:layout_height=</span><span class="s">"wrap_content"</span> <span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;/LinearLayout&gt;</span>
+
+    <span class="nt">&lt;/LinearLayout&gt;</span>
+
+<span class="nt">&lt;/FrameLayout&gt;</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+    <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+
+    <span class="n">popouter</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">popouter</span><span class="o">);</span>
+    <span class="n">popinner1</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">popinner1</span><span class="o">);</span>
+    <span class="n">popinner2</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">popinner2</span><span class="o">);</span>
+    <span class="n">but01</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">but01</span><span class="o">);</span>
+    <span class="n">but02</span> <span class="o">=</span> <span class="o">(</span><span class="n">Button</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">but02</span><span class="o">);</span>
+    <span class="n">but01</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">popouter</span><span class="o">.</span><span class="na">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">VISIBLE</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+    <span class="c1">//这是底部弹窗的外部区域，点击取消显示，同时起到阻止冒泡的作用</span>
+    <span class="n">popinner1</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">popouter</span><span class="o">.</span><span class="na">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">GONE</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+    <span class="c1">//防止冒泡</span>
+    <span class="n">popinner2</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">//Do nothing..</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+    <span class="n">but02</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">this</span><span class="o">,</span> <span class="s">"Hello World"</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="2各种dialog">2.各种Dialog</h2>
+
+<p>这里以Dialog为例子，系统中其他的Dialog类似</p>
+
+<p>注意：官方不推荐直接使用Dialog创建对话框而是推荐使用DialogFragment</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Dialog dialog = new Dialog(mContext);
+dialog.setTitle("选择xxx");
+
+Window window = dialog.getWindow();
+window.setGravity(Gravity.BOTTOM|Gravity.CENTER);
+
+//好奇怪这样可以取消外边距
+//dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+
+dialog.setContentView(LayoutInflater.from(mContext).inflate(R.layout.pop,null));
+dialog.show();
+</code></pre></div></div>
+
+<h2 id="3dialogfragment">3.DialogFragment</h2>
+
+<p>使用DialogFragment来管理对话框，当旋转屏幕和按下后退键时可以更好的管理其声明周期，它和Fragment有着基本一致的声明周期。
+且DialogFragment也允许开发者把Dialog作为内嵌的组件进行重用，类似Fragment（可以在大屏幕和小屏幕显示出不同的效果）</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyDialog</span> <span class="kd">extends</span> <span class="n">DialogFragment</span> <span class="o">{</span>
+    
+    <span class="kd">private</span> <span class="n">Context</span> <span class="n">context</span><span class="o">;</span>
+    
+    <span class="c1">//获得context</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onAttach</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">onAttach</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">context</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">//初始化</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="n">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="kd">final</span> <span class="n">ViewGroup</span> <span class="n">container</span><span class="o">,</span> <span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="n">Window</span> <span class="n">window</span> <span class="o">=</span> <span class="n">getDialog</span><span class="o">().</span><span class="na">getWindow</span><span class="o">();</span>
+        <span class="c1">//不显示标题</span>
+        <span class="n">window</span><span class="o">.</span><span class="na">requestFeature</span><span class="o">(</span><span class="n">Window</span><span class="o">.</span><span class="na">FEATURE_NO_TITLE</span><span class="o">);</span>
+        
+        <span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="n">inflater</span><span class="o">.</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">pop</span><span class="o">,</span> <span class="n">container</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">view</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>创建Dialog并使用</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">MyDialog</span> <span class="n">dialog</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyDialog</span><span class="o">();</span>
+<span class="n">dialog</span><span class="o">.</span><span class="na">show</span><span class="o">(</span><span class="n">getFragmentManager</span><span class="o">(),</span> <span class="s">"mydialog"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="4popupwindow">4.PopupWindow</h2>
+
+<p>PopupWindow是一个以弹窗方式呈现的控件，可以用来显示任意视图(View)，而且会浮动在当前活动(activity)的顶部”。因此我们可以通过PopupWindow实现各种各样的弹窗效果,进行信息的展示或者是UI交互，由于PopupWindow自定义布局比较方便，而且在显示位置比较自由不受限制，因此受到众多开发者的青睐。</p>
+
+<p>AlertDialog在位置显示上是固定的，而PopupWindow则相对比较随意，能够在主屏幕上的任意位置显示。</p>
+
+<p>效果如下</p>
+
+<p><img src="02.png" alt="p2" /></p>
+
+<ul>
+  <li>构造方法</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//contentView为要显示的view，width和height为宽和高，值为像素值，也可以是MATCHT_PARENT和WRAP_CONTENT</span>
+<span class="kd">public</span> <span class="nf">PopupWindow</span><span class="o">(</span><span class="n">View</span> <span class="n">contentView</span><span class="o">,</span> <span class="kt">int</span> <span class="n">width</span><span class="o">,</span> <span class="kt">int</span> <span class="n">height</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">focusable</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nf">PopupWindow</span> <span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nf">PopupWindow</span><span class="o">(</span><span class="n">View</span> <span class="n">contentView</span><span class="o">,</span> <span class="kt">int</span> <span class="n">width</span><span class="o">,</span> <span class="kt">int</span> <span class="n">height</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nf">PopupWindow</span><span class="o">(</span><span class="n">View</span> <span class="n">contentView</span><span class="o">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li>位置设置</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">showAtLocation</span><span class="o">(</span><span class="n">View</span> <span class="n">parent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">gravity</span><span class="o">,</span> <span class="kt">int</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">y</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">showAsDropDown</span><span class="o">(</span><span class="n">View</span> <span class="n">anchor</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">showAsDropDown</span><span class="o">(</span><span class="n">View</span> <span class="n">anchor</span><span class="o">,</span> <span class="kt">int</span> <span class="n">xoff</span><span class="o">,</span> <span class="kt">int</span> <span class="n">yoff</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>通过showAtLocation设置，parent可以为Activity中的任意一个View（最终的效果一样），会通过这个View找到其父Window，也就是Activity的Window。</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>gravity，默认为Gravity.NO_GRAVITY，等效于Gravity.LEFT</td>
+      <td>Gravity.TOP</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>x, y，边距。这里的x，y表示距离Window边缘的距离，方向由Gravity决定。例如：设置了Gravity.TOP，则y表示与Window上边缘的距离；而如果设置了Gravity.BOTTOM，则y表示与下边缘的距离。</p>
+
+<p>如果弹窗位置超出了Window的范围，会自动处理使其处于Window中。对于屏幕(左上角0,0),窗位置超出了Window的范围，会自动处理使其处于Window中,显示范围是顶部和底部</p>
+
+<p>注意使用的时候，如果设置Gravity.TOP，则要计算状态栏的高度</p>
+
+<p>通过showAsDropDown(相对于组件)来设置，弹窗的位置是相对于anchor。</p>
+
+<p>如果指定了xoff和yoff，则会在原有位置向右偏移xoff，向下偏移yoff。</p>
+
+<p>如果指定gravity为Gravity.RIGHT，则弹窗和控件右对齐；否则左对齐。注意，计算右对齐时使用了- PopupWindow的宽度，如果指定的宽度不是固定值，则计算会失效（可以从源码中看出来）。</p>
+
+<p>如果弹窗位置超出了Window的范围，会自动处理使其处于Window中。</p>
+
+<p>如果anchor可以滚动，则滚动过程中，PopupWindow可以自动更新位置，跟随anchor控件。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">View</span> <span class="n">popView</span> <span class="o">=</span> <span class="n">LayoutInflater</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="k">this</span><span class="o">).</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">pop</span><span class="o">,</span><span class="kc">null</span><span class="o">);</span>
+<span class="kd">final</span> <span class="n">PopupWindow</span> <span class="n">popWindow</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PopupWindow</span><span class="o">(</span><span class="n">popView</span><span class="o">,</span> <span class="n">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">MATCH_PARENT</span><span class="o">,</span> <span class="n">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+
+<span class="n">popWindow</span><span class="o">.</span><span class="na">setTouchInterceptor</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnTouchListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTouch</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">,</span> <span class="n">MotionEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+
+<span class="c1">// 如果不设置PopupWindow的背景，有些版本就会出现一个问题：无论是点击外部区域还是Back键都无法dismiss弹框</span>
+<span class="n">popWindow</span><span class="o">.</span><span class="na">setBackgroundDrawable</span><span class="o">(</span><span class="k">new</span> <span class="n">ColorDrawable</span><span class="o">());</span>
+<span class="n">popWindow</span><span class="o">.</span><span class="na">showAtLocation</span><span class="o">(</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">outer</span><span class="o">),</span> <span class="n">Gravity</span><span class="o">.</span><span class="na">BOTTOM</span><span class="o">|</span><span class="n">Gravity</span><span class="o">.</span><span class="na">CENTER_HORIZONTAL</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="5toast">5.Toast</h2>
+
+<p>这是最常见的一种弹窗，用法也比较简单</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Toast</span> <span class="n">toast</span> <span class="o">=</span> <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">mContext</span><span class="o">,</span> <span class="s">"Hello"</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">);</span>
+<span class="c1">//设置位置</span>
+<span class="n">toast</span><span class="o">.</span><span class="na">setGravity</span><span class="o">(</span><span class="n">Gravity</span><span class="o">.</span><span class="na">TOP</span><span class="o">|</span><span class="n">Gravity</span><span class="o">.</span><span class="na">RIGHT</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">);</span>
+
+<span class="n">View</span> <span class="n">view</span> <span class="o">=</span><span class="n">LayoutInflater</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="n">mContext</span><span class="o">).</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">pop</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+
+<span class="c1">//在原始布局上添加布局</span>
+<span class="n">LinearLayout</span> <span class="n">toastView</span> <span class="o">=</span> <span class="o">(</span><span class="n">LinearLayout</span><span class="o">)</span> <span class="n">toast</span><span class="o">.</span><span class="na">getView</span><span class="o">();</span>
+<span class="c1">//这个很重要，不然宽度很小</span>
+<span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="n">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span><span class="n">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span> <span class="n">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">));</span>
+<span class="n">toastView</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">view</span><span class="o">,</span><span class="mi">0</span><span class="o">);</span>
+
+<span class="c1">//设置布局，会取消默认的Toast样式</span>
+<span class="c1">//toast.setView(view);</span>
+
+<span class="n">toast</span><span class="o">.</span><span class="na">show</span><span class="o">();</span>
+</code></pre></div></div>
+
+<h2 id="6activity并配合dialog主题的方式实现弹窗">6.Activity并配合Dialog主题的方式实现弹窗</h2>
+
+<p>建立一个样式继承Dialog主题，在Activity中指定样式</p>
+
+<p>为主Activity设置这个主题后会在桌面上弹出一个弹窗，且空白部分可以看到桌面上的东西，效果不错</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;style name="BaseDialog" parent="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar"&gt;
+    &lt;item name="android:windowBackground"&gt;@android:color/transparent&lt;/item&gt;
+    &lt;!--&lt;item name="android:windowCloseOnTouchOutside"&gt;false&lt;/item&gt;--&gt;
+    &lt;item name="android:windowAnimationStyle"&gt;@android:style/Animation&lt;/item&gt;
+    &lt;item name="android:windowIsTranslucent"&gt;false&lt;/item&gt;&lt;!--半透明--&gt;
+    &lt;item name="android:backgroundDimEnabled"&gt;false&lt;/item&gt;&lt;!--模糊--&gt;
+&lt;/style&gt;
+
+&lt;style name="AppTheme" parent="BaseDialog"&gt;
+&lt;/style&gt;
+</code></pre></div></div>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

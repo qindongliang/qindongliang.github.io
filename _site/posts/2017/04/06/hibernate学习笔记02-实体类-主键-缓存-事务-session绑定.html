@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Hibernate学习笔记02 实体类 主键生成 缓存 事务 session绑定"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Hibernate学习笔记02 实体类 主键生成 缓存 事务 session绑定-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Hibernate学习笔记02 实体类 主键生成 缓存 事务 session绑定</h1>
+		
+		<div class="main"><h2 id="实体类编写规则">实体类编写规则</h2>
+
+<ol>
+  <li>
+    <p>实体类的属性时时私有的</p>
+  </li>
+  <li>
+    <p>实体类的属性要有public的get/set方法</p>
+  </li>
+  <li>
+    <p>实体类有属性作为唯一值</p>
+  </li>
+  <li>
+    <p>实体类的属性建议不使用基本数据类型，使用基本数据类型对应的包装类</p>
+
+    <p>例如学生成绩 <code class="highlighter-rouge">int score = 0;Integer score = 0</code>只能表示成绩为0，而<code class="highlighter-rouge">Integer score = null</code>可以表示没有参加考试</p>
+  </li>
+</ol>
+
+<h2 id="常用主键生成策略">常用主键生成策略</h2>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;id</span> <span class="na">name=</span><span class="s">"id"</span> <span class="na">column=</span><span class="s">"id"</span><span class="nt">&gt;</span>
+	<span class="nt">&lt;generator</span> <span class="na">class=</span><span class="s">"native"</span><span class="nt">&gt;&lt;/generator&gt;</span>
+<span class="nt">&lt;/id&gt;</span>
+</code></pre></div></div>
+
+<ol>
+  <li>
+    <p>increment</p>
+
+    <p>用于long，short，int类型，由Hibernate从数据库中取出主键的最大值（每个session只取1次），以该值为基础，每次增量为1，在内存中生成主键，不依赖于底层的数据库，因此可以跨数据库。只有当没有其他进程向同一张表中插入数据时才可以使用，不能在集群环境下使用。适用于代理主键。</p>
+  </li>
+  <li>
+    <p>identity</p>
+
+    <p>identity由底层数据库生成标识符。identity是由数据库自己生成的，但这个主键必须设置为自增长，使用identity的前提条件是底层数据库支持自动增长字段类型，如DB2、SQL Server、MySQL、Sybase和HypersonicSQL等，Oracle这类没有自增字段的则不支持。适用于代理主键。</p>
+  </li>
+  <li>
+    <p>sequence</p>
+
+    <p>采用数据库提供的sequence机制生成主键，需要数据库支持sequence。如oralce、DB、SAP DB、PostgerSQL、McKoi中的sequence。MySQL这种不支持sequence的数据库则不行（可以使用identity）。适用于代理主键。</p>
+  </li>
+  <li>
+    <p>hilo</p>
+
+    <p>hilo（高低位方式high low）是hibernate中最常用的一种生成方式，需要一张额外的表保存hi的值。保存hi值的表至少有一条记录（只与第一条记录有关），否则会出现错误。可以跨数据库。</p>
+  </li>
+  <li>
+    <p>native</p>
+
+    <p>native由hibernate根据使用的数据库自行判断采用identity、hilo、sequence其中一种作为主键生成方式，灵活性很强。如果能支持identity则使用identity，如果支持sequence则使用sequence。</p>
+  </li>
+  <li>
+    <p>uuid</p>
+
+    <p>UUID：Universally Unique Identifier，是指在一台机器上生成的数字，它保证对在同一时空中的所有机器都是唯一的。按照开放软件基金会(OSF)制定的标准计算，用到了以太网卡地址、纳秒级时间、芯片ID码和许多可能的数字。</p>
+
+    <p>标准的UUID格式为：xxxxxxxx-xxxx-xxxx-xxxxxx-xxxxxxxxxx (8-4-4-4-12)其中每个 x 是 0-9 或 a-f 范围内的一个十六进制的数字。</p>
+
+    <p>Hibernate在保存对象时，生成一个UUID字符串作为主键，保证了唯一性，但其并无任何业务逻辑意义，只能作为主键，唯一缺点长度较大，32位（Hibernate将UUID中间的“-”删除了）的字符串，占用存储空间大，但是有两个很重要的优点，Hibernate在维护主键时，不用去数据库查询，从而提高效率，而且它是跨数据库的，以后切换数据库极其方便。</p>
+
+    <p>特点：uuid长度大，占用空间大，跨数据库，不用访问数据库就生成主键值，所以效率高且能保证唯一性，移植非常方便，推荐使用。</p>
+  </li>
+  <li>
+    <p>…..</p>
+  </li>
+</ol>
+
+<h2 id="实体对象的三种状态">实体对象的三种状态</h2>
+
+<ol>
+  <li>
+    <p>瞬时态/临时对象：</p>
+
+    <p>new命令开辟内存空间的java对象,临时对象在内存孤立存在,它是携带信息的载体,不和数据库的数据有任何关联关系，如果没有变量对该对象进行引用,它将被gc回收。可通过 session的save()或saveOrUpdate()方法将瞬时对象与数据库相关联,并将数据对应的插入数据库中,此时该临时对象转变成持久化对象。</p>
+  </li>
+  <li>
+    <p>持久态：</p>
+
+    <p>对象里面有id值，且与session有关联，对它的任何操作都会同步到数据库中</p>
+
+    <p>处于该状态的对象在数据库中具有对应的记录,并拥有一个持久化标识.通过session的get()、load() 等方法获得的对象都是持久对象</p>
+
+    <p>持久化对象被修改变更后，不会马上同步到数据库，直到数据库事务提交。在同步之前，持久化 对象是脏的(Dirty)</p>
+
+    <p>如果是用hibernate的delete()方法,对应的持久对象就变成临时对象,因数据库中 的对应数据已被删除,该对象不再与数据库的记录关联.</p>
+
+    <p>当一个session执行close()或 clear()、evict()之后,持久对象变成游离对象,此时该对象虽然具有数据库识别值,但它已不在HIbernate持久层的管理之下.</p>
+  </li>
+  <li>
+    <p>脱管态/游离状态：</p>
+
+    <p>当与某持久对象关联的session被关闭后,该持久对象转变为游离对象.当游离对象被重新关联到session上 时,又再次转变成持久对象（在Detached其间的改动将被持久化到数据库中）。 <strong>游离对象拥有数据库的识别值,但已不在持久化管理范围之内</strong></p>
+
+    <p>通过update()、saveOrUpdate()等方法,游离对象可转变成持久对象.</p>
+
+    <p>如果是用hibernate的delete()方法,对应的游离对象就变成临时对象,因数据库中的 对应数据已被删除,该对象不再与数据库的记录关联.</p>
+
+    <p>在没有任何变量引用它时,它将被gc在适当的 时候回收；</p>
+
+    <p>比瞬时对象多了一个数据库记录标识值</p>
+  </li>
+</ol>
+
+<h2 id="缓存">缓存</h2>
+
+<p>数据存放到数据库中，数据库本身是文件系统，使用流的方式操作文件效率不高</p>
+
+<p>把数据放到内存里面，直接从内存里面读取数据，提高效率</p>
+
+<ul>
+  <li>
+    <p>Hibernate的一级缓存</p>
+
+    <p>默认打开的，所用时间是session的打开到关闭之间，存储的数据必须是持久态</p>
+  </li>
+  <li>
+    <p>Hibernate的二级缓存</p>
+
+    <ul>
+      <li>
+        <p>目前不再使用，被一些缓存工具替代了</p>
+      </li>
+      <li>
+        <p>默认不打开，需要配置</p>
+      </li>
+      <li>
+        <p>使用范围是项目的范围，即sessionFactory的范围</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="事务">事务</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span><span class="o">{</span>
+    <span class="err">开启事务</span>
+    <span class="err">提交事务</span>
+<span class="o">}</span><span class="k">catch</span><span class="o">{</span>
+    <span class="err">回滚事务</span>
+<span class="o">}</span><span class="k">finally</span><span class="o">{</span>
+    <span class="err">关闭</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<ul>
+  <li>
+    <p>配置事务隔离级别</p>
+
+    <p>mysql的默认事务级别是REPEATABLE_READ</p>
+
+    <p><code class="highlighter-rouge">&lt;property name="hibernate.connection.isolation"&gt;4&lt;/property&gt;</code></p>
+  </li>
+  <li>
+    <p>事务特性</p>
+  </li>
+  <li>
+    <p>不考虑隔离产生的问题</p>
+
+    <p>脏读，不可重复读，虚读</p>
+  </li>
+</ul>
+
+<h2 id="session与本地线程绑定">Session与本地线程绑定</h2>
+
+<p>为什么要把Session与本地线程绑定？官方对他的解释如下：</p>
+
+<p>只要你持有SessionFactory，在任何时候、任何地点调用getCurrentSession方法总会返回“当前的”工作单元,也就是自动为每个线程维护一个私有变量空间</p>
+
+<p>openSession方法</p>
+
+<ul>
+  <li>
+    <p>总是创建一个新的session对象</p>
+  </li>
+  <li>
+    <p>你需要去明确的关闭session对象</p>
+  </li>
+  <li>
+    <p>在单线程环境它比getCurrentSession()更慢</p>
+  </li>
+  <li>
+    <p>你也不需要去配置任何属性，你就能够使用这个方法</p>
+  </li>
+</ul>
+
+<p>getCurrentSession方法</p>
+
+<ul>
+  <li>
+    <p>如果session不存在，它将创建一个新的session，否则在当前hibernate环境中使用同一个session</p>
+  </li>
+  <li>
+    <p>你不需要去关闭session对象，它将自动被hibernate内部机制关闭</p>
+  </li>
+  <li>
+    <p>在单线程环境它比opensession更快</p>
+  </li>
+  <li>
+    <p>你需要去配置中附加hibernate.current_session_context_class这个属性，才能够调用getCurrentSession()方法否则将会抛出异常</p>
+  </li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;property name="current_session_context_class"&gt;thread&lt;/property&gt;
+
+public class HibernateUtil {
+	
+    ...
+	
+    public static Session openCurrentSession() {
+        return sessionFactory.getCurrentSession();
+    }
+    ...
+}
+</code></pre></div></div>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

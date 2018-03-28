@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,linux,php"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="CentOS6.3搭建LNMP环境"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>CentOS6.3搭建LNMP环境-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">CentOS6.3搭建LNMP环境</h1>
+		
+		<div class="main"><p>CentOS6.3纯净系统</p>
+
+<p>安装的软件<code class="highlighter-rouge">nginx-1.10.1</code> <code class="highlighter-rouge">mysql-5.6.31</code> <code class="highlighter-rouge">php-5.6.23</code></p>
+
+<h2 id="准备">准备</h2>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum update
+yum groupinstall <span class="nt">-y</span> <span class="s2">"Development Tools"</span>
+</code></pre></div></div>
+
+<h2 id="安装nginx">安装nginx</h2>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget http://nginx.org/download/nginx-1.10.1.tar.gz
+<span class="nb">tar</span> <span class="nt">-zxvf</span> nginx-1.10.1.tar.gz
+<span class="nb">cd </span>nginx-1.10.1
+./configure
+错误提示
+./configure: error: the HTTP rewrite module requires the PCRE library.
+You can either disable the module by using <span class="nt">--without-http_rewrite_module</span>
+option, or <span class="nb">install </span>the PCRE library into the system, or build the PCRE library
+statically from the <span class="nb">source </span>with nginx by using <span class="nt">--with-pcre</span><span class="o">=</span>&lt;path&gt; option.
+解决错误
+wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.39.tar.gz
+<span class="nb">tar</span> <span class="nt">-zxvf</span> pcre-8.39.tar.gz
+<span class="nb">cd </span>pcre-8.39
+./configure
+make
+make <span class="nb">install
+
+cd </span>nginx-1.10.1
+./configure
+又报错
+./configure: error: the HTTP <span class="nb">gzip </span>module requires the zlib library.
+You can either disable the module by using <span class="nt">--without-http_gzip_module</span>
+option, or <span class="nb">install </span>the zlib library into the system, or build the zlib library
+statically from the <span class="nb">source </span>with nginx by using <span class="nt">--with-zlib</span><span class="o">=</span>&lt;path&gt; option.
+解决错误
+wget http://zlib.net/zlib-1.2.8.tar.gz
+<span class="nb">tar</span> <span class="nt">-zxvf</span> zlib-1.2.8.tar.gz
+<span class="nb">cd </span>zlib-1.2.8
+./configure
+make
+make <span class="nb">install
+
+cd </span>nginx-1.10.1
+./configure
+make
+make <span class="nb">install
+</span>安装成功
+</code></pre></div></div>
+
+<h3 id="nginx配置">nginx配置</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vi /usr/local/nginx/conf/nginx.conf
+
+修改为
+<span class="c">######################################</span>
+user  www-web www-web<span class="p">;</span>
+worker_processes  1<span class="p">;</span>
+
+error_log  logs/error.log<span class="p">;</span>
+
+pid        logs/nginx.pid<span class="p">;</span>
+
+events <span class="o">{</span>
+    worker_connections  1024<span class="p">;</span>
+<span class="o">}</span>
+
+http <span class="o">{</span>
+    include       mime.types<span class="p">;</span>
+    default_type  application/octet-stream<span class="p">;</span>
+    sendfile        on<span class="p">;</span>
+    keepalive_timeout  65<span class="p">;</span>
+<span class="c">#空的虚拟主机，防止非绑定的域名和ip访问</span>
+    server <span class="o">{</span>
+        listen 80 default<span class="p">;</span>
+        server_name _<span class="p">;</span>
+        <span class="k">return </span>500<span class="p">;</span>
+    <span class="o">}</span>
+<span class="c">#虚拟主机test.tmaize.net</span>
+    server <span class="o">{</span>
+        listen       80<span class="p">;</span>
+        server_name  test.tmaize.net www.test.tmaize.net<span class="p">;</span>
+        charset utf-8<span class="p">;</span>
+        location /<span class="o">{</span>
+            root   /www.tmaize.net/test.tmaize.net<span class="p">;</span>
+            index  index.html index.htm index.php<span class="p">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="c">######################################</span>
+		
+启动服务
+<span class="nb">cd</span> /usr/local/nginx/sbin/
+./nginx
+报错
+./nginx: error <span class="k">while </span>loading shared libraries: libpcre.so.1: cannot open shared object file: No such file or directory
+解决
+<span class="nb">cd</span> /lib
+<span class="nb">ln</span> <span class="nt">-s</span> libpcre.so.0.0.1 libpcre.so.1
+
+继续启动服务
+<span class="nb">cd</span> /usr/local/nginx/sbin/
+./nginx
+又报错
+nginx: <span class="o">[</span>emerg] getpwnam<span class="o">(</span><span class="s2">"www-web"</span><span class="o">)</span> failed <span class="k">in</span> /usr/local/nginx/conf/nginx.conf:1
+解决 创建www-web用户
+groupadd www-web
+useradd <span class="nt">-r</span> <span class="nt">-g</span> www-web www-web
+usermod <span class="nt">-s</span> /sbin/nologin www-web
+
+继续启动服务
+<span class="nb">cd</span> /usr/local/nginx/sbin/
+./nginx
+./nginx <span class="nt">-s</span> reload
+服务启动成功，最好在/etc/init.d/下写一个脚本方便管理启动
+打开test.tmaize.net显示/www.tmaize.net/test.tmaize.net里的页面
+
+更改权限
+<span class="nb">chown</span> <span class="nt">-R</span> www-web /www.tmaize.net/
+<span class="nb">chgrp</span> <span class="nt">-R</span> www-web /www.tmaize.net/
+
+至此mysql配置完成
+</code></pre></div></div>
+
+<h2 id="安装mysql">安装Mysql</h2>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>清除mysql相关
+rpm <span class="nt">-qa</span> |grep <span class="nt">-i</span> mysql  //先查看系统下有哪些包含MySQL字符串的包
+rpm <span class="nt">-ev</span> <span class="nt">--nodeps</span> mysql-libs-5.1.61-4.el6.i686
+
+下载
+到Mysql官网http://www.mysql.com/downloads/
+选择Community 版本
+选择MySQL Community Server <span class="o">(</span>GPL<span class="o">)</span>
+Select Platform:Source Code
+选择倒数第二个
+Generic Linux <span class="o">(</span>Architecture Independent<span class="o">)</span>, Compressed TAR Archive
+<span class="o">(</span>mysql-5.6.31.tar.gz<span class="o">)</span>
+wget http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.31.tar.gz
+
+之前的yum groupinstall <span class="nt">-y</span> <span class="s2">"Development Tools"</span>好像没有cmake工具
+yum <span class="nb">install </span>cmake bison-devel ncurses-devel autoconf automake zlib<span class="k">*</span> fiex<span class="k">*</span> libxml<span class="k">*</span> libmcrypt<span class="k">*</span> libtool-ltdl-devel<span class="k">*</span>
+
+cmake <span class="se">\</span>
+<span class="nt">-DCMAKE_INSTALL_PREFIX</span><span class="o">=</span>/usr/local/mysql <span class="se">\</span>
+<span class="nt">-DMYSQL_DATADIR</span><span class="o">=</span>/usr/local/mysql/data <span class="se">\</span>
+<span class="nt">-DSYSCONFDIR</span><span class="o">=</span>/etc <span class="se">\</span>
+<span class="nt">-DWITH_MYISAM_STORAGE_ENGINE</span><span class="o">=</span>1 <span class="se">\</span>
+<span class="nt">-DWITH_INNOBASE_STORAGE_ENGINE</span><span class="o">=</span>1 <span class="se">\</span>
+<span class="nt">-DWITH_MEMORY_STORAGE_ENGINE</span><span class="o">=</span>1 <span class="se">\</span>
+<span class="nt">-DWITH_READLINE</span><span class="o">=</span>1 <span class="se">\</span>
+<span class="nt">-DMYSQL_UNIX_ADDR</span><span class="o">=</span>/var/lib/mysql/mysql.sock <span class="se">\</span>
+<span class="nt">-DMYSQL_TCP_PORT</span><span class="o">=</span>3306 <span class="se">\</span>
+<span class="nt">-DENABLED_LOCAL_INFILE</span><span class="o">=</span>1 <span class="se">\</span>
+<span class="nt">-DWITH_PARTITION_STORAGE_ENGINE</span><span class="o">=</span>1 <span class="se">\</span>
+<span class="nt">-DEXTRA_CHARSETS</span><span class="o">=</span>all <span class="se">\</span>
+<span class="nt">-DDEFAULT_CHARSET</span><span class="o">=</span>utf8 <span class="se">\</span>
+<span class="nt">-DDEFAULT_COLLATION</span><span class="o">=</span>utf8_general_ci
+
+make  //大概需要20分钟
+make <span class="nb">install</span>
+</code></pre></div></div>
+
+<h3 id="配置mysql">配置mysql</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>配置用户及权限
+groupadd mysql
+useradd <span class="nt">-r</span> <span class="nt">-g</span> mysql mysql
+usermod <span class="nt">-s</span> /sbin/nologin mysql
+<span class="nb">chown</span> <span class="nt">-R</span> mysql:mysql /usr/local/mysql
+
+mysql配置
+<span class="nb">cd</span> /usr/local/mysql
+scripts/mysql_install_db <span class="nt">--basedir</span><span class="o">=</span>/usr/local/mysql <span class="nt">--datadir</span><span class="o">=</span>/usr/local/mysql/data <span class="nt">--user</span><span class="o">=</span>mysql
+//最后的显示New default config file was created as /usr/local/mysql/my.cnf
+
+注：在启动MySQL服务时，会按照一定次序搜索my.cnf，先在/etc目录下找，找不到则会搜索<span class="s2">"</span><span class="nv">$basedir</span><span class="s2">/my.cnf"</span>
+这里使用/usr/local/mysql/my.cnf，这是新版MySQL的配置文件的默认位置！
+注意：在CentOS 6.4版操作系统的最小安装完成后，在/etc目录下会存在一个my.cnf，需要将此文件更名为其他的名字
+如：/etc/my.cnf.bak，否则，该文件会干扰源码安装的MySQL的正确配置，造成无法启动。
+在使用<span class="s2">"yum update"</span>更新系统后，需要检查下/etc目录下是否会多出一个my.cnf
+如果多出，将它重命名成别的。否则，MySQL将使用这个配置文件启动，可能造成无法正常启动等问题。
+
+添加PATH
+vi /etc/profile
+在文件最后添加
+<span class="nt">---</span>
+<span class="nv">PATH</span><span class="o">=</span>/usr/local/mysql/bin:<span class="nv">$PATH</span>
+<span class="nb">export </span>PATH
+<span class="nt">---</span>
+<span class="nb">source</span> /etc/profile  //修改生效
+
+添加服务
+拷贝服务脚本到init.d目录
+<span class="nb">cp</span> /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql
+<span class="nb">chmod</span> +x /etc/init.d/mysql
+service mysql start
+chkconfig mysql on  //设置开机启动可选
+
+配置用户
+mysql <span class="nt">-u</span> root
+SET PASSWORD <span class="o">=</span> PASSWORD<span class="o">(</span><span class="s1">'设置密码'</span><span class="o">)</span><span class="p">;</span>
+<span class="nb">exit
+</span>mysql <span class="nt">-u</span> root <span class="nt">-p</span>  //输入刚才的密码登陆
+GRANT ALL PRIVILEGES ON <span class="k">*</span>.<span class="k">*</span> TO <span class="s1">'root'</span>@<span class="s1">'%'</span> IDENTIFIED BY <span class="s1">'密码'</span> WITH GRANT OPTION<span class="p">;</span>
+FLUSH privileges<span class="p">;</span> //更新权限
+在本地同Navicat登陆试一下，顺便删除多余的用户，留一个root@%就可以了
+
+配置防火墙，前面貌似关掉过了
+至此mysql配置完成，更多配置请修改配置文件
+</code></pre></div></div>
+
+<h3 id="mysql优化">mysql优化</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>安装之后发现mysql的内存占用大概在400M左右，对1G内存的机器实在是吃力
+下面通过修改mysql配置文件达到降低内存占用的目的
+
+vi /usr/local/mysql/my.cnf
+
+<span class="c"># 一些优化</span>
+<span class="nv">port</span><span class="o">=</span> 3306
+character-set-server<span class="o">=</span>utf8
+<span class="nv">performance_schema_max_table_instances</span><span class="o">=</span>200
+<span class="nv">table_definition_cache</span><span class="o">=</span>200
+<span class="nv">table_open_cache</span><span class="o">=</span>128
+<span class="nv">innodb</span><span class="o">=</span>OFF
+default-storage-engine<span class="o">=</span>MYISAM
+default-tmp-storage-engine<span class="o">=</span>MYISAM
+loose-innodb-trx<span class="o">=</span>0
+loose-innodb-locks<span class="o">=</span>0
+loose-innodb-lock-waits<span class="o">=</span>0
+loose-innodb-cmp<span class="o">=</span>0
+loose-innodb-cmp-per-index<span class="o">=</span>0
+loose-innodb-cmp-per-index-reset<span class="o">=</span>0
+loose-innodb-cmp-reset<span class="o">=</span>0
+loose-innodb-cmpmem<span class="o">=</span>0
+loose-innodb-cmpmem-reset<span class="o">=</span>0
+loose-innodb-buffer-page<span class="o">=</span>0
+loose-innodb-buffer-page-lru<span class="o">=</span>0
+loose-innodb-buffer-pool-stats<span class="o">=</span>0
+loose-innodb-metrics<span class="o">=</span>0
+loose-innodb-ft-default-stopword<span class="o">=</span>0
+loose-innodb-ft-inserted<span class="o">=</span>0
+loose-innodb-ft-deleted<span class="o">=</span>0
+loose-innodb-ft-being-deleted<span class="o">=</span>0
+loose-innodb-ft-config<span class="o">=</span>0
+loose-innodb-ft-index-cache<span class="o">=</span>0
+loose-innodb-ft-index-table<span class="o">=</span>0
+loose-innodb-sys-tables<span class="o">=</span>0
+loose-innodb-sys-tablestats<span class="o">=</span>0
+loose-innodb-sys-indexes<span class="o">=</span>0
+loose-innodb-sys-columns<span class="o">=</span>0
+loose-innodb-sys-fields<span class="o">=</span>0
+loose-innodb-sys-foreign<span class="o">=</span>0
+loose-innodb-sys-foreign-cols<span class="o">=</span>0
+join_buffer_size <span class="o">=</span> 64M
+<span class="nv">sql_mode</span><span class="o">=</span>NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+<span class="c">#结束</span>
+
+新开窗口监视内存变化
+watch <span class="nt">-n</span> 2 <span class="nt">-d</span> free <span class="nt">-h</span>  //新窗口
+service mysql start  //旧窗口
+发现占用70M左右，比之前的400M下降了许多
+</code></pre></div></div>
+
+<h2 id="php安装前准备">php安装前准备</h2>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>把php相关的卸载干净
+yum remove php
+到php官网http://php.net/下载php源码
+wget http://cn.php.net/distributions/php-5.6.23.tar.gz
+
+添加repoforge源
+官网http://repoforge.org/  选择usage EL 6: i686
+wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.i686.rpm
+rpm <span class="nt">-ivh</span> rpmforge-release-0.5.3-1.el6.rf.i686.rpm
+
+更新源
+yum clean all
+yum makecache
+yum list
+
+安装需要的库 干脆一次性装个全的
+yum <span class="nb">install</span> <span class="nt">-y</span> apr<span class="k">*</span> autoconf automake bison bison-devel bzip2 bzip2<span class="k">*</span> cloog-ppl compat<span class="k">*</span> cpp 
+yum <span class="nb">install</span> <span class="nt">-y</span> curl curl-devel fontconfig fontconfig-devel freetype freetype<span class="k">*</span> 
+yum <span class="nb">install</span> <span class="nt">-y</span> freetype-devel gcc gcc-c++ gtk+-devel gd gettext gettext-devel 
+yum <span class="nb">install</span> <span class="nt">-y</span> glibc kernel kernel-headers keyutils keyutils-libs-devel krb5-devel 
+yum <span class="nb">install</span> <span class="nt">-y</span> libcom_err-devel libpng libpng<span class="k">*</span> libpng-devel libjpeg<span class="k">*</span> libsepol-devel 
+yum <span class="nb">install</span> <span class="nt">-y</span> libselinux-devel libstdc++-devel libtool<span class="k">*</span> libgomp libxml2 libxml2-devel libXpm<span class="k">*</span> libX<span class="k">*</span> 
+yum <span class="nb">install</span> <span class="nt">-y</span> libtiff libtiff<span class="k">*</span> make mpfr ncurses<span class="k">*</span> ntp openssl nasm nasm<span class="k">*</span> 
+yum <span class="nb">install</span> <span class="nt">-y</span> openssl-devel patch pcre-devel perl php-common php-gd yasm
+yum <span class="nb">install</span> <span class="nt">-y</span> policycoreutils ppl telnet t1lib t1lib<span class="k">*</span> wget zlib-devel readline-devel
+yum <span class="nb">install</span> <span class="nt">-y</span> libxml2-devel libjpeg-devel libpng-devel openssl-devel freetype-devel libmcrypt-devel libcurl-devel
+yum <span class="nb">install</span> <span class="nt">-y</span> zlib-devel libmcrypt-devel  mhash-devel  libcurl-devel bzip2-devel readline-devel libedit-devel sqlite-devel
+
+</code></pre></div></div>
+
+<h3 id="php安装">php安装</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./configure <span class="se">\</span>
+<span class="nt">--prefix</span><span class="o">=</span>/usr/local/php5.6 <span class="se">\</span>
+<span class="nt">--with-config-file-path</span><span class="o">=</span>/usr/local/php5.6/etc <span class="se">\</span>
+<span class="nt">--enable-inline-optimization</span> <span class="se">\</span>
+<span class="nt">--disable-debug</span> <span class="se">\</span>
+<span class="nt">--disable-rpath</span> <span class="se">\</span>
+<span class="nt">--enable-shared</span> <span class="se">\</span>
+<span class="nt">--enable-opcache</span> <span class="se">\</span>
+<span class="nt">--enable-fpm</span> <span class="se">\</span>
+<span class="nt">--with-fpm-user</span><span class="o">=</span>www-web <span class="se">\</span>
+<span class="nt">--with-fpm-group</span><span class="o">=</span>www-web <span class="se">\</span>
+<span class="nt">--with-mysql</span><span class="o">=</span>mysqlnd <span class="se">\</span>
+<span class="nt">--with-mysqli</span><span class="o">=</span>mysqlnd <span class="se">\</span>
+<span class="nt">--with-pdo-mysql</span><span class="o">=</span>mysqlnd <span class="se">\</span>
+<span class="nt">--with-gettext</span> <span class="se">\</span>
+<span class="nt">--enable-mbstring</span> <span class="se">\</span>
+<span class="nt">--with-iconv</span> <span class="se">\</span>
+<span class="nt">--with-mcrypt</span> <span class="se">\</span>
+<span class="nt">--with-mhash</span> <span class="se">\</span>
+<span class="nt">--with-openssl</span> <span class="se">\</span>
+<span class="nt">--enable-bcmath</span> <span class="se">\</span>
+<span class="nt">--enable-soap</span> <span class="se">\</span>
+<span class="nt">--with-libxml-dir</span> <span class="se">\</span>
+<span class="nt">--enable-pcntl</span> <span class="se">\</span>
+<span class="nt">--enable-shmop</span> <span class="se">\</span>
+<span class="nt">--enable-sysvmsg</span> <span class="se">\</span>
+<span class="nt">--enable-sysvsem</span> <span class="se">\</span>
+<span class="nt">--enable-sysvshm</span> <span class="se">\</span>
+<span class="nt">--enable-sockets</span> <span class="se">\</span>
+<span class="nt">--with-curl</span> <span class="se">\</span>
+<span class="nt">--with-zlib</span> <span class="se">\</span>
+<span class="nt">--enable-zip</span> <span class="se">\</span>
+<span class="nt">--with-bz2</span> <span class="se">\</span>
+<span class="nt">--with-readline</span>
+
+没有报错 如果报错请安装缺少的库文件
+
+make  //大概15分钟
+make <span class="nb">install
+
+cp </span>php.ini-production /usr/local/php5.6/etc/php.ini  //复制php配置文件到安装目录
+<span class="nb">rm</span> <span class="nt">-rf</span> /etc/php.ini  //删除系统自带配置文件
+<span class="nb">ln</span> <span class="nt">-s</span> /usr/local/php5.6/etc/php.ini /etc/php.ini  //添加软链接到 /etc目录
+<span class="nb">cp</span> /usr/local/php5.6/etc/php-fpm.conf.default /usr/local/php5.6/etc/php-fpm.conf  //拷贝模板文件为php-fpm配置文件
+<span class="nb">ln</span> <span class="nt">-s</span> /usr/local/php5.6/etc/php-fpm.conf /etc/php-fpm.conf  //添加软连接到 /etc目录
+
+vi /etc/php-fpm.conf  //去掉pid <span class="o">=</span> run/php-fpm.pid的注释
+
+添加php-fpm启动脚本
+<span class="nb">cp </span>sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm5.6
+<span class="nb">chmod</span> +x /etc/init.d/php-fpm5.6
+
+vi /usr/local/php5.6/etc/php.ini
+
+date.timezone <span class="o">=</span> PRC <span class="c">#设置时区</span>
+short_open_tag <span class="o">=</span> On <span class="c">#支持php短标签</span>
+opcache.enable<span class="o">=</span>1 <span class="c">#php支持opcode缓存</span>
+opcache.enable_cli<span class="o">=</span>0
+在最后一行添加：zend_extension<span class="o">=</span>opcache.so <span class="c">#开启opcode缓存功能</span>
+
+添加 PHP 命令到环境变量
+vi /etc/profile
+修改最后几行：PATH<span class="o">=</span><span class="nv">$PATH</span>:/usr/local/mysql/bin:/usr/local/php5.6/bin 保存
+php <span class="nt">-v</span>  //显示PHP版本
+
+配置nginx支持php
+<span class="c">#虚拟主机test.tmaize.net</span>
+    server <span class="o">{</span>
+        listen       80<span class="p">;</span>
+        server_name  test.tmaize.net www.test.tmaize.net<span class="p">;</span>
+        charset utf-8<span class="p">;</span>
+        location /<span class="o">{</span>
+            root   /www.tmaize.net/test.tmaize.net<span class="p">;</span>
+            index  index.html index.htm index.php<span class="p">;</span>
+        <span class="o">}</span>
+        location ~ <span class="se">\.</span>php<span class="nv">$ </span><span class="o">{</span>
+            root   /www.tmaize.net/test.tmaize.net<span class="p">;</span>
+            fastcgi_pass   127.0.0.1:9000<span class="p">;</span>
+            fastcgi_index  index.php<span class="p">;</span>
+            fastcgi_param  SCRIPT_FILENAME  /www.tmaize.net/test.tmaize.net<span class="nv">$fastcgi_script_name</span><span class="p">;</span>
+            include        fastcgi_params<span class="p">;</span>
+        <span class="o">}</span>
+
+至此php基本配置完成
+</code></pre></div></div>
+
+<h2 id="总结">总结</h2>
+
+<p>以上只是一些简单的安装步骤，并没有做详细的配置
+在具体应用中还会遇到好多问题，遇到问题就多Google</p>
+
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

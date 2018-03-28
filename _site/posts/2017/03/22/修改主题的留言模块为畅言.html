@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,jekyll"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="修改主题的留言模块为畅言"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>修改主题的留言模块为畅言-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">修改主题的留言模块为畅言</h1>
+		
+		<div class="main"><p>一个不好的消息….</p>
+
+<p><img src="01.jpg" alt="p1" /></p>
+
+<p>由于多说即将停止服务，暂时将留言模块换成畅言</p>
+
+<p>对主题做如下修改</p>
+
+<h3 id="删除_configyml的下面部分">删除_config.yml的下面部分</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 用于多说评论 填入留言板地址
+realchaturl: http://blog.tmaize.net/pages/chat
+domain: http://blog.tmaize.net
+</code></pre></div></div>
+
+<h3 id="删除chathtml的下面部分">删除chat.html的下面部分</h3>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!--多说--&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"ds-thread"</span> <span class="na">data-thread-key=</span><span class="s">"1"</span> <span class="na">data-title=</span><span class="s">"修改主题的留言模块为畅言"</span> <span class="na">data-url=</span><span class="s">""</span><span class="nt">&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;</span>
+    <span class="kd">var</span> <span class="nx">duoshuoQuery</span> <span class="o">=</span> <span class="p">{</span><span class="na">short_name</span><span class="p">:</span><span class="s2">"tmaize"</span><span class="p">};</span>
+        <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">ds</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">'script'</span><span class="p">);</span>
+            <span class="nx">ds</span><span class="p">.</span><span class="nx">type</span> <span class="o">=</span> <span class="s1">'text/javascript'</span><span class="p">;</span><span class="nx">ds</span><span class="p">.</span><span class="k">async</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+            <span class="nx">ds</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">protocol</span> <span class="o">==</span> <span class="s1">'https:'</span> <span class="p">?</span> <span class="s1">'https:'</span> <span class="p">:</span> <span class="s1">'http:'</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'//static.duoshuo.com/embed.js'</span><span class="p">;</span>
+            <span class="nx">ds</span><span class="p">.</span><span class="nx">charset</span> <span class="o">=</span> <span class="s1">'UTF-8'</span><span class="p">;</span>
+            <span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">'head'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">||</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">'body'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]).</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">ds</span><span class="p">);</span>
+    <span class="p">})();</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<h3 id="在chathtml里面加上畅言的代码">在chat.html里面加上畅言的代码</h3>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!--畅言--&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"SOHUCS"</span> <span class="na">sid=</span><span class="s">"chat"</span> <span class="nt">&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;</span>
+<span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+<span class="kd">var</span> <span class="nx">appid</span> <span class="o">=</span> <span class="s1">'cysUnaz1L'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">conf</span> <span class="o">=</span> <span class="s1">'prod_734ecc17ae5199b3b74480c5414ab584'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">width</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">innerWidth</span> <span class="o">||</span> <span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">.</span><span class="nx">clientWidth</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nx">width</span> <span class="o">&lt;</span> <span class="mi">960</span><span class="p">)</span> <span class="p">{</span>
+<span class="nb">window</span><span class="p">.</span><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">'&lt;script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="http://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id='</span> <span class="o">+</span> <span class="nx">appid</span> <span class="o">+</span> <span class="s1">'&amp;conf='</span> <span class="o">+</span> <span class="nx">conf</span> <span class="o">+</span> <span class="s1">'"&gt;&lt;</span><span class="err">\</span><span class="s1">/script&gt;'</span><span class="p">);</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="kd">var</span> <span class="nx">loadJs</span><span class="o">=</span><span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">,</span><span class="nx">a</span><span class="p">){</span><span class="kd">var</span> <span class="nx">c</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"head"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">||</span><span class="nb">document</span><span class="p">.</span><span class="nx">head</span><span class="o">||</span><span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">;</span><span class="kd">var</span> <span class="nx">b</span><span class="o">=</span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span><span class="nx">b</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s2">"type"</span><span class="p">,</span><span class="s2">"text/javascript"</span><span class="p">);</span><span class="nx">b</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s2">"charset"</span><span class="p">,</span><span class="s2">"UTF-8"</span><span class="p">);</span><span class="nx">b</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s2">"src"</span><span class="p">,</span><span class="nx">d</span><span class="p">);</span><span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">a</span><span class="o">===</span><span class="s2">"function"</span><span class="p">){</span><span class="k">if</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">attachEvent</span><span class="p">){</span><span class="nx">b</span><span class="p">.</span><span class="nx">onreadystatechange</span><span class="o">=</span><span class="kd">function</span><span class="p">(){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="nx">b</span><span class="p">.</span><span class="nx">readyState</span><span class="p">;</span><span class="k">if</span><span class="p">(</span><span class="nx">e</span><span class="o">===</span><span class="s2">"loaded"</span><span class="o">||</span><span class="nx">e</span><span class="o">===</span><span class="s2">"complete"</span><span class="p">){</span><span class="nx">b</span><span class="p">.</span><span class="nx">onreadystatechange</span><span class="o">=</span><span class="kc">null</span><span class="p">;</span><span class="nx">a</span><span class="p">()}}}</span><span class="k">else</span><span class="p">{</span><span class="nx">b</span><span class="p">.</span><span class="nx">onload</span><span class="o">=</span><span class="nx">a</span><span class="p">}}</span><span class="nx">c</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">b</span><span class="p">)};</span><span class="nx">loadJs</span><span class="p">(</span><span class="s2">"http://changyan.sohu.com/upload/changyan.js"</span><span class="p">,</span><span class="kd">function</span><span class="p">(){</span><span class="nb">window</span><span class="p">.</span><span class="nx">changyan</span><span class="p">.</span><span class="nx">api</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span><span class="na">appid</span><span class="p">:</span><span class="nx">appid</span><span class="p">,</span><span class="na">conf</span><span class="p">:</span><span class="nx">conf</span><span class="p">})});</span> <span class="p">}</span> <span class="p">})();</span> <span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<h3 id="完美显示">完美显示</h3>
+
+<p><img src="02.jpg" alt="p2" /></p>
+
+<h3 id="使用体验">使用体验</h3>
+
+<p>感觉畅言加载要比多说快好多，不过功能太多，过于臃肿，而且没有游客留言功能，注册畅言的时候还要域名备案….</p>
+
+<p>先暂时使用下，能不用自己的服务器就不用O(∩_∩)O哈哈~，回头在考虑其他的替代方案</p>
+
+<p>替换的这么迅速，然而并没有人留言⊙﹏⊙b汗</p>
+
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

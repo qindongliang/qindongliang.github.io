@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Struts2学习-04 OGNL 值栈"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Struts2学习-04 OGNL 值栈-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Struts2学习-04 OGNL 值栈</h1>
+		
+		<div class="main"><h2 id="struts2标签">struts2标签</h2>
+
+<p>使用需要在jsp中引入标签库<code class="highlighter-rouge">&lt;%@ taglib uri="/struts-tags" prefix="s"%&gt;</code></p>
+
+<h2 id="ognl概述">OGNL概述</h2>
+
+<ul>
+  <li>
+    <p>类似于在jsp中的el表达式，el表达式在jsp中获取域对象里面的值。同样OGNL也是一种表达式，不过这个功能更加强大</p>
+  </li>
+  <li>
+    <p>OGNL不是Struts的一部分，它是一个单独的项目，经常和Struts的标签搭配使用操作值栈。所以使用时先要导入jar包</p>
+  </li>
+  <li>
+    <p>使用方法<code class="highlighter-rouge">&lt;s:property value="ognl表达式"/&gt;</code>,比如结合struts2标签计算字符串长度<code class="highlighter-rouge">&lt;s:property value="'haha'.length()"/&gt;</code></p>
+  </li>
+  <li>
+    <p>Struts2默认的表达式语言就是OGNL</p>
+
+    <p>支持对象方法的调用,格式objName.f()</p>
+
+    <p>支持静态方法和值的访问，格式<code class="highlighter-rouge">@[类全名(包括包路径)]@[方法名|值名]</code>，例如：<code class="highlighter-rouge">@java.lang.String@format('foo %s','bar')</code></p>
+
+    <p>支持赋值操作和表达式串联</p>
+
+    <p>访问OGNL上下文(OGNL Context)  Action Context</p>
+
+    <p>操作集合对象</p>
+  </li>
+</ul>
+
+<h3 id="和的使用">#和%的使用</h3>
+
+<p>使用#来获取context里面的数据</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HttpServletRequest request = ServletActionContext.getRequest();
+request.setAttribute("name", "haha");
+
+//页面中
+&lt;s:property value="#request.name"/&gt;
+</code></pre></div></div>
+
+<p>%的使用主要用于struts2标签中的表单标签，如果直接在struts2表单标签里面使用ognl表达式
+不识别，只有使用%号后才会识别</p>
+
+<pre><code class="language-jsp">&lt;input type="text" value="${name}"&gt;
+
+&lt;!-- 在struts2的标签中获得request域的值 --&gt;
+&lt;!-- 无法识别 --&gt;
+&lt;s:textfield name="name" value="#request.name"&gt;&lt;/s:textfield&gt;
+&lt;!-- 可以识别 --&gt;
+&lt;s:textfield name="name" value="%{#request.name}"&gt;&lt;/s:textfield&gt;
+</code></pre>
+
+<h2 id="值栈">值栈</h2>
+
+<p>struts2 里面提供本身一种存储机制，类似于域对象</p>
+
+<h3 id="概念">概念</h3>
+
+<p>以前是把数据放到域对象里面，然后再在jsp中取出。在Struts中既可以把数据放到域对象（Action）也可以放到值栈里面</p>
+
+<p>在action里面把数据放到值栈，再在页面中取出</p>
+
+<h3 id="获取值栈对象">获取值栈对象</h3>
+
+<p>位置:action每次访问都是一个新的对象，每个action对象中都存在一个值栈对象。
+因此无论在一个action获得多少次值栈对象，都是一样的</p>
+
+<p>获取值栈对象有多种方法</p>
+
+<ol>
+  <li>
+    <p>通过ActionContext</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">ActionContext</span> <span class="n">actionContext</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">();</span>
+ <span class="n">ValueStack</span> <span class="n">valueStack</span> <span class="o">=</span> <span class="n">actionContext</span><span class="o">.</span><span class="na">getValueStack</span><span class="o">();</span>
+</code></pre></div>    </div>
+    <h3 id="内部结构">内部结构</h3>
+  </li>
+</ol>
+
+<p>可以在页面中通过<code class="highlighter-rouge">&lt;s:debug&gt;&lt;/s:debug&gt;</code>来查看当前值栈的内部结构，如下图所示</p>
+
+<p>从图中可以看出在action中没有做任何操作时，栈顶元素是action的引用</p>
+
+<p><img src="01.jpg" alt="p1" /></p>
+
+<p>值栈最重要的分为两部分</p>
+
+<p><img src="02.jpg" alt="p2" /></p>
+
+<ol>
+  <li>
+    <p>第一部分root，结构是list集合，一般都是操作root里面的数据</p>
+
+    <p><code class="highlighter-rouge">class CompoundRoot extends ArrayList</code></p>
+  </li>
+  <li>
+    <p>第二部分context，结构是map集合</p>
+
+    <p><code class="highlighter-rouge">class OgnlContext extends Object implements Map</code></p>
+
+    <p><img src="03.jpg" alt="p3" /></p>
+  </li>
+</ol>
+
+<h3 id="向值栈存放数据">向值栈存放数据</h3>
+
+<p>方法有多种</p>
+
+<ol>
+  <li>
+    <p>获取值栈对象，用值栈的set方法,结果会向栈顶放入java.util.HashMap对象</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">ActionContext</span> <span class="n">actionContext</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">();</span>
+ <span class="n">ValueStack</span> <span class="n">valueStack</span> <span class="o">=</span> <span class="n">actionContext</span><span class="o">.</span><span class="na">getValueStack</span><span class="o">();</span>
+ <span class="n">valueStack</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"haha"</span><span class="o">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>获取值栈对象，用值栈的push方法,结果会向栈顶放入java.lang.String对象</p>
+
+    <p><code class="highlighter-rouge">valueStack.push("123");</code></p>
+  </li>
+  <li>
+    <p>在action定义变量，生成变量的get方法(主要使用),结果会在本action的引用中找到该值，不会向栈中新加数据</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+
+ <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+     <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="nd">@Override</span>
+ <span class="kd">public</span> <span class="n">String</span> <span class="nf">execute</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+     <span class="n">name</span> <span class="o">=</span> <span class="s">"haha"</span><span class="o">;</span>
+     <span class="k">return</span> <span class="n">Action</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">;</span>
+ <span class="o">}</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="从值栈获取数据">从值栈获取数据</h3>
+
+<ol>
+  <li>
+    <p>使用struts2的标签+ognl表达式获取值栈数据<code class="highlighter-rouge">&lt;s:property value="ognl表达式"/&gt;</code></p>
+
+    <p>获得字符串<code class="highlighter-rouge">&lt;s:property value="变量名"/&gt;</code></p>
+
+    <p>获得对象<code class="highlighter-rouge">&lt;s:property value="对象名.属性名"/&gt;</code></p>
+
+    <p>获得list集合</p>
+
+    <pre><code class="language-jsp"> &lt;!-- 方式1 --&gt;
+ `&lt;s:property value="list[0]"/&gt;`
+ `&lt;s:property value="list[0].name"/&gt;`
+
+ &lt;!-- 方式2 常用--&gt;
+ &lt;s:iterator value="list"&gt;
+     &lt;s:property value="name"/&gt;
+ &lt;/s:iterator&gt;
+    
+ &lt;!-- 方式3 和jstl很像，遍历值栈list集合，得到每个user对象，
+ 加快速度的机制，放到context里面，从context里面获得数据yao加#--&gt;
+ &lt;s:iterator value="list" var="user"&gt;
+     &lt;s:property value="#user.name"/&gt;
+ &lt;/s:iterator&gt;
+</code></pre>
+
+    <ol>
+      <li>
+        <p>获得set方法放入的值<code class="highlighter-rouge">&lt;s:property value="mapkey"/&gt;</code></p>
+      </li>
+      <li>
+        <p>获得push方法放入的值</p>
+
+        <p>这个比较复杂，因为它没有key，
+ 如果在action最后做操作<code class="highlighter-rouge">valueStack.push("1");valueStack.push("2");</code>，
+ 那么栈顶是2，1,可以通过从栈的指定位置读出来</p>
+
+        <pre><code class="language-jsp"> &lt;s:property value="[0].top"/&gt;
+ &lt;s:property value="[1].top"/&gt;
+</code></pre>
+      </li>
+      <li>
+        <p>使用jstl+el表达式获取值栈中的数据</p>
+
+        <pre><code class="language-jsp"> &lt;%@ page language="java" %&gt;
+ &lt;%@ page contentType="text/html; charset=UTF-8" %&gt;
+ &lt;%@ page pageEncoding="UTF-8"%&gt;
+ &lt;%@ taglib uri="/struts-tags" prefix="s"%&gt;
+ &lt;%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%&gt;
+ &lt;!DOCTYPE html&gt;
+ &lt;html&gt;
+     &lt;head&gt;
+         &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+         &lt;title&gt;Test&lt;/title&gt;
+     &lt;/head&gt;
+     &lt;body&gt;
+         &lt;s:debug&gt;&lt;/s:debug&gt;
+         &lt;!-- 使用struts2标签+ognl--&gt;
+         &lt;s:iterator value="list" var="value"&gt;
+             &lt;s:property value="#value"/&gt;
+         &lt;/s:iterator&gt;
+         &lt;!-- 使用jstl+el表达式--&gt;&lt;br/&gt;
+         &lt;c:forEach items="${list}" var="v"&gt;
+             ${v}
+         &lt;/c:forEach&gt;
+     &lt;/body&gt;
+ &lt;/html&gt;
+</code></pre>
+
+        <p>为什么el表达式能够获得数据</p>
+
+        <p>原因是struts2从底层增强request对象里面的方法getAttribute，
+ 首先从request域获取值，如果获取到直接返回，获取不到则到值栈中把值获取出来，把值放到域对象里</p>
+
+        <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getAttribute</span><span class="o">(</span><span class="n">String</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+     <span class="k">if</span> <span class="o">(</span><span class="n">key</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+         <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">(</span><span class="s">"You must specify a key value"</span><span class="o">);</span>
+     <span class="o">}</span>
+
+     <span class="k">if</span> <span class="o">(</span><span class="n">disableRequestAttributeValueStackLookup</span> <span class="o">||</span> <span class="n">key</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"javax.servlet"</span><span class="o">))</span> <span class="o">{</span>
+         <span class="c1">// don't bother with the standard javax.servlet attributes, we can short-circuit this</span>
+         <span class="c1">// see WW-953 and the forums post linked in that issue for more info</span>
+         <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+     <span class="o">}</span>
+
+     <span class="n">ActionContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">ActionContext</span><span class="o">.</span><span class="na">getContext</span><span class="o">();</span>
+     <span class="n">Object</span> <span class="n">attribute</span> <span class="o">=</span> <span class="kd">super</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+
+     <span class="k">if</span> <span class="o">(</span><span class="n">ctx</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">attribute</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+         <span class="kt">boolean</span> <span class="n">alreadyIn</span> <span class="o">=</span> <span class="n">isTrue</span><span class="o">((</span><span class="n">Boolean</span><span class="o">)</span> <span class="n">ctx</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">REQUEST_WRAPPER_GET_ATTRIBUTE</span><span class="o">));</span>
+
+         <span class="c1">// note: we don't let # come through or else a request for</span>
+         <span class="c1">// #attr.foo or #request.foo could cause an endless loop</span>
+         <span class="k">if</span> <span class="o">(!</span><span class="n">alreadyIn</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">key</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"#"</span><span class="o">))</span> <span class="o">{</span>
+             <span class="k">try</span> <span class="o">{</span>
+                 <span class="c1">// If not found, then try the ValueStack</span>
+                 <span class="n">ctx</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">REQUEST_WRAPPER_GET_ATTRIBUTE</span><span class="o">,</span> <span class="n">Boolean</span><span class="o">.</span><span class="na">TRUE</span><span class="o">);</span>
+                 <span class="n">ValueStack</span> <span class="n">stack</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getValueStack</span><span class="o">();</span>
+                 <span class="k">if</span> <span class="o">(</span><span class="n">stack</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                     <span class="n">attribute</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+                 <span class="o">}</span>
+             <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                 <span class="n">ctx</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">REQUEST_WRAPPER_GET_ATTRIBUTE</span><span class="o">,</span> <span class="n">Boolean</span><span class="o">.</span><span class="na">FALSE</span><span class="o">);</span>
+             <span class="o">}</span>
+         <span class="o">}</span>
+     <span class="o">}</span>
+     <span class="k">return</span> <span class="n">attribute</span><span class="o">;</span>
+ <span class="o">}</span>
+</code></pre></div>        </div>
+      </li>
+    </ol>
+  </li>
+</ol>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

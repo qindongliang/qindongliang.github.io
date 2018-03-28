@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,javascript"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="正确引入Layui模块"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>正确引入Layui模块-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">正确引入Layui模块</h1>
+		
+		<div class="main"><blockquote>
+  <p><a href="http://www.layui.com/doc/base/infrastructure.html">Layui</a> 出蛋于2016年金秋，是一款带着浓烈情怀的国产前端UI框架，她追求极简，又不失丰盈的内在，说她是史上最轻量的结晶，似乎并不为过。一切都源自于她对原生态的执着，对前端社区的那些噪杂声音的过滤，以及她本身的精心雕琢</p>
+</blockquote>
+
+<h2 id="引入所有">引入所有</h2>
+
+<p>浏览器在加载的时候会加载一个较大的layui.all.js文件</p>
+
+<p>然后会把每个模块暴露出去，直接用就可以了</p>
+
+<p>但你必须知道，这种使用方式，意味着Layui的模块化已经失去了它的意义。但不可否认，它比什么都来的简单。</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">link</span> <span class="nx">rel</span><span class="o">=</span><span class="s2">"stylesheet"</span> <span class="nx">href</span><span class="o">=</span><span class="s2">"static/layui/css/layui.css"</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">"static/layui/lay/dest/layui.all.js"</span><span class="o">&gt;&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+    <span class="c1">//获得模块的引用</span>
+    <span class="kd">var</span> <span class="nx">layer</span> <span class="o">=</span> <span class="nx">layui</span><span class="p">.</span><span class="nx">layer</span><span class="p">;</span>
+    <span class="nx">layer</span><span class="p">.</span><span class="nx">msg</span><span class="p">(</span><span class="s2">"Hello World"</span><span class="p">);</span>
+
+    <span class="c1">//直接用</span>
+    <span class="nx">layer</span><span class="p">.</span><span class="nx">msg</span><span class="p">(</span><span class="s2">"666"</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="sr">/script&gt;</span><span class="err"> 
+</span></code></pre></div></div>
+
+<h2 id="通过layuiuse加载模块">通过layui.use加载模块</h2>
+
+<p>通过这种方式引入模块最大的好处是，在需要的时候才被加载需要模块，能够提高网页的记载速度</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">layui</span><span class="p">.</span><span class="nx">use</span><span class="p">([</span><span class="s1">'模块名'</span><span class="p">,</span><span class="s1">'模块名'</span><span class="p">],</span> <span class="kd">function</span><span class="p">(){</span>
+    <span class="c1">//加载完成的回调函数</span>
+    <span class="c1">//推荐方法写在这里面，因为不知道什么时候加载完毕</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">link</span> <span class="nx">rel</span><span class="o">=</span><span class="s2">"stylesheet"</span> <span class="nx">href</span><span class="o">=</span><span class="s2">"static/layui/css/layui.css"</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">"static/layui/layui.js"</span><span class="o">&gt;&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="nx">layui</span><span class="p">);</span><span class="c1">//一个对象，里面什么都没有</span>
+
+<span class="nx">layui</span><span class="p">.</span><span class="nx">use</span><span class="p">([</span><span class="s1">'layer'</span><span class="p">],</span> <span class="kd">function</span><span class="p">(){</span>
+    
+    <span class="c1">//加载结束后会把模块名曝露在layui上，可以直接使用layui.xx调用</span>
+    <span class="kd">var</span> <span class="nx">layer</span> <span class="o">=</span> <span class="nx">layui</span><span class="p">.</span><span class="nx">layer</span><span class="p">;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="k">this</span><span class="p">);</span><span class="c1">//等价于layui</span>
+   
+<span class="p">});</span>
+<span class="o">&lt;</span><span class="sr">/script&gt;</span><span class="err"> 
+</span></code></pre></div></div>
+
+<h2 id="自定义模块引入">自定义模块引入</h2>
+
+<p>定义</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//layui模块的定义</span>
+<span class="nx">layui</span><span class="p">.</span><span class="nx">define</span><span class="p">([</span><span class="nx">mods</span><span class="p">],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">){</span>
+    <span class="c1">//mods，你的模块依赖的模块，先加载它们</span>
+    <span class="c1">//自定义的api</span>
+    <span class="kd">var</span> <span class="nx">api</span><span class="o">=</span><span class="p">{};</span>
+    <span class="nx">exports</span><span class="p">(</span><span class="s1">'mod'</span><span class="p">,</span> <span class="nx">api</span><span class="p">);</span><span class="c1">//把mod绑定到layui对象上，注意mod的名字必须喝use的时候一样</span>
+<span class="p">});</span>  
+</code></pre></div></div>
+
+<p>使用方法如下</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">link</span> <span class="nx">rel</span><span class="o">=</span><span class="s2">"stylesheet"</span> <span class="nx">href</span><span class="o">=</span><span class="s2">"static/layui/css/layui.css"</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">"static/layui/layui.js"</span><span class="o">&gt;&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="c1">//指定引入某个目录下的模块</span>
+<span class="nx">layui</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="na">base</span><span class="p">:</span> <span class="s1">'static/modules/'</span> <span class="c1">//你的模块目录</span>
+<span class="p">}).</span><span class="nx">use</span><span class="p">(</span><span class="s1">'mymod'</span><span class="p">);</span> <span class="c1">//加载入口</span>
+
+<span class="c1">//或者先声明模块目录</span>
+<span class="nx">layui</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="na">base</span><span class="p">:</span> <span class="s1">'static/modules/'</span> <span class="c1">//你的模块目录</span>
+<span class="p">});</span>
+
+<span class="c1">//然后再使用，先根据名字判断是否是layui内置的模块，然后引入声明的模块目录下的mymod.js文件</span>
+<span class="nx">layui</span><span class="p">.</span><span class="nx">use</span><span class="p">([</span><span class="s1">'mymod'</span><span class="p">],</span> <span class="kd">function</span><span class="p">(){</span>
+    <span class="c1">//...</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>效果如下</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">t</span> <span class="p">{</span>
+    <span class="nl">mymod</span><span class="p">:</span><span class="nb">Object</span><span class="p">,</span>
+    <span class="nx">v</span><span class="p">:</span><span class="s2">"1.0.9_rls"</span><span class="p">,</span>
+    <span class="nx">__proto__</span><span class="p">:</span><span class="nb">Object</span>
+<span class="p">}</span>
+
+<span class="nx">layui</span><span class="p">.</span><span class="nx">mymod</span><span class="p">.</span><span class="nx">say</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>推荐将自己的js方法以layui模块的方式书写，这样就可以通过user的方式来在需要的时候加载，加快页面的载入速度</p>
+
+<h2 id="最佳实践">最佳实践</h2>
+
+<p>页面</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;head&gt;
+    &lt;link rel="stylesheet" href="/layui/css/layui.css"&gt;
+    &lt;link rel="stylesheet" href="app.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    ...
+    &lt;script type="text/javascript" src="layui/layui.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div></div>
+
+<p>app.js文件</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">layui</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="na">base</span><span class="p">:</span> <span class="s1">'modules/'</span>
+<span class="p">});</span>
+
+<span class="nx">layui</span><span class="p">.</span><span class="nx">use</span><span class="p">([</span><span class="s1">'layer'</span><span class="p">,</span> <span class="s1">'form'</span><span class="p">,</span> <span class="s1">'jquery'</span><span class="p">,</span><span class="s1">'mymodel'</span><span class="p">],</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="nx">layui</span><span class="p">.</span><span class="nx">mymodel</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">$</span> <span class="o">=</span> <span class="nx">layui</span><span class="p">.</span><span class="nx">jquery</span><span class="p">;</span>
+    
+<span class="p">});</span>
+</code></pre></div></div>
+
+<h2 id="独立组件">独立组件</h2>
+
+<p>layui的某些模块是可以作为独立组件的，用的时候直接引用即可</p>
+
+<blockquote>
+  <p>如果你不想使用Layui，而只是想使用layer，你可以去layer独立组件官网下载组件包。你需要在你的页面引入jQuery1.8以上的任意版本，并引入layer.js。</p>
+</blockquote>
+
+<p>不过支持独立使用的好像只有layer这个模块</p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

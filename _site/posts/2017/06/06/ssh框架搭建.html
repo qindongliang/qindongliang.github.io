@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="SSH框架搭建"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>SSH框架搭建-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">SSH框架搭建</h1>
+		
+		<div class="main"><h2 id="思路">思路</h2>
+
+<p>具体项目中一般是web调用services，services调用dao</p>
+
+<p>在web层采用struts2，在services层采用Spring，在DAO层采用hibernate</p>
+
+<p>因此整合分为两个步骤</p>
+
+<ol>
+  <li>
+    <p>Spring和struts2整合</p>
+
+    <p>把Action创建交给SpringIOC 并且不能是单例模式</p>
+  </li>
+</ol>
+
+<ul>
+  <li>
+    <p>Spring和Hibernate整合</p>
+
+    <p>spring配置数据源</p>
+
+    <p>spring生成sessionFactory，把数据源注入到sessionFactory，同时指定hibernate核心配置文件位置</p>
+  </li>
+</ul>
+
+<h2 id="spring和struts2整合">Spring和struts2整合</h2>
+
+<h3 id="导入相关jar包">导入相关jar包</h3>
+
+<p><img src="01.jpg" alt="01" /></p>
+
+<h3 id="配置spring随启动加载">配置Spring随启动加载</h3>
+
+<ul>
+  <li>创建spring.xml</li>
+</ul>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">"http://www.springframework.org/schema/beans"</span>
+       <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+       <span class="na">xmlns:aop=</span><span class="s">"http://www.springframework.org/schema/aop"</span>
+       <span class="na">xmlns:tx=</span><span class="s">"http://www.springframework.org/schema/tx"</span>
+       <span class="na">xmlns:context=</span><span class="s">"http://www.springframework.org/schema/context"</span>
+       <span class="na">xmlns:mvc=</span><span class="s">"http://www.springframework.org/schema/mvc"</span>
+       <span class="na">xmlns:task=</span><span class="s">"http://www.springframework.org/schema/task"</span>
+       <span class="na">xsi:schemaLocation=</span><span class="s">"
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task.xsd"</span><span class="nt">&gt;</span>
+        
+<span class="nt">&lt;/beans&gt;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>在web.xml配置启动时加载配置</li>
+</ul>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;context-param&gt;</span>
+	<span class="nt">&lt;param-name&gt;</span>contextConfigLocation<span class="nt">&lt;/param-name&gt;</span>
+	<span class="nt">&lt;param-value&gt;</span>classpath:spring.xml<span class="nt">&lt;/param-value&gt;</span>
+<span class="nt">&lt;/context-param&gt;</span>
+
+<span class="nt">&lt;listener&gt;</span>
+	<span class="nt">&lt;listener-class&gt;</span>org.springframework.web.context.ContextLoaderListener<span class="nt">&lt;/listener-class&gt;</span>
+<span class="nt">&lt;/listener&gt;</span>
+</code></pre></div></div>
+
+<h3 id="搭建struts环境">搭建Struts环境</h3>
+
+<ul>
+  <li>
+    <p>创建Action测试类</p>
+  </li>
+  <li>
+    <p>创建struts配置文件</p>
+  </li>
+  <li>
+    <p>在web.xml设置struts过滤器</p>
+  </li>
+</ul>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;filter&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>struts2<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;filter-class&gt;</span>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter<span class="nt">&lt;/filter-class&gt;</span>
+<span class="nt">&lt;/filter&gt;</span>
+
+<span class="nt">&lt;filter-mapping&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>struts2<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+<span class="nt">&lt;/filter-mapping&gt;</span>
+</code></pre></div></div>
+
+<h3 id="整合">整合</h3>
+
+<ul>
+  <li>用IOC的方式生成Action</li>
+</ul>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- 用Spring生成action对象，注意不要是默认的单例 --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"userAction"</span> <span class="na">class=</span><span class="s">"action.UserAction"</span> <span class="na">scope=</span><span class="s">"prototype"</span><span class="nt">&gt;&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>在struts中使用生成的Action对象</li>
+</ul>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;package</span> <span class="na">name=</span><span class="s">"demo"</span> <span class="na">extends=</span><span class="s">"struts-default"</span> <span class="na">namespace=</span><span class="s">"/"</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- 注意在class能不能写类路径，这样会创建两次，应为spring已经创建好了，写在Spring中创建的对象id名 --&gt;</span>
+    <span class="c">&lt;!-- 在struts2-spring-plugin中提供了这个功能 --&gt;</span>
+    <span class="nt">&lt;action</span> <span class="na">name=</span><span class="s">"userAction"</span> <span class="na">class=</span><span class="s">"userAction"</span><span class="nt">&gt;&lt;/action&gt;</span>
+<span class="nt">&lt;/package&gt;</span>
+</code></pre></div></div>
+
+<h2 id="spring和hibernate整合">Spring和Hibernate整合</h2>
+
+<h3 id="导入相关jar包-1">导入相关jar包</h3>
+
+<p>除了hibernate的基本jar包外，还需要数据库连接池（非必须）及spring-orm.jar的配合</p>
+
+<p><img src="02.jpg" alt="02" /></p>
+
+<h3 id="在spring配置中配置连接池">在Spring配置中配置连接池</h3>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"dataSource"</span> <span class="na">class=</span><span class="s">"com.mchange.v2.c3p0.ComboPooledDataSource"</span> <span class="na">destroy-method=</span><span class="s">"close"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"driverClass"</span> <span class="na">value=</span><span class="s">"com.mysql.jdbc.Driver"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"jdbcUrl"</span> <span class="na">value=</span><span class="s">"jdbc:mysql://127.0.0.1:3306/tian?characterEncoding=utf-8"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"user"</span> <span class="na">value=</span><span class="s">"root"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"password"</span> <span class="na">value=</span><span class="s">"********"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<h3 id="生成sessionfactory对象">生成sessionFactory对象</h3>
+
+<ol>
+  <li>
+    <p>服务器启动时加载spring配置文件(之间做好了)，再在Spring中配置加载hibernate配置</p>
+  </li>
+  <li>
+    <p>在spring配置文件中生成sessionFactory对象（单例）</p>
+  </li>
+</ol>
+
+<p>由于sessionFactory并不是直接new出来的而是多行代码实现的，所以不能直接用ioc创建</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">configuration</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">().</span><span class="na">configure</span><span class="o">();</span>
+<span class="n">sessionFactory</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="na">buildSessionFactory</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>好在Spring提供了一个对象来生成sessionFactory。当引用这个LocalSessionFactoryBean 的时候，比如<code class="highlighter-rouge">applicationContext.getBean("localSessionFactoryBean")</code>这样，spring返回的不是LocalSessionFactoryBean 本身，他会自动调用getObject()这个方法，把真正的session factory返回。所以只需要做如下配置</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"sessionFactory"</span>  <span class="na">class=</span><span class="s">"org.springframework.orm.hibernate4.LocalSessionFactoryBean"</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- 注入数据源 --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"dataSource"</span> <span class="na">ref=</span><span class="s">"dataSource"</span><span class="nt">&gt;&lt;/property&gt;</span>
+    <span class="c">&lt;!-- 指定hibernate核心配置文件 --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"configLocations"</span> <span class="na">value=</span><span class="s">"classpath:hibernate.cfg.xml"</span><span class="nt">&gt;&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<h3 id="配置hibernate">配置hibernate</h3>
+
+<ol>
+  <li>
+    <p>建立实体类</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+
+     <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
+     <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+     <span class="kd">private</span> <span class="n">String</span> <span class="n">birthday</span><span class="o">;</span>
+     <span class="kd">private</span> <span class="kt">int</span> <span class="n">score</span><span class="o">;</span>
+     <span class="c1">//getter/setter方法</span>
+ <span class="o">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>为实体类建立hibernate配置文件</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+ <span class="cp">&lt;!DOCTYPE hibernate-mapping PUBLIC 
+     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"&gt;</span>
+
+ <span class="nt">&lt;hibernate-mapping&gt;</span>
+     <span class="c">&lt;!-- 配置类和表对应 --&gt;</span>
+     <span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">"entity.User"</span> <span class="na">table=</span><span class="s">"user"</span><span class="nt">&gt;</span>
+         <span class="c">&lt;!-- 配置主键 --&gt;</span>
+         <span class="nt">&lt;id</span> <span class="na">name=</span><span class="s">"id"</span> <span class="na">column=</span><span class="s">"id"</span><span class="nt">&gt;</span>
+             <span class="c">&lt;!-- 设置数据库表主键增长策略 --&gt;</span>
+             <span class="nt">&lt;generator</span> <span class="na">class=</span><span class="s">"native"</span><span class="nt">&gt;&lt;/generator&gt;</span>
+         <span class="nt">&lt;/id&gt;</span>
+         <span class="c">&lt;!-- 配置其他属性和表字段对应 --&gt;</span>
+         <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"name"</span> <span class="na">column=</span><span class="s">"name"</span><span class="nt">&gt;&lt;/property&gt;</span>
+         <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"birthday"</span> <span class="na">column=</span><span class="s">"birthday"</span><span class="nt">&gt;&lt;/property&gt;</span>
+         <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"score"</span> <span class="na">column=</span><span class="s">"score"</span><span class="nt">&gt;&lt;/property&gt;</span>
+     <span class="nt">&lt;/class&gt;</span>
+ <span class="nt">&lt;/hibernate-mapping&gt;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>创建hibernate核心配置文件</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+ <span class="cp">&lt;!DOCTYPE hibernate-configuration PUBLIC
+     "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+     "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd"&gt;</span>
+ <span class="nt">&lt;hibernate-configuration&gt;</span>
+     <span class="nt">&lt;session-factory&gt;</span>
+         <span class="c">&lt;!-- spring里配置数据库信息 --&gt;</span>
+            
+         <span class="c">&lt;!-- 显示生成的sql语句 ，并格式化--&gt;</span>
+         <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.show_sql"</span><span class="nt">&gt;</span>true<span class="nt">&lt;/property&gt;</span>
+         <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.format_sql"</span><span class="nt">&gt;</span>true<span class="nt">&lt;/property&gt;</span>
+            
+         <span class="c">&lt;!-- 配置自动创建表 --&gt;</span>
+         <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.hbm2ddl.auto"</span><span class="nt">&gt;</span>update<span class="nt">&lt;/property&gt;</span>
+            
+         <span class="c">&lt;!-- 配置所使用的数据库的方言 --&gt;</span>
+         <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.dialect"</span><span class="nt">&gt;</span>org.hibernate.dialect.MySQL5InnoDBDialect<span class="nt">&lt;/property&gt;</span>
+            
+         <span class="c">&lt;!-- 3.配置映射文件--&gt;</span>
+         <span class="nt">&lt;mapping</span> <span class="na">resource=</span><span class="s">"entity/User.hbm.xml"</span><span class="nt">/&gt;</span>
+            
+     <span class="nt">&lt;/session-factory&gt;</span>
+ <span class="nt">&lt;/hibernate-configuration&gt;</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="dao和service的注入">dao和service的注入</h3>
+
+<p>Action注入Service，Service注入Dao(Impl)，DaoImp注入sessionFactory</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- 用Spring生成action对象，注意不要是默认的单例 --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"userAction"</span> <span class="na">class=</span><span class="s">"action.UserAction"</span> <span class="na">scope=</span><span class="s">"prototype"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"userService"</span> <span class="na">ref=</span><span class="s">"userService"</span><span class="nt">&gt;&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"userService"</span> <span class="na">class=</span><span class="s">"service.UserService"</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- 在代码中是接口，注入的是实现类 --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"userDao"</span> <span class="na">ref=</span><span class="s">"userDaoImpl"</span><span class="nt">&gt;&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"userDaoImpl"</span> <span class="na">class=</span><span class="s">"dao.UserDaoImpl"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"sessionFactory"</span> <span class="na">ref=</span><span class="s">"sessionFactory"</span><span class="nt">&gt;&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<h2 id="测试">测试</h2>
+
+<p>userAction中的代码</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">execute</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+    <span class="n">userService</span><span class="o">.</span><span class="na">addUser</span><span class="o">(</span><span class="s">"name123"</span><span class="o">,</span> <span class="s">"1996-05-05"</span><span class="o">,</span> <span class="mi">99</span><span class="o">);</span>
+    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>userService代码</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">addUser</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span><span class="n">String</span> <span class="n">brithday</span><span class="o">,</span><span class="kt">int</span> <span class="n">score</span><span class="o">){</span>
+    <span class="n">userDao</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">name</span><span class="o">,</span><span class="n">brithday</span><span class="o">,</span><span class="n">score</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>userDaoImpl代码</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">brithday</span><span class="o">,</span> <span class="kt">int</span> <span class="n">score</span><span class="o">)</span> <span class="o">{</span>
+	<span class="n">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="n">sessionFactory</span><span class="o">.</span><span class="na">openSession</span><span class="o">();</span>
+	<span class="n">User</span> <span class="n">u</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">();</span>
+	<span class="n">u</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+	<span class="n">u</span><span class="o">.</span><span class="na">setBirthday</span><span class="o">(</span><span class="n">brithday</span><span class="o">);</span>
+	<span class="n">u</span><span class="o">.</span><span class="na">setScore</span><span class="o">(</span><span class="n">score</span><span class="o">);</span>
+	<span class="n">session</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+	<span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>通过url访问action,查看数据库是否添加了数据</p>
+
+<p><img src="03.jpg" alt="03" /></p>
+
+<h2 id="开启事务">开启事务</h2>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- 创建事务管理器 --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"transactionManager"</span> <span class="na">class=</span><span class="s">"org.springframework.orm.hibernate4.HibernateTransactionManager"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"sessionFactory"</span> <span class="na">ref=</span><span class="s">"sessionFactory"</span><span class="nt">&gt;&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="c">&lt;!-- 开启事务注解 --&gt;</span>
+<span class="nt">&lt;tx:annotation-driven</span> <span class="na">transaction-manager=</span><span class="s">"transactionManager"</span><span class="nt">/&gt;</span>
+</code></pre></div></div>
+
+<p>在UserService中添加注解</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Transactional</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserService</span> <span class="o">{</span>
+    <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="使用hibernatetemplate">使用HibernateTemplate</h2>
+
+<p>生成HibernateTemplate，并在userDaoImpl中注入HibernateTemplate</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"userDaoImpl"</span> <span class="na">class=</span><span class="s">"dao.UserDaoImpl"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernateTemplate"</span> <span class="na">ref=</span><span class="s">"hibernateTemplate"</span><span class="nt">&gt;&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"hibernateTemplate"</span> <span class="na">class=</span><span class="s">"org.springframework.orm.hibernate4.HibernateTemplate"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"sessionFactory"</span> <span class="na">ref=</span><span class="s">"sessionFactory"</span><span class="nt">&gt;&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<p>在UserDaoImpl.java里使用HibernateTemplate</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDaoImpl</span> <span class="kd">implements</span> <span class="n">UserDao</span> <span class="o">{</span>
+
+	<span class="kd">private</span> <span class="n">HibernateTemplate</span> <span class="n">hibernateTemplate</span><span class="o">;</span>
+
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setHibernateTemplate</span><span class="o">(</span><span class="n">HibernateTemplate</span> <span class="n">hibernateTemplate</span><span class="o">)</span> <span class="o">{</span>
+		<span class="k">this</span><span class="o">.</span><span class="na">hibernateTemplate</span> <span class="o">=</span> <span class="n">hibernateTemplate</span><span class="o">;</span>
+	<span class="o">}</span>
+
+	<span class="nd">@Override</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">brithday</span><span class="o">,</span> <span class="kt">int</span> <span class="n">score</span><span class="o">)</span> <span class="o">{</span>
+		<span class="n">User</span> <span class="n">u</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">();</span>
+		<span class="n">u</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+		<span class="n">u</span><span class="o">.</span><span class="na">setBirthday</span><span class="o">(</span><span class="n">brithday</span><span class="o">);</span>
+		<span class="n">u</span><span class="o">.</span><span class="na">setScore</span><span class="o">(</span><span class="n">score</span><span class="o">);</span>
+		<span class="n">hibernateTemplate</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="错误解决">错误解决</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HTTP Status 500 - Could not open Hibernate Session for transaction; nested exception is java.lang.NoClassDefFoundError: org/hibernate/engine/transaction/spi/TransactionContext
+</code></pre></div></div>
+
+<p>原因是配置文件中用的是hibernate4,而导入的包是5.x的</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- 创建事务管理器 --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"transactionManager"</span> <span class="na">class=</span><span class="s">"org.springframework.orm.hibernate4.HibernateTransactionManager"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"sessionFactory"</span> <span class="na">ref=</span><span class="s">"sessionFactory"</span><span class="nt">&gt;&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<p>解决方法1：将hibernate-core-5.1.39.Final.jar换成hibernate-core-4.2.4.Final.jar</p>
+
+<p>解决方法2：使用高版本的spring会支持org.springframework.orm.hibernate5.HibernateTransactionManager</p>
+
+<p>这里使用的是方法1</p>
+
+<h2 id="另一种整合方式">另一种整合方式</h2>
+
+<p>还有一种整合方式是把hibernate核心配置全部都放到spring中,不需要再建立hibernate核心配置文件了</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">"sessionFactory"</span>  <span class="na">class=</span><span class="s">"org.springframework.orm.hibernate4.LocalSessionFactoryBean"</span><span class="nt">&gt;</span>
+	<span class="c">&lt;!-- 注入数据源 --&gt;</span>
+	<span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"dataSource"</span> <span class="na">ref=</span><span class="s">"dataSource"</span><span class="nt">&gt;&lt;/property&gt;</span>
+	
+	<span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernateProperties"</span><span class="nt">&gt;</span>
+		<span class="nt">&lt;props&gt;</span>
+			<span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">"hibernate.show_sql"</span><span class="nt">&gt;</span>true<span class="nt">&lt;/prop&gt;</span>
+			<span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">"hibernate.format_sql"</span><span class="nt">&gt;</span>true<span class="nt">&lt;/prop&gt;</span>
+			<span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">"hibernate.hbm2ddl.auto"</span><span class="nt">&gt;</span>update<span class="nt">&lt;/prop&gt;</span>
+			<span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">"hibernate.dialect"</span><span class="nt">&gt;</span>org.hibernate.dialect.MySQL5InnoDBDialect<span class="nt">&lt;/prop&gt;</span>
+		<span class="nt">&lt;/props&gt;</span>
+	<span class="nt">&lt;/property&gt;</span>
+	<span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"mappingResources"</span><span class="nt">&gt;</span>
+		<span class="nt">&lt;list&gt;</span>
+			<span class="nt">&lt;value&gt;</span>entity/User.hbm.xml<span class="nt">&lt;/value&gt;</span>
+		<span class="nt">&lt;/list&gt;</span>
+	<span class="nt">&lt;/property&gt;</span>
+<span class="err">&lt;</span>/bean
+</code></pre></div></div>
+
+<h2 id="注解方式搭建">注解方式搭建</h2>
+
+<p>引入struts2-convention依赖，让struts配置文件中取消对Action的配置</p>
+
+<p>Spring 自动扫包</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;context:component-scan base-package="dao.daoImpl" /&gt;
+</code></pre></div></div>
+
+<p>daoImpl添加注解标签</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import dao.UserDao;
+
+@Component(value="UserDaoImpl")
+@Scope(value="singleton")
+public class UserDaoImpl implements UserDao{
+	@Override
+	public void sayHello() {
+		System.out.println("Hello");
+	}
+}
+</code></pre></div></div>
+
+<p>在Action里装配dao</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import javax.annotation.Resource;
+import org.apache.struts2.convention.annotation.Action;
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.Results;
+import com.opensymphony.xwork2.ActionSupport;
+import dao.UserDao;
+
+@Results({
+	@Result(name="ok",location="/test.jsp"),  
+	@Result(name="failure",location="/failure.jsp")})
+@Action(value="test")
+public class UserAction extends ActionSupport{
+	
+	private static final long serialVersionUID = 1L;
+	
+	@Resource(name="UserDaoImpl")
+	UserDao userDao;
+	
+	@Override
+	public String execute() throws Exception {
+		userDao.sayHello();
+		return "ok";
+	}
+}
+</code></pre></div></div>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

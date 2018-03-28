@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,linux"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="CentOS下搭建Aria2"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>CentOS下搭建Aria2-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">CentOS下搭建Aria2</h1>
+		
+		<div class="main"><p>适用于CentOS 6.3 32位，64位替换下rpm就可以了</p>
+
+<p>在网上找了些教程，但是CentOS的第三方软件源RepoForge已经无法访问的</p>
+
+<p>替换为<a href="http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/i386/rpmforge/RPMS/">http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/i386/rpmforge/RPMS/</a>就可以了</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/i386/rpmforge/RPMS/aria2-1.16.4-1.el6.rf.i686.rpm
+
+http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/i386/rpmforge/RPMS/nettle-2.2-1.el6.rf.i686.rpm
+
+http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/i386/rpmforge/RPMS/nettle-devel-2.2-1.el6.rf.i686.rpm
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rpm -ivh aria2-1.16.4-1.el6.rf.i686.rpm
+</code></pre></div></div>
+
+<p>在安装过程有可能会出现缺少 libnettle.so.4 的错误提示，先安装nettle 即可</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rpm -ivh aria2-1.16.4-1.el6.rf.i686.rpm
+rpm -ivh nettle-2.2-1.el6.rf.i686.rpm
+rpm -ivh nettle-devel-2.2-1.el6.rf.i686.rpm
+</code></pre></div></div>
+
+<h2 id="测试">测试</h2>
+
+<p>以 机器之血.Bleeding.Steelv.2017.1080p.WEB-DL.X264.AAC-国语中字-RARBT的种子为例,2GB的电影在VPS里面差不多两分钟就下载好了</p>
+
+<p>最大化的利用VPS的高速宽带，把电影放在http服务的目录下直接观看还是挺方便的</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>aria2c http://111.73.45.199:8090/b1/%E6%9C%BA%E5%99%A8%E4%B9%8B%E8%A1%80.Bleeding.Steelv.2017.1080p.WEB-DL.X264.AAC-%E5%9B%BD%E8%AF%AD%E4%B8%AD%E5%AD%97-RARBT.torrent
+</code></pre></div></div>
+
+<h2 id="webui">WebUI</h2>
+
+<p>使用 AriaNg，纯html/js/css 通过ajax调用aria2的rpc接口来下载文件</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://ariang.mayswind.net/zh_Hans/
+</code></pre></div></div>
+
+<p>启动 aria2c</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>aria2c --enable-rpc --rpc-listen-all=true  --disable-ipv6=true --rpc-allow-origin-all
+</code></pre></div></div>
+
+<p>设置AriaNg</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://域名:6800/jsonrpc
+
+http连接，密码不填写，会提示连接成功
+</code></pre></div></div>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

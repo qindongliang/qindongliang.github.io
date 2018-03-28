@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Java微信开发基本配置"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Java微信开发基本配置-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Java微信开发基本配置</h1>
+		
+		<div class="main"><h2 id="填写服务器配置验证服务器地址的有效性">填写服务器配置,验证服务器地址的有效性</h2>
+
+<p>开发者提交信息后，微信服务器将发送GET请求到填写的服务器地址URL上,注意只有检验服务器的是Get请求，其他的消息都是Post请求</p>
+
+<p>开发者通过检验signature对请求进行校验（下面有校验方式）。若确认此次GET请求来自微信服务器，请原样返回echostr参数内容，则接入生效，成为开发者成功，否则接入失败。加密/校验流程如下：</p>
+
+<ol>
+  <li>
+    <p>将token、timestamp、nonce三个参数进行字典序排序</p>
+  </li>
+  <li>
+    <p>将三个参数字符串拼接成一个字符串进行sha1加密</p>
+  </li>
+  <li>
+    <p>开发者获得加密后的字符串可与signature对比，标识该请求来源于微信</p>
+  </li>
+</ol>
+
+<p>在绑定的url上转发消息</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="kd">extends</span> <span class="n">HttpServlet</span><span class="o">{</span>
+
+	<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+	
+	<span class="c1">//转发服务器验证信息</span>
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doGet</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+			<span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+		<span class="n">RequestDispatcher</span> <span class="n">requestDispatcher</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getServletContext</span><span class="o">().</span><span class="na">getRequestDispatcher</span><span class="o">(</span><span class="s">"/verify"</span><span class="o">);</span>
+		<span class="n">requestDispatcher</span><span class="o">.</span><span class="na">forward</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+	<span class="o">}</span>
+	
+	<span class="c1">//转发交互信息</span>
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doPost</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+			<span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+		<span class="n">RequestDispatcher</span> <span class="n">requestDispatcher</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getServletContext</span><span class="o">().</span><span class="na">getRequestDispatcher</span><span class="o">(</span><span class="s">"/message"</span><span class="o">);</span>
+		<span class="n">requestDispatcher</span><span class="o">.</span><span class="na">forward</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);;</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>验证服务器地址的有效性</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//微信公众号的验证</span>
+<span class="c1">//只有这个是get方式，其他的都是post方式</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">VerifyServlet</span> <span class="kd">extends</span> <span class="n">HttpServlet</span> <span class="o">{</span>
+
+	<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+
+	<span class="c1">// 微信公众号上面设置的</span>
+	<span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">token</span> <span class="o">=</span> <span class="s">"tmaize_dev"</span><span class="o">;</span>
+
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doGet</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+			<span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+
+		<span class="n">request</span><span class="o">.</span><span class="na">setCharacterEncoding</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">);</span>
+		<span class="n">response</span><span class="o">.</span><span class="na">setCharacterEncoding</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">);</span>
+
+		<span class="n">String</span> <span class="n">signature</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">"signature"</span><span class="o">);</span>
+		<span class="n">String</span> <span class="n">timestamp</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">"timestamp"</span><span class="o">);</span>
+		<span class="n">String</span> <span class="n">nonce</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">"nonce"</span><span class="o">);</span>
+		<span class="n">String</span> <span class="n">echostr</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">"echostr"</span><span class="o">);</span>
+
+		<span class="k">if</span><span class="o">(</span><span class="n">signature</span><span class="o">!=</span><span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">signature</span><span class="o">!=</span><span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">signature</span><span class="o">!=</span><span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">signature</span><span class="o">!=</span><span class="kc">null</span><span class="o">){</span>
+			<span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">array</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+			<span class="n">array</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">signature</span><span class="o">);</span>
+			<span class="n">array</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">timestamp</span><span class="o">);</span>
+			<span class="n">array</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">nonce</span><span class="o">);</span>
+			<span class="c1">//1.排序</span>
+			<span class="n">String</span> <span class="n">sortString</span> <span class="o">=</span> <span class="n">sort</span><span class="o">(</span><span class="n">token</span><span class="o">,</span> <span class="n">timestamp</span><span class="o">,</span> <span class="n">nonce</span><span class="o">);</span>
+			<span class="c1">//2.加密</span>
+			<span class="n">String</span> <span class="n">mytoken</span> <span class="o">=</span> <span class="n">SHA1</span><span class="o">(</span><span class="n">sortString</span><span class="o">);</span>
+			<span class="c1">//3.校验签名</span>
+			<span class="c1">//如果检验成功输出echostr，微信服务器接收到此输出，才会确认检验完成。</span>
+			<span class="k">if</span><span class="o">(</span><span class="n">mytoken</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">signature</span><span class="o">)){</span>
+				<span class="n">response</span><span class="o">.</span><span class="na">getWriter</span><span class="o">().</span><span class="na">println</span><span class="o">(</span><span class="n">echostr</span><span class="o">);</span>
+			<span class="o">}</span>
+			<span class="k">else</span><span class="o">{</span>
+				<span class="n">response</span><span class="o">.</span><span class="na">getWriter</span><span class="o">().</span><span class="na">println</span><span class="o">(</span><span class="s">"验证失败"</span><span class="o">);</span>
+			<span class="o">}</span>
+			
+		<span class="o">}</span>
+		<span class="k">else</span><span class="o">{</span>
+			<span class="n">response</span><span class="o">.</span><span class="na">getWriter</span><span class="o">().</span><span class="na">println</span><span class="o">(</span><span class="s">"微信公众号token测试地址,这是后台程序没有界面!"</span><span class="o">);</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+
+	<span class="c1">//排序</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">sort</span><span class="o">(</span><span class="n">String</span> <span class="n">token</span><span class="o">,</span> <span class="n">String</span> <span class="n">timestamp</span><span class="o">,</span> <span class="n">String</span> <span class="n">nonce</span><span class="o">)</span> <span class="o">{</span>
+		<span class="n">String</span><span class="o">[]</span> <span class="n">strArray</span> <span class="o">=</span> <span class="o">{</span> <span class="n">token</span><span class="o">,</span> <span class="n">timestamp</span><span class="o">,</span> <span class="n">nonce</span> <span class="o">};</span>
+		<span class="n">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">strArray</span><span class="o">);</span>
+		<span class="n">StringBuilder</span> <span class="n">sbuilder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringBuilder</span><span class="o">();</span>
+		<span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">str</span> <span class="o">:</span> <span class="n">strArray</span><span class="o">)</span> <span class="o">{</span>
+			<span class="n">sbuilder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+		<span class="o">}</span>
+
+		<span class="k">return</span> <span class="n">sbuilder</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+	<span class="o">}</span>
+
+	<span class="c1">//加密</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">SHA1</span><span class="o">(</span><span class="n">String</span> <span class="n">decript</span><span class="o">)</span> <span class="o">{</span>
+		<span class="k">try</span> <span class="o">{</span>
+			<span class="n">MessageDigest</span> <span class="n">digest</span> <span class="o">=</span> <span class="n">MessageDigest</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"SHA-1"</span><span class="o">);</span>
+			<span class="n">digest</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">decript</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+			<span class="kt">byte</span> <span class="n">messageDigest</span><span class="o">[]</span> <span class="o">=</span> <span class="n">digest</span><span class="o">.</span><span class="na">digest</span><span class="o">();</span>
+			<span class="n">StringBuffer</span> <span class="n">hexString</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringBuffer</span><span class="o">();</span>
+			<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">messageDigest</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+				<span class="n">String</span> <span class="n">shaHex</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toHexString</span><span class="o">(</span><span class="n">messageDigest</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="o">);</span>
+				<span class="k">if</span> <span class="o">(</span><span class="n">shaHex</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">)</span> <span class="o">{</span>
+					<span class="n">hexString</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+				<span class="o">}</span>
+				<span class="n">hexString</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">shaHex</span><span class="o">);</span>
+			<span class="o">}</span>
+			<span class="k">return</span> <span class="n">hexString</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+		<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchAlgorithmException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+			<span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+		<span class="o">}</span>
+		<span class="k">return</span> <span class="s">""</span><span class="o">;</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="获取access_token">获取access_token</h2>
+
+<p>access_token是公众号的全局唯一接口调用凭据，公众号调用各接口时都需使用access_token。开发者需要进行妥善保存。access_token的存储至少要保留512个字符空间。access_token的有效期目前为2个小时，需定时刷新，重复获取将导致上次获取的access_token失效</p>
+
+<p>首先要做到每隔半小时获取一次access_token，可以在web.xml文件中为获取access_token
+的Servlet做<code class="highlighter-rouge">&lt;load-on-startup&gt;0&lt;/load-on-startup&gt;</code>配置，让他在服务器启动时启动，然后再在init方法里面开一个线程，
+在线程中循环获取access_token，如果获取到则休眠半小时</p>
+
+<p>通过http请求方式: GET调用接口来获取access_token</p>
+
+<p><code class="highlighter-rouge">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=APPSECRET</code></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * 定义一个默认启动的servlet，在init方法中启动一个Thread，并在web.xml中将这个servlet设置为默认自启动的
+ * 在进程中定义一个无限循环的方法，用来获取access_token，当获取成功后，此进程休眠半小时，否则休眠3秒钟继续获取
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Access_tokenServlet</span> <span class="kd">extends</span> <span class="n">HttpServlet</span> <span class="o">{</span>
+
+	<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">ServletException</span> <span class="o">{</span>
+		<span class="n">Get_access_token</span><span class="o">.</span><span class="na">appId</span> <span class="o">=</span> <span class="n">getInitParameter</span><span class="o">(</span><span class="s">"appid"</span><span class="o">);</span>
+		<span class="n">Get_access_token</span><span class="o">.</span><span class="na">appSecret</span> <span class="o">=</span> <span class="n">getInitParameter</span><span class="o">(</span><span class="s">"appsecret"</span><span class="o">);</span>
+		<span class="k">new</span> <span class="nf">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Get_access_token</span><span class="o">()).</span><span class="na">start</span><span class="o">();</span>
+	<span class="o">}</span>
+
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doPost</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+			<span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+		<span class="n">doGet</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+	<span class="o">}</span>
+
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doGet</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+			<span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+		<span class="n">response</span><span class="o">.</span><span class="na">getWriter</span><span class="o">().</span><span class="na">println</span><span class="o">(</span><span class="n">Get_access_token</span><span class="o">.</span><span class="na">access_token</span><span class="o">.</span><span class="na">getAccess_token</span><span class="o">());</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>在该线程中循环获取access_token</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * 每半小时获取一次access_token
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Get_access_token</span> <span class="kd">implements</span> <span class="n">Runnable</span> <span class="o">{</span>
+
+	<span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">appId</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">appSecret</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="n">Access_token</span> <span class="n">access_token</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+	<span class="nd">@Override</span>
+	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+		<span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+			<span class="k">try</span> <span class="o">{</span>
+				<span class="n">access_token</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getAccessToken</span><span class="o">();</span>
+				<span class="k">if</span> <span class="o">(</span><span class="n">access_token</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+					<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"appid失效"</span><span class="o">);</span>
+					<span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">3</span><span class="o">);</span> <span class="c1">// 获取的access_token为空 休眠3秒</span>
+					<span class="k">continue</span><span class="o">;</span>
+				<span class="o">}</span>
+				<span class="k">else</span><span class="o">{</span>
+					<span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1000</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">30</span><span class="o">);</span> <span class="c1">// 获取到access_token 休眠半小时</span>
+					<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">access_token</span><span class="o">.</span><span class="na">getAccess_token</span><span class="o">());</span>
+				<span class="o">}</span>
+			<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+				<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"服务器请求超时！！！"</span><span class="o">);</span>
+			<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">JSONException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+				<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"数据解析失败！！！"</span><span class="o">);</span>
+			<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+				<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"线程错误！！！"</span><span class="o">);</span>
+			<span class="o">}</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+
+	<span class="cm">/**
+	 * http请求方式: GET
+	 * https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=APPSECRET
+	 * 正常情况下，微信会返回下述JSON数据包给公众号
+	 * {"access_token":"ACCESS_TOKEN","expires_in":7200}
+	 * 错误时微信会返回错误码等信息
+	 * {"errcode":40013,"errmsg":"invalid appid"}
+	 */</span>
+	<span class="kd">private</span> <span class="n">Access_token</span> <span class="nf">getAccessToken</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">JSONException</span> <span class="o">{</span>
+		
+		<span class="n">String</span> <span class="n">result</span> <span class="o">=</span> <span class="n">HttpUtil</span><span class="o">.</span><span class="na">GetHttpContext</span><span class="o">(</span><span class="s">"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid="</span><span class="o">+</span><span class="n">appId</span><span class="o">+</span><span class="s">"&amp;secret="</span><span class="o">+</span><span class="n">appSecret</span><span class="o">,</span> <span class="s">"get"</span><span class="o">);</span>
+		<span class="k">if</span><span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"{\"err"</span><span class="o">)){</span>
+			<span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+		<span class="o">}</span>
+		<span class="k">else</span><span class="o">{</span>
+			<span class="n">JSONObject</span> <span class="n">jsonObject</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JSONObject</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+			<span class="n">Access_token</span> <span class="n">access_token</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Access_token</span><span class="o">();</span>
+			<span class="n">access_token</span><span class="o">.</span><span class="na">setAccess_token</span><span class="o">(</span><span class="n">jsonObject</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"access_token"</span><span class="o">));</span>
+			<span class="n">access_token</span><span class="o">.</span><span class="na">setExpiresin</span><span class="o">(</span><span class="n">jsonObject</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="s">"expires_in"</span><span class="o">));</span>
+			<span class="k">return</span> <span class="n">access_token</span><span class="o">;</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="处理消息">处理消息</h2>
+
+<p>当启用并设置服务器配置后，用户发给公众号的消息以及开发者需要的事件推送，将被微信以Post方式转发到该URL中。
+所以需要在response给出响应，不过响应的类型时要符合微信标准的xml格式</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MessageServlet</span> <span class="kd">extends</span> <span class="n">HttpServlet</span><span class="o">{</span>
+	
+	<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+	
+	<span class="c1">//响应交互信息</span>
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doPost</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+			<span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
+		<span class="n">request</span><span class="o">.</span><span class="na">setCharacterEncoding</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">);</span>
+		<span class="n">response</span><span class="o">.</span><span class="na">setCharacterEncoding</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">);</span>
+	
+		<span class="k">try</span> <span class="o">{</span>
+			<span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="n">MessageUtil</span><span class="o">.</span><span class="na">parseXml</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+			<span class="n">TextMessage</span> <span class="n">textMessage</span> <span class="o">=</span> <span class="n">MessageUtil</span><span class="o">.</span><span class="na">hashMapToTextMessage</span><span class="o">(</span><span class="n">map</span><span class="o">);</span>
+			<span class="n">String</span> <span class="n">ToUserName</span> <span class="o">=</span> <span class="n">textMessage</span><span class="o">.</span><span class="na">getToUserName</span><span class="o">();</span>
+			<span class="n">String</span> <span class="n">FromUserName</span> <span class="o">=</span> <span class="n">textMessage</span><span class="o">.</span><span class="na">getFromUserName</span><span class="o">();</span>
+			<span class="n">textMessage</span><span class="o">.</span><span class="na">setFromUserName</span><span class="o">(</span><span class="n">ToUserName</span><span class="o">);</span>
+			<span class="n">textMessage</span><span class="o">.</span><span class="na">setToUserName</span><span class="o">(</span><span class="n">FromUserName</span><span class="o">);</span>
+			
+            <span class="c1">//逻辑处理</span>
+
+            <span class="c1">//返回xml格式的结果，微信服务器会转给用户</span>
+	        <span class="n">PrintWriter</span> <span class="n">out</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">getWriter</span><span class="o">();</span>
+	        <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">MessageUtil</span><span class="o">.</span><span class="na">textMessageToXml</span><span class="o">(</span><span class="n">textMessage</span><span class="o">));</span>  
+	        <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span> 
+		<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">DocumentException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+			<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"解析数据错误"</span><span class="o">);</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="总结">总结</h2>
+
+<p>注意: 公众平台接口调用仅支持80端口</p>
+
+<p>至此可以实现微信公众号简单的文本消息的发送于接收处理，更多的功能请参考文档</p>
+
+<p><a href="https://mp.weixin.qq.com/">微信公众平台</a>
+<a href="https://mp.weixin.qq.com/wiki">官方文档</a></p>
+
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

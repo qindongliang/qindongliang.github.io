@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,linux,nodejs"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Centos 安装NodeJs"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Centos 安装NodeJs-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Centos 安装NodeJs</h1>
+		
+		<div class="main"><p>系统版本CentOS 6.3 32bit</p>
+
+<h2 id="编译安装">编译安装</h2>
+
+<p>官方下载地址<a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></p>
+
+<p>推荐下载LTS版本，不需要下载最新的</p>
+
+<p>选择Source Code的那个链接</p>
+
+<p>下载，开始编译，….</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://nodejs.org/dist/v8.9.4/node-v8.9.4.tar.gz
+tar xvf node-v8.9.4.tar.gz
+cd node-v8.9.4
+./configure
+</code></pre></div></div>
+
+<p>configure之后显示WARNING: C++ compiler too old, need g++ 4.9.4 or clang++ 3.4.2 (CXX=g++)</p>
+
+<p>表示gcc版本太低，需要升级，貌似CentOS 6.3 gcc升级比较麻烦，不搞了，直接使用二进制版本算了</p>
+
+<h2 id="二进制版本安装">二进制版本安装</h2>
+
+<p>同上</p>
+
+<p>找到 Linux Binaries (x86/x64)，这里选择32位</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://nodejs.org/dist/v8.9.4/node-v8.9.4-linux-x86.tar.xz
+xz -d node-v8.9.4-linux-x86.tar.xz 
+tar xvf node-v8.9.4-linux-x86.tar 
+mv node-v8.9.4-linux-x86 /usr/local/
+cd /usr/local/node-v8.9.4-linux-x86/bin/
+node -v
+</code></pre></div></div>
+
+<p>输出 v8.9.4 表示安装成功</p>
+
+<p><code class="highlighter-rouge">/usr/local/node-v8.9.4-linux-x86/bin/</code> 里面有 node npm npx 三个文件</p>
+
+<p>为了可以全局执行这三个文件，可以软链接到 <code class="highlighter-rouge">/usr/local/bin</code> 或者添加环境变量</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vi /etc/profile
+source /etc/profile
+</code></pre></div></div>
+
+<p>最后几行做如下配置</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#环境变量
+export JAVA_HOME=/usr/java/jdk1.8.0_101
+export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib
+
+export NODEJS_HOME=/usr/local/node-v8.9.4-linux-x86/bin
+
+export PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$NODEJS_HOME:$PATH
+</code></pre></div></div>
+
+<h2 id="测试">测试</h2>
+
+<p>切到任意目录</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo console.log\(\'hello\'\) &gt; test.js
+node test.js
+</code></pre></div></div>
+
+<p>输出hello</p>
+
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

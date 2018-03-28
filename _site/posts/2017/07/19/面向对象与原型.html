@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,javascript"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="面向对象与原型"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>面向对象与原型-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">面向对象与原型</h1>
+		
+		<div class="main"><p>JavaScript的所有数据都可以看成对象，这就意味着也可以使用面向对象编程。</p>
+
+<p>但是JavaScript的面向对象编程和大多数其他语言如Java、C#的面向对象编程都不太一样，JavaScript不区分类和实例的概念，而是通过原型（prototype）来实现面向对象编程。</p>
+
+<h2 id="创建对象">创建对象</h2>
+
+<p>类的创建也比较简单，一共有三种方式</p>
+
+<ol>
+  <li>
+    <p>通过字面量{ … }</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> var Student = {
+     name: 'Robot',
+     height: 1.2,
+     run: function () {
+         console.log(this.name + ' is running...');
+     }
+ };
+
+ Student.run();
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>通过构造函数</p>
+
+    <p>除了直接用{ … }创建一个对象外，JavaScript还可以用一种构造函数的方法来创建对象。它的用法是，先定义一个构造函数，通过new构造函数可以创建一个类</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> function Student(name) {
+     this.name = name;
+     this.hello = function () {
+         alert('Hello, ' + this.name + '!');
+     }
+ }
+
+ var xiaoming = new Student('小明');
+ xiaoming.name;
+ xiaoming.hello();
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>使用class关键字</p>
+
+    <p>新的关键字class从ES6开始正式被引入到JavaScript中。class的目的就是让定义类和继承类更简单。</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> class Student {
+     constructor(name) {
+         this.name = name;
+     }
+     hello() {
+         alert('Hello, ' + this.name + '!');
+     }
+ }
+
+ var xiaoming = new Student('小明');
+ xiaoming.name;
+ xiaoming.hello();
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="prototype与proto的理解">prototype与proto的理解</h2>
+
+<p>在JS里，万物皆对象。方法（Function）是对象，方法的原型(Function.prototype)是对象。同时它们都会有一个<code class="highlighter-rouge">__proto__</code>属性，称为隐式原型</p>
+
+<p>一个对象的隐式原型指向构造该对象的构造函数的原型，这也保证了实例能够访问在构造函数原型中定义的属性和方法。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var a = {name:1}
+
+a.__proto__指向Object
+
+而Object正是构成a的函数（function Object(){}）的原型，
+
+同时Object的constructor指向（function Object(){}）
+</code></pre></div></div>
+
+<p>所以自定义的对象是由其他自定义对象继承而来，或者直接由一个Object拓展而来，不管怎样同时往上找必有一对<code class="highlighter-rouge">Object和function Object(){}</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var b = {name:2}
+
+var a = {name:1}
+
+a.__proto__=b;
+
+往上找
+a//{name=1}
+a.__proto__//{name=2}
+a.__proto__.__proto__//Object
+a.__proto__.__proto__.__proto__//null
+</code></pre></div></div>
+
+<p>综上，我们也可以自己定义那么一对<code class="highlighter-rouge">Object和function Object(){}</code>。通过自定义函数，同时通过new的方式来产生自己想要的自定义对象</p>
+
+<p>为了实现这样的需求，js中方法还有自己特有的属性——原型属性（prototype）这个属性是一个指针，指向一个对象（刚好一对，默认prototype指向一个Object，Object的constructor指向函数），这个对象的用途就是包含所有实例共享的属性和方法（我们把这个对象叫做原型对象）</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function b(){this.name=1}//构造函数
+
+var bb = new b();
+
+首先把b里面所有的this内容绑定（可以理解为移动）到bb中
+
+b的prototype指向一个默认的Object
+
+然后bb的__proto__指向这个Object
+
+Object的constructor指向b
+</code></pre></div></div>
+
+<p>或者更复杂一些</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var a = {name:2}
+
+function b(){this.name=1}//构造函数
+
+b.prototype = a;
+
+var bb = new b();
+
+首先把b里面所有的this内容绑定（移动）到bb中
+
+然后设置了b.prototype = a，所以把bb的__proto__指向a
+
+bb//{name:1}
+bb.__proto__//{name:2}
+bb.__proto__==a//true
+
+bb里面并没有bb.constructor
+
+bb.constructor时他会往上找，bb.__proto__&lt;==&gt;a，a的proto里面有
+
+所以bb.constructor&lt;==&gt;a.__proto__.constructor
+</code></pre></div></div>
+
+<p><img src="01.jpg" alt="p1" /></p>
+
+<h2 id="继承">继承</h2>
+
+<p>在传统的基于Class的语言如Java、C++中，继承的本质是扩展一个已有的Class，并生成新的Subclass。</p>
+
+<p>由于这类语言严格区分类和实例，继承实际上是类型的扩展。
+但是，JavaScript由于采用原型继承，我们无法直接扩展一个Class，因为根本不存在Class这种类型。
+在JavaScript中所谓继承关系不过是把一个对象的原型指向另一个对象而已。</p>
+
+<p>理解了prototype与proto创建继承就很简单了</p>
+
+<p>下面是创建原型继承的最简单的一种方法</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var Student = {
+    name: 'Robot',
+    height: 1.2,
+    run: function () {
+        console.log(this.name + ' is running...');
+    }
+};
+
+//等价为var xx = {},xx.name="xm"
+//xxxx.__proto__=Student
+//不推荐这样做，按照下面的方法做
+function createStudent(name) {
+    // 基于Student原型创建一个新对象:
+    var s = Object.create(Student);
+    // 初始化新对象:
+    s.name = name;
+    return s;
+}
+
+var xiaoming = createStudent('小明');
+xiaoming.run(); // 小明 is running...
+xiaoming.__proto__ === Student; // true
+</code></pre></div></div>
+
+<p>或者通过构造函数的方法来继承</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var StudentCommon = {
+    name: 'Robot',
+    height: 1.2,
+    run: function () {
+        console.log(this.name + ' is running...');
+    }
+};
+
+function Student(name) {
+    this.name = name;
+}
+
+Student.prototype = StudentCommon;
+
+var xiaoming = new Student("小明");
+</code></pre></div></div>
+
+<p>再或者通过ES6新引入的class和extends</p>
+
+<p>它原有的JavaScript原型继承有实际上没有任何区别，class的作用就是让JavaScript引擎去实现原来需要我们自己编写的原型链代码。简而言之，用class的好处就是极大地简化了原型链代码。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class Student {
+    constructor(name) {
+        this.name = name;
+    }
+    hello() {
+        alert('Hello, ' + this.name + '!');
+    }
+}
+
+class PrimaryStudent extends Student {
+    constructor(name, grade) {
+        super(name); 
+        this.grade = grade;
+    }
+    myGrade() {
+        alert('I am at grade ' + this.grade);
+    }
+}
+var xiaoming = new PrimaryStudent('小明',1);
+xiaoming.name;
+xiaoming.hello();
+xiaoming.myGrade();
+</code></pre></div></div>
+
+<h2 id="原型链">原型链</h2>
+
+<p>当我们用obj.xxx访问一个对象的属性时，JavaScript引擎先在当前对象上查找该属性，如果没有找到，就遍历原型对象proto，如果还没有找到，就一直上溯proto直到null</p>
+
+<p>通过上面的说明就不难理解所谓的原型链了</p>
+
+<p>上面Student类的原型链如下</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xiaoming ↘
+xiaohong -→ Student.prototype ----&gt; Object.prototype ----&gt; null
+xiaojun  ↗
+</code></pre></div></div>
+
+<p>一个数组的原型链如下</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var arr = [1, 2, 3];
+arr ----&gt; Array.prototype ----&gt; Object.prototype ----&gt; null
+</code></pre></div></div>
+
+<h2 id="构造方法继承构造方法">构造方法继承构造方法</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function Student(name) {
+    this.name = name;
+}
+
+function GoodStudent(name) {
+    Student.call(this, name);//绑定
+    this.start = 5;
+}
+
+var xiaoming = new GoodStudent("小明");
+//GoodStudent {name: "小明", start: 5}
+</code></pre></div></div>
+
+<p>但是，调用了Student构造函数不等于继承了Student，</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GoodStudent创建的对象的原型是：
+
+new GoodStudent() ----&gt; GoodStudent.prototype ----&gt; Object.prototype ----&gt; null
+
+必须想办法把原型链修改为：
+
+new GoodStudent() ----&gt; GoodStudent.prototype ----&gt; Student.prototype ----&gt; Object.prototype ----&gt; null
+</code></pre></div></div>
+
+<p>通过下面的方法的方式可以实现效果，感觉又不太符合JavaScript继承的思想</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function Student(name) {
+    this.name = name;
+}
+
+function GoodStudent(name) {
+    this.start = 5;
+    //this.__proto__ = Object.create(new Student(name));多了一层
+    this.__proto__ = new Student(name);
+}
+
+//GoodStudent.prototype = new Student(name);name传递不过来
+
+var xiaoming = new GoodStudent("小明");
+</code></pre></div></div>
+
+<p>还有一种方法就是使用过桥函数F(){}，好处是是为了清空构造函数里的属性，设置原型就会包含一些不必要的原Student构造函数上的属性</p>
+
+<h2 id="参考">参考</h2>
+
+<blockquote>
+  <p><a href="https://www.zhihu.com/question/34183746/answer/58155878">知乎doris的回答</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="https://www.liaoxuefeng.com/wiki/001434446689867b27157e896e74d51a89c25cc8b43bdb3000/001434499763408e24c210985d34edcabbca944b4239e20000">廖雪峰的JavaScript教程</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_encapsulation.html">阮一峰的网络日志</a></p>
+</blockquote>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

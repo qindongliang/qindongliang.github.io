@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Hibernate学习笔记03 数据库操作 检索 表关系"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Hibernate学习笔记03 数据库操作 检索 表关系-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Hibernate学习笔记03 数据库操作 检索 表关系</h1>
+		
+		<div class="main"><h2 id="数据库操作">数据库操作</h2>
+
+<p>有好几种方式实现实体类的CRUD操作</p>
+
+<ol>
+  <li>
+    <p>对象导航</p>
+  </li>
+  <li>
+    <p>HQL</p>
+  </li>
+  <li>
+    <p>QBC</p>
+  </li>
+  <li>
+    <p>本地SQL</p>
+  </li>
+</ol>
+
+<h3 id="对象导航">对象导航</h3>
+
+<ol>
+  <li>
+    <p>查询操作：get(),load()</p>
+
+    <p>获得一个持久态的对象</p>
+
+    <p>根据主键查询：session.get(实体类.class, 主键值)，没找到返回null</p>
+
+    <p>如果主键是int类型最好session.get(实体类.class, new Integer(主键值))</p>
+
+    <p>get并不总是生成sql语句，当一级二级缓存里面没有时会生成sql语句从数据库里面获得</p>
+
+    <p>get和load的区别：</p>
+
+    <p>当取不到数据时get返回null，load抛出异常，因此在使用load时要确认主键id存在，从这一点来讲它没有get方便</p>
+
+    <p>在延迟加载对象时，get方法仍会使用立即加载的方式发送sql语句，并得到已初始化的对象，而使用load根本不会发送sql语句，它返回一个代理对象，知道这个对象被访问时才初始化</p>
+  </li>
+  <li>
+    <p>添加操作：save()</p>
+
+    <p>session.save(实体类对象)，完成之后实体类变为持久状态，<strong>对它的任何操作都会同步到数据库中，属性改变时会update，因此对一个持久态的实体类做update和save方法是没有意义的</strong></p>
+
+    <p>根据配置的主键生成的算法，生成一个id，将实体类对象纳入session的内部缓存，事务提交时，清除缓存，将对象持久化到数据库中</p>
+
+    <p>注意：如果设置了主键自动增长，当实体类没有设置id(主键时)，存储完成后会把增长之后的id自动赋值给实体类</p>
+
+    <p>如果设置了主键自动增长，并且自己设置了id，存储的过程中id并不生效，而是使用数据库中应当生成的id，完成后id的值会被改变成再数据库中的id</p>
+
+    <p>但是也可以使用save(Object ,id)方法强制指定id</p>
+
+    <p>在调用save方法时并不会立即执行sql，而是等到清理缓存完成才会执行，如果save()之后有修改了实体类的属性，Hibernate将会发送一条insert语句和一条update语句来完成持久化
+ 因此最好是在对象状态稳定时再调用save方法，可以少执行一条语句。</p>
+  </li>
+  <li>
+    <p>修改操作：update()</p>
+
+    <p>使用update方法来更新托管状态的实体类。</p>
+
+    <p>或者使用get方法得到持久态的实体类对象，调用对象的set方法改变属性，最后会同步到数据库中。不需要update</p>
+  </li>
+  <li>
+    <p>删除操作：delete()</p>
+
+    <p>负责删除一个对象，<strong>包括持久对象和托管对对象</strong></p>
+
+    <ol>
+      <li>
+        <p>查询找到实体类对象，然后delete(实体类)</p>
+      </li>
+      <li>
+        <p>建立实体类，设置实体类的主键为要删除的，然后delete(实体类)</p>
+      </li>
+    </ol>
+
+    <p>批量删除表<code class="highlighter-rouge">Query q = session.createQuery("delete from User");q.executeUpdate();</code>等价于<code class="highlighter-rouge">delete from t_user</code>
+ 效率虽然高，但是后面再做查询时会得到脏数据，即数据库中不存在的数据</p>
+  </li>
+  <li>
+    <p>saveOrUpdate()</p>
+
+    <p>在实际应用中，程序员不会注意到一个实体对象的状态，而对脱管态调用save是不对的。对临时对象调用update也是
+ 不对的，为了解决这个问题产生了saveOrUpdate，当它是托管状态是系统会调用update方法，是临时对象时调用save方法</p>
+  </li>
+</ol>
+
+<h3 id="hql">HQL</h3>
+
+<p>为Hibernate Query Language的简称。具有与SQL类似的语法规范，只不过SQL针对表中字段进行查询而HQL针对持久化对象，用它来取得对象，而不进行update，delete和insert操作。</p>
+
+<ol>
+  <li>
+    <p>from子句</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">Query</span> <span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from User"</span><span class="o">);</span>
+ <span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>select子句</p>
+
+    <p>如果查询两个以上的属性会以数组的形式返回</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">Query</span> <span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select u.id,u.name from User u"</span><span class="o">);</span>
+ <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">[]&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+	
+ <span class="k">for</span><span class="o">(</span><span class="n">Object</span><span class="o">[]</span> <span class="nl">o:</span><span class="n">list</span><span class="o">){</span>
+     <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((</span><span class="kt">int</span><span class="o">)</span><span class="n">o</span><span class="o">[</span><span class="mi">0</span><span class="o">]+</span><span class="s">" "</span><span class="o">+(</span><span class="n">String</span><span class="o">)</span><span class="n">o</span><span class="o">[</span><span class="mi">1</span><span class="o">]+</span><span class="s">" "</span><span class="o">+</span><span class="n">o</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+ <span class="o">}</span>
+</code></pre></div>    </div>
+
+    <p>但是使用数组比较麻烦，可以将Object[]中的所有成员封装为一个实体类</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">//注意实体类中要有对应的构造方法</span>
+ <span class="n">Query</span> <span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select new User(u.id,u.name) from User u"</span><span class="o">);</span>
+ <span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+
+ <span class="k">for</span><span class="o">(</span><span class="n">User</span> <span class="nl">u:</span><span class="n">list</span><span class="o">){</span>
+     <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+ <span class="o">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>统计函数查询</p>
+
+    <p>可以在HQL使用函数，经常用的有count() min() max() sum() avg()</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">Query</span> <span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select count(*) from User"</span><span class="o">);</span>
+ <span class="c1">//太麻烦，用下面的返回唯一的结果System.out.println(q.list().get(0));</span>
+ <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">q</span><span class="o">.</span><span class="na">uniqueResult</span><span class="o">());</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>where子句</p>
+
+    <p>HQL也支持子查询，通过where子句实现这一机制。where子句让用户缩小要返回的实例的列表范围</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">Query</span> <span class="n">q1</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from User u where u.id&gt;1"</span><span class="o">);</span>
+
+ <span class="n">Query</span> <span class="n">q2</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from User u where u.id&gt;?"</span><span class="o">);</span>
+ <span class="c1">//过时的方法q2.setInteger(0, 1);</span>
+ <span class="n">q2</span><span class="o">.</span><span class="na">setParameter</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>order by 子句</p>
+
+    <p>asc升序desc降序</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">Query</span> <span class="n">q1</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from User u order by u.id desc"</span><span class="o">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>分页</p>
+
+    <p>在HQL中没有limit，用hibernate的Query中封装的两个方法来实现</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">Query</span> <span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from User"</span><span class="o">);</span>
+ <span class="n">q</span><span class="o">.</span><span class="na">setFirstResult</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span><span class="c1">//开始位置,下标从零开始</span>
+ <span class="n">q</span><span class="o">.</span><span class="na">setMaxResults</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span><span class="c1">//每页数目</span>
+ <span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>连接查询/多表查询</p>
+
+    <ul>
+      <li>
+        <p>inner join 内连接，可以简写为join</p>
+
+        <p><code class="highlighter-rouge">select xx from xx t1 inner join xx t2 on t1.id=t2.id</code></p>
+
+        <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">Query</span> <span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from User u inner join u.setRole"</span><span class="o">);</span>
+		
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">[]&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+		
+  <span class="k">for</span><span class="o">(</span><span class="n">Object</span><span class="o">[]</span> <span class="nl">os:</span><span class="n">list</span><span class="o">){</span>
+      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">os</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">os</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+  <span class="o">}</span>
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>left outer join 左外连接</p>
+      </li>
+      <li>
+        <p>right outer join 右外连接</p>
+      </li>
+      <li>
+        <p>full join 全连接，不常用</p>
+      </li>
+      <li>
+        <p>迫切内连接</p>
+
+        <p>和内联接的底层实现都是一样的内联接返回的List里面是数组，迫切内联接List里面的是对象</p>
+
+        <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">Query</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from User u inner join fetch u.setRole"</span><span class="o">);</span>
+		
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+		
+  <span class="k">for</span><span class="o">(</span><span class="n">User</span> <span class="nl">u:</span><span class="n">list</span><span class="o">){</span>
+      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+  <span class="o">}</span>
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>迫切左外连接</p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="qbc">QBC</h3>
+
+<p>通过对Criteria对象的设置来筛选查询结果</p>
+
+<ul>
+  <li>基本使用</li>
+</ul>
+
+<p>当查询时往往需要设置查询条件。在SQL或者HQL语句中，查询条件往往放入where子句中。
+此外Hibernate还还支持Criteria查询，把查询条件封装成Criteria对象</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Criteria</span> <span class="n">cr</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createCriteria</span><span class="o">(</span><span class="n">User</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">cr</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">Restrictions</span><span class="o">.</span><span class="na">gt</span><span class="o">(</span><span class="s">"id"</span><span class="o">,</span> <span class="mi">3</span><span class="o">));</span>
+<span class="n">cr</span><span class="o">.</span><span class="na">addOrder</span><span class="o">(</span><span class="n">Order</span><span class="o">.</span><span class="na">desc</span><span class="o">(</span><span class="s">"id"</span><span class="o">));</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">cr</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+</code></pre></div></div>
+<p>常见的查询限制方法</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">方法名</th>
+      <th style="text-align: center">说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">eq</td>
+      <td style="text-align: center">equal，=</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">allEq</td>
+      <td style="text-align: center">参数为Map对象，使用key/value进行多个等于的对比</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">gt</td>
+      <td style="text-align: center">greater-than，&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">lt</td>
+      <td style="text-align: center">less-than，&lt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">le</td>
+      <td style="text-align: center">less-equal，&lt;=</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">between</td>
+      <td style="text-align: center">对应sql的between</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">like</td>
+      <td style="text-align: center">对应sql的like子句，可以使用%等</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">EXACT</td>
+      <td style="text-align: center">字符串精确匹配，相当于like value</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">ANYWHERE</td>
+      <td style="text-align: center">字符串在中间位置，相当于like %value%</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">START</td>
+      <td style="text-align: center">字符串在最前面位置，相当于like value%</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">END</td>
+      <td style="text-align: center">字符串在最后面位置，相当于like %value</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">in</td>
+      <td style="text-align: center">对应sql的in子句</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">and</td>
+      <td style="text-align: center">and关系</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">or</td>
+      <td style="text-align: center">or关系</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">isNull</td>
+      <td style="text-align: center">判断属性是否为空，空返回true</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">isNotNull</td>
+      <td style="text-align: center">与上面相反</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">asc</td>
+      <td style="text-align: center">升序排序</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">desc</td>
+      <td style="text-align: center">降序排序</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>
+    <p>分页：setFirstResult，setMaxResults</p>
+  </li>
+  <li>
+    <p>离线查询</p>
+  </li>
+</ul>
+
+<p>在封装查询提条件之前不用到session</p>
+
+<p>应用场景，有时候需要在servlet中拼接查询条件而不是在dao，可以通过传递DetachedCriteria来完成</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DetachedCriteria</span> <span class="n">detachedCriteria</span> <span class="o">=</span> <span class="n">DetachedCriteria</span><span class="o">.</span><span class="na">forClass</span><span class="o">(</span><span class="n">User</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">detachedCriteria</span><span class="o">.</span><span class="na">addOrder</span><span class="o">(</span><span class="n">Order</span><span class="o">.</span><span class="na">desc</span><span class="o">(</span><span class="s">"id"</span><span class="o">));</span><span class="c1">//添加条件</span>
+<span class="n">Criteria</span> <span class="n">cr</span> <span class="o">=</span> <span class="n">detachedCriteria</span><span class="o">.</span><span class="na">getExecutableCriteria</span><span class="o">(</span><span class="n">session</span><span class="o">);</span>
+<span class="c1">//后面和Criteria的操作一样</span>
+</code></pre></div></div>
+
+<h3 id="native-sql-查询">Native SQL 查询</h3>
+
+<p>直接使用本地数据库的sql语言进行查询</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">SQLQuery</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createSQLQuery</span><span class="o">(</span><span class="s">"SELECT * FROM t_user"</span><span class="o">);</span>
+
+<span class="n">sqlQuery</span><span class="o">.</span><span class="na">addEntity</span><span class="o">(</span><span class="n">User</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="k">for</span><span class="o">(</span><span class="n">User</span> <span class="nl">u:</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;)</span><span class="n">sqlQuery</span><span class="o">.</span><span class="na">list</span><span class="o">()){</span>
+	<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="命名查询">命名查询</h3>
+
+<p>可以将查询语句放在映射文件中</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	....
+    <span class="nt">&lt;/class&gt;</span>
+	
+	<span class="nt">&lt;query</span> <span class="na">name=</span><span class="s">"selectAllUser"</span><span class="nt">&gt;</span>
+		<span class="cp">&lt;![CDATA[
+			from User
+		]]&gt;</span>
+	<span class="nt">&lt;/query&gt;</span>
+<span class="nt">&lt;/hibernate-mapping&gt;</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Query</span> <span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createNamedQuery</span><span class="o">(</span><span class="s">"selectAllUser"</span><span class="o">);</span>	
+<span class="k">for</span><span class="o">(</span><span class="n">User</span> <span class="nl">u:</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;)</span><span class="n">q</span><span class="o">.</span><span class="na">list</span><span class="o">()){</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="检索策略">检索策略</h2>
+
+<p>hibernate检索策略分为两类</p>
+
+<ul>
+  <li>
+    <p>立即查询：根据id查询，调用get方法，一调用get方法马上发送语句查询数据库</p>
+  </li>
+  <li>
+    <p>延迟查询：根据id查询，调用load方法，并不会马上执行，只有用到对象里面的值的时候才会发送语句查询数据库</p>
+  </li>
+</ul>
+
+<h3 id="两类延迟查询">两类延迟查询</h3>
+
+<ul>
+  <li>
+    <p>类级别延迟</p>
+  </li>
+  <li>
+    <p>关联级别延迟</p>
+  </li>
+</ul>
+
+<h2 id="表之间的关系">表之间的关系</h2>
+
+<h3 id="一对多">一对多</h3>
+
+<p>客户 - 联系人：一个客户可以有多个联系人，但是一个联系人只属于一个客户</p>
+
+<ul>
+  <li>
+    <p>映射配置</p>
+
+    <p>在User类(表示客户)中添加</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kd">private</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">LinkMan</span><span class="o">&gt;</span> <span class="n">linkMans</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">LinkMan</span><span class="o">&gt;();</span>
+      <span class="kd">public</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">LinkMan</span><span class="o">&gt;</span> <span class="nf">getLinkMans</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">linkMans</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setLinkMans</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;</span><span class="n">LinkMan</span><span class="o">&gt;</span> <span class="n">linkMans</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">linkMans</span> <span class="o">=</span> <span class="n">linkMans</span><span class="o">;</span>
+  <span class="o">}</span>
+</code></pre></div>    </div>
+
+    <p>User的映射文件添加</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c">&lt;!-- 使用set表示一对多 ，column表示外键--&gt;</span>
+  <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">"linkMans"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;key</span> <span class="na">column=</span><span class="s">"user_id"</span><span class="nt">&gt;&lt;/key&gt;</span>
+      <span class="nt">&lt;one-to-many</span> <span class="na">class=</span><span class="s">"pojo.LinkMan"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/set&gt;</span>
+</code></pre></div>    </div>
+
+    <p>在LinkMan类(联系人)中添加</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kd">private</span> <span class="n">User</span> <span class="n">user</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="n">User</span> <span class="nf">getUser</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">user</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUser</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">user</span> <span class="o">=</span> <span class="n">user</span><span class="o">;</span>
+  <span class="o">}</span>
+</code></pre></div>    </div>
+
+    <p>在LinkMan类映射文件添加</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c">&lt;!-- 这里配置多对一，column为外键名，要与一中的外键名相同 --&gt;</span>
+  <span class="nt">&lt;many-to-one</span> <span class="na">name=</span><span class="s">"user"</span> <span class="na">class=</span><span class="s">"pojo.User"</span> <span class="na">column=</span><span class="s">"user_id"</span> <span class="nt">&gt;&lt;/many-to-one&gt;</span>
+</code></pre></div>    </div>
+
+    <p>最终会在LinkMan表的属性中多一个和外键名一样的列</p>
+  </li>
+  <li>
+    <p>操作</p>
+
+    <p>级联保存：添加客户同时添加联系人</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">User</span> <span class="n">u</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">();</span>
+  <span class="n">LinkMan</span> <span class="n">lkm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkMan</span><span class="o">();</span>
+    
+  <span class="n">u</span><span class="o">.</span><span class="na">getLinkMans</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">lkm</span><span class="o">);</span>
+    
+  <span class="n">session</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+  <span class="n">session</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">lkm</span><span class="o">);</span>
+    
+  <span class="n">transaction</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+</code></pre></div>    </div>
+
+    <p>在客户的映射文件中做配置<code class="highlighter-rouge">&lt;set name="linkMans" cascade="save-update"&gt;</code>,然后就可以只保存客户，联系人会自动保存</p>
+
+    <p>级联删除：配置级联删除</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">"linkMans"</span> <span class="na">cascade=</span><span class="s">"save-update,delete"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;key</span> <span class="na">column=</span><span class="s">"user_id"</span><span class="nt">&gt;&lt;/key&gt;</span>
+          <span class="nt">&lt;one-to-many</span> <span class="na">class=</span><span class="s">"pojo.LinkMan"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/set&gt;</span>
+</code></pre></div>    </div>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">User</span> <span class="n">u</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">User</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">(</span><span class="mi">1</span><span class="o">));</span>
+  <span class="n">session</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>		
+  <span class="n">transaction</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+</code></pre></div>    </div>
+
+    <p>修改操作：修改联系人的所属客户</p>
+
+    <p>下面存在性能问题，联系人会修改两次，双向维护外键，可以让其中一方放弃维护外键</p>
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//持久态，自动同步</span>
+  <span class="n">User</span> <span class="n">u2</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">User</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">2</span><span class="o">);</span>
+  <span class="n">LinkMan</span> <span class="n">lkm</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">LinkMan</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+  <span class="n">u2</span><span class="o">.</span><span class="na">getLinkMans</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">lkm</span><span class="o">);</span>
+  <span class="n">lkm</span><span class="o">.</span><span class="na">setUser</span><span class="o">(</span><span class="n">u2</span><span class="o">);</span>
+  <span class="n">transaction</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+</code></pre></div>    </div>
+
+    <p>配置放弃维护外键</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c">&lt;!-- 使用set表示一对多 ，column表示外键,inverse为true表示放弃关系的维护--&gt;</span>
+  <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">"linkMans"</span> <span class="na">cascade=</span><span class="s">"save-update,delete"</span> <span class="na">inverse=</span><span class="s">"true"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;key</span> <span class="na">column=</span><span class="s">"user_id"</span><span class="nt">&gt;&lt;/key&gt;</span>
+      <span class="nt">&lt;one-to-many</span> <span class="na">class=</span><span class="s">"pojo.LinkMan"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/set&gt;</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="多对多">多对多</h3>
+
+<p>通过建立两张表之间的联系表来实现多对多关系</p>
+
+<p>一个用户有多个角色，一个角色有多个用户</p>
+
+<ul>
+  <li>
+    <p>配置</p>
+
+    <p>在User类中添加<code class="highlighter-rouge">private Set&lt;Role&gt; setRole = new HashSet&lt;Role&gt;();</code>和<code class="highlighter-rouge">get/set</code></p>
+
+    <p>User的映射文件中添加</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">"setRole"</span> <span class="na">table=</span><span class="s">"user_role"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;key</span> <span class="na">column=</span><span class="s">"userid"</span><span class="nt">&gt;&lt;/key&gt;</span>
+      <span class="nt">&lt;many-to-many</span> <span class="na">class=</span><span class="s">"pojo.Role"</span> <span class="na">column=</span><span class="s">"roleid"</span><span class="nt">&gt;&lt;/many-to-many&gt;</span>
+  <span class="nt">&lt;/set&gt;</span>
+</code></pre></div>    </div>
+
+    <p>在Role类中添加<code class="highlighter-rouge">private Set&lt;User&gt; setUser = new HashSet&lt;User&gt;();</code>和<code class="highlighter-rouge">get/set</code></p>
+
+    <p>Role的映射文件中添加</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nt">&lt;set</span> <span class="na">name=</span><span class="s">"setUser"</span> <span class="na">table=</span><span class="s">"user_role"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;key</span> <span class="na">column=</span><span class="s">"roleid"</span><span class="nt">&gt;&lt;/key&gt;</span>
+      <span class="nt">&lt;many-to-many</span> <span class="na">class=</span><span class="s">"pojo.User"</span> <span class="na">column=</span><span class="s">"userid"</span><span class="nt">&gt;&lt;/many-to-many&gt;</span>
+  <span class="nt">&lt;/set&gt;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>多对多级联保存</p>
+
+    <p>根据用户保存角色，在User的映射配置的set中加上<code class="highlighter-rouge">cascade="save-update"</code></p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">User</span> <span class="n">u</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">();</span>
+  <span class="n">u</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"用户1"</span><span class="o">);</span>
+
+  <span class="n">Role</span> <span class="n">r1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Role</span><span class="o">();</span>
+  <span class="n">r1</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"管理员"</span><span class="o">);</span>
+  <span class="n">Role</span> <span class="n">r2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Role</span><span class="o">();</span>
+  <span class="n">r2</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"消费者"</span><span class="o">);</span>
+
+  <span class="n">u</span><span class="o">.</span><span class="na">getSetRole</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">r1</span><span class="o">);</span>
+  <span class="n">u</span><span class="o">.</span><span class="na">getSetRole</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">r2</span><span class="o">);</span>
+
+  <span class="n">session</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>多对多级联删除</p>
+
+    <p>直接删除用户，会把在用户表中删除一条记录，同时在关联表中删除用户id的记录，但是角色表不变</p>
+
+    <p>在映射文件的cascade属性中添加delete值，效果是在删除用户的同时，在关联表中删除用户id的记录，在角色表中删除User关联的角色
+  （这样做很危险，可能会清除掉某些其他用户与角色的的关联，一般不用）</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">User</span> <span class="n">u</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">User</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+  <span class="n">session</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>关系表的操作</p>
+
+    <p>为用户添加角色：</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">User</span> <span class="n">u</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">User</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+  <span class="n">Role</span> <span class="n">r</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Role</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">2</span><span class="o">);</span>
+  <span class="n">u</span><span class="o">.</span><span class="na">getSetRole</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">r</span><span class="o">);</span>
+</code></pre></div>    </div>
+
+    <p>为用户删除角色：</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">User</span> <span class="n">u</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">User</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+  <span class="n">Role</span> <span class="n">r</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Role</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">2</span><span class="o">);</span>
+  <span class="n">u</span><span class="o">.</span><span class="na">getSetRole</span><span class="o">().</span><span class="na">remove</span><span class="o">(</span><span class="n">r</span><span class="o">);</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,linux"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Nginx配置SSL 重新编译"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Nginx配置SSL 重新编译-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Nginx配置SSL 重新编译</h1>
+		
+		<div class="main"><p>最近在做微信小程序，但是微信的wx.request(OBJECT)接口里面wx.request发起的是 HTTPS 请求
+并且url必须是开发者服务器接口地址。</p>
+
+<p>但是要用到别人的api怎么办，通过wx.request是禁止请求的，只好通过自己的服务器做一次转发/代理，下面是步骤</p>
+
+<h2 id="生成证书">生成证书</h2>
+
+<ol>
+  <li>
+    <p>进入你想创建证书和私钥的目录</p>
+
+    <p>我自己建立了一个目录用于存放证书<code class="highlighter-rouge"> /usr/local/nginx/ssl-key-ca/</code></p>
+  </li>
+  <li>
+    <p>创建私钥,证书…</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ openssl genrsa -des3 -out server.key 1024
+ $ openssl req -new -key server.key -out server.csr
+ $ cp server.key server.key.org
+ $ openssl rsa -in server.key.org -out server.key
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>标记证书使用上述私钥和CSR：</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="nginx配置ssl">Nginx配置SSL</h2>
+
+<h3 id="更改nginxconf">更改nginx.conf</h3>
+
+<p>添加下面的配置</p>
+
+<div class="language-conf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#虚拟主机wxapp.tmaize.net
+</span><span class="n">server</span> {
+	<span class="n">listen</span>       <span class="m">443</span> <span class="n">ssl</span>;
+	<span class="n">server_name</span>  <span class="n">wxapp</span>.<span class="n">tmaize</span>.<span class="n">net</span>;
+	<span class="n">ssl_certificate</span>      /<span class="n">usr</span>/<span class="n">local</span>/<span class="n">nginx</span>/<span class="n">ssl</span>-<span class="n">key</span>-<span class="n">ca</span>/<span class="n">server</span>.<span class="n">crt</span>; 
+	<span class="n">ssl_certificate_key</span>  /<span class="n">usr</span>/<span class="n">local</span>/<span class="n">nginx</span>/<span class="n">ssl</span>-<span class="n">key</span>-<span class="n">ca</span>/<span class="n">server</span>.<span class="n">key</span>;
+	<span class="n">location</span> / {
+		<span class="c">#请求转发到tomcat
+</span>		<span class="n">proxy_pass</span> <span class="n">http</span>://<span class="m">127</span>.<span class="m">0</span>.<span class="m">0</span>.<span class="m">1</span>:<span class="m">8080</span>/<span class="n">wxapp</span>/;
+	}
+}
+</code></pre></div></div>
+
+<h3 id="应用配置">应用配置</h3>
+
+<p>重启Nginx服务，如果没有报错，到这里就OK了</p>
+
+<p>但是我之前编译Nginx时好像少配置了好多模块，报错信息如下，没有ngx_http_ssl_module模块</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[root@VM_243_11_centos ~]# cd /usr/local/nginx/sbin/
+[root@VM_243_11_centos sbin]# ./nginx -s reload
+nginx: [emerg] the "ssl" parameter requires ngx_http_ssl_module in /usr/local/nginx/conf/nginx.conf:56
+</code></pre></div></div>
+
+<h3 id="重新编译nginx">重新编译Nginx</h3>
+
+<ol>
+  <li>
+    <p>查看之前的编译信息</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> [root@VM_243_11_centos sbin]# ./nginx -V
+ nginx version: nginx/1.10.1
+ built by gcc 4.4.7 20120313 (Red Hat 4.4.7-16) (GCC) 
+ configure arguments:
+</code></pre></div>    </div>
+
+    <p>果然是少了好多模块..</p>
+
+    <p>去官网下载源码手动编译添加ngx_http_ssl_module模块，当前版本是1.10.1，官网找不到了，可以下载1.10.x的其他版本</p>
+  </li>
+  <li>
+    <p>下载源码重新编译</p>
+
+    <p>注意参数之间的空格</p>
+
+    <div class="language-conf highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ./<span class="n">configure</span> --<span class="n">prefix</span>=/<span class="n">usr</span>/<span class="n">local</span>/<span class="n">nginx</span> --<span class="n">with</span>-<span class="n">http_stub_status_module</span> --<span class="n">with</span>-<span class="n">http_ssl_module</span> --<span class="n">with</span>-<span class="n">file</span>-<span class="n">aio</span> --<span class="n">with</span>-<span class="n">http_realip_module</span>
+</code></pre></div>    </div>
+
+    <p>OK没有错误，执行make注意不要再 make install，会在objs目录生成nginx执行文件</p>
+  </li>
+  <li>
+    <p>备份旧的nginx执行文件，替换上新的</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> [root@VM_243_11_centos objs]# cd /usr/local/nginx/sbin/
+ [root@VM_243_11_centos sbin]# cp nginx nginx.back
+ [root@VM_243_11_centos sbin]#cp /root/nginx-1.10.3/objs/nginx .
+</code></pre></div>    </div>
+
+    <p>测试新的nginx程序是否正确</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> [root@VM_243_11_centos sbin]# ./nginx -t
+ nginx: the configuration file /usr/local/nginx/conf/nginx.conf syntax is ok
+ nginx: configuration file /usr/local/nginx/conf/nginx.conf test is successful
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>重启nginx</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> [root@VM_243_11_centos sbin]# ./nginx -s stop
+ [root@VM_243_11_centos sbin]# ./nginx
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="访问域名测试">访问域名测试</h2>
+
+<p><img src="01.jpg" alt="p1" /></p>
+
+<p>Ok，没任何问题，证书有风险是没有CA机构认证(好贵的…)，至此可以满足在小程序里面发送请求的条件</p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

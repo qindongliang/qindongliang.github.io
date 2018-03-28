@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,android"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="对MVP架构的一些理解"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>对MVP架构的一些理解-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">对MVP架构的一些理解</h1>
+		
+		<div class="main"><p>MVP模式是MVC模式在Android上的一种变体，要介绍MVP就得先介绍MVC。
+在MVC模式中，Activity应该是属于View这一层。而实质上，它既承担了View，同时也包含一些Controller的东西在里面。
+这对于开发与维护来说不太友好，耦合度大高了。把Activity的View和Controller抽离出来就变成了View和Presenter，这就是MVP模式</p>
+
+<p>因此MVP模式（Model-View-Presenter）可以说是MVC模式（Model-View-Controller）在Android开发上的一种变种、进化模式。</p>
+
+<h2 id="mvc模式">MVC模式</h2>
+
+<p>MVC模式的结构分为三部分，实体层的Model，视图层的View，以及控制层的Controller</p>
+
+<p><img src="01.png" alt="01" /></p>
+
+<p>其中View层其实就是程序的UI界面，用于向用户展示数据以及接收用户的输入</p>
+
+<p>而Model层就是JavaBean实体类，用于保存实例数据</p>
+
+<p>Controller控制器用于更新UI界面和数据实例</p>
+
+<h2 id="mvp模式">MVP模式</h2>
+
+<p>按照MVC的分层，Activity和Fragment（后面只说Activity）应该属于View层，用于展示UI界面，以及接收用户的输入，此外还要承担一些生命周期的工作。Activity是在Android开发中充当非常重要的角色，特别是TA的生命周期的功能，所以开发的时候我们经常把一些业务逻辑直接写在Activity里面，这非常直观方便，代价就是Activity会越来越臃肿，超过1000行代码是常有的事，而且如果是一些可以通用的业务逻辑（比如用户登录），写在具体的Activity里就意味着这个逻辑不能复用了。如果有进行代码重构经验的人，看到1000+行的类肯定会有所顾虑。因此，Activity不仅承担了View的角色，还承担了一部分的Controller角色，这样一来V和C就耦合在一起了，虽然这样写方便，但是如果业务调整的话，要维护起来就难了，而且在一个臃肿的Activity类查找业务逻辑的代码也会非常蛋疼，所以看起来有必要在Activity中，把View和Controller抽离开来，而这就是MVP模式的工作了。</p>
+
+<p><img src="02.png" alt="02" /></p>
+
+<h3 id="项目结构">项目结构</h3>
+
+<p><a href="https://github.com/TMaize/android-mvp-demo">demo地址</a></p>
+
+<p><img src="03.png" alt="03" /></p>
+
+<p>View接口，定义在Activity里面用到的方法，Activity来实现这些接口</p>
+
+<p>MainView.java</p>
+
+<p>ShowLoadingView.java</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface MainView extends ShowLoadingView{
+    void updateView(String phone);
+    void clearView();
+    void showToast(String msg);
+}
+</code></pre></div></div>
+
+<p>Presenter主要负责数据处理和调用view里面的方法</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//Presenter接口
+public interface MainPresenter {
+    public void searchPhoneInfo(String phone);
+}
+
+//Presenter接口实现类
+public class MainPresenterImpl implements MainPresenter{
+
+    private MainView mainView;
+
+    private MainPresenterImpl(){
+
+    }
+
+    //通过构造方法来把View传递过来
+    public MainPresenterImpl(MainView mainView) {
+       this.mainView = mainView;
+    }
+
+    @Override
+    public void searchPhoneInfo(String phone){
+        
+        //获取数据，把数据传递到view或者调用view里的方法
+        mainView.showToast(error);
+    }
+}
+</code></pre></div></div>
+
+<p>APP Activity</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class MainActivity extends Activity implements MainView{
+
+    private MainPresenter mainPresenter;
+    
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //接口实现的绑定，实际上还是间接的对Activity放入操作
+        mainPresenter = new MainPresenterImpl(this);
+    }
+
+    //实现MainView接口里面的方法，供在Presenter里面调用
+}
+</code></pre></div></div>
+
+<h3 id="mvp的优点">MVP的优点</h3>
+
+<ul>
+  <li>
+    <p>分离了视图逻辑和业务逻辑，降低了耦合</p>
+  </li>
+  <li>
+    <p>Activity只处理生命周期的任务，代码变得更加简洁</p>
+  </li>
+  <li>
+    <p>视图逻辑和业务逻辑分别抽象到了View和Presenter的接口中去，提高代码的可阅读性</p>
+  </li>
+  <li>
+    <p>Presenter被抽象成接口，可以有多种具体的实现，所以方便进行单元测试</p>
+  </li>
+  <li>
+    <p>把业务逻辑抽到Presenter中去，避免后台线程引用着Activity导致Activity的资源无法被系统回收从而引起内存泄露和OOM</p>
+  </li>
+</ul>
+
+<h2 id="参考">参考</h2>
+
+<p><a href="https://segmentfault.com/a/1190000003927200">Android MVP模式 简单易懂的介绍方式</a></p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

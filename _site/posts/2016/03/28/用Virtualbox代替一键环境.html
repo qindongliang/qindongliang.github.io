@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,小技巧"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="用Virtualbox代替一键环境"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>用Virtualbox代替一键环境-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">用Virtualbox代替一键环境</h1>
+		
+		<div class="main"><blockquote>
+  <p>在windows下搭建web环境一般都是用phpStudy之类的一键环境，但是项目最终还是部署在linux上面，无法做到真实的模拟环境。所以考虑用Virtualbox安装CentOS，在虚拟机中模拟，然后进行端口转发即可</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p>达到了网页最真实的模拟环境</p>
+  </li>
+  <li>
+    <p>不用在windows中安装apache，php，MySQL…服务，避免搞乱系统</p>
+  </li>
+  <li>
+    <p>启动虚拟机就相当于启动了所需要的服务，真正地达到了一键配置</p>
+  </li>
+  <li>
+    <p>可以安装管理面板更加方便</p>
+  </li>
+</ol>
+
+<p><strong>系统为CentOS 6.3 32bit</strong></p>
+
+<h2 id="安装apache">安装apache</h2>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum <span class="nb">install </span>httpd
+service httpd start
+主配置文件在 /etc/httpd/conf/httpd.conf
+网页目录 /var/www/html/
+建立文件 /var/www/html/index.html
+</code></pre></div></div>
+
+<h2 id="虚拟机内部访问测试">虚拟机内部访问测试</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>w3m 127.0.0.1
+没有w3m命令先安装w3m
+yum install w3m
+显示/var/www/html/index.html的内容,表示在虚拟机内部可以正常访问
+</code></pre></div></div>
+
+<h2 id="端口转发">端口转发</h2>
+
+<p>如图所示，主机端口和子系统端口可以不同，这样在真机访问时要加上转发后的主机端口</p>
+
+<p><img src="01.jpg" alt="p1" /></p>
+
+<p><img src="02.jpg" alt="p2" /></p>
+
+<h2 id="虚拟机外部访问">虚拟机外部访问</h2>
+
+<p>在浏览器中输入127.0.0.10无法打开</p>
+
+<p>一般可能为以下几种情况</p>
+
+<ol>
+  <li>
+    <p>检查httpd进程是否启动</p>
+
+    <p><code class="highlighter-rouge">ps -ef | grep httpd</code></p>
+  </li>
+  <li>
+    <p>检查httpd是否在listen80端口</p>
+
+    <p><code class="highlighter-rouge">netstat -tlnp | grep 80</code></p>
+  </li>
+  <li>
+    <p>检查防火墙设置</p>
+
+    <p>默认情况下，端口80是拒绝访问的在防火墙上进行配置：在”COMMIT”的上一行加上如下配置，允许80端口通过防火墙</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> vi /etc/sysconfig/iptables
+ -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+ 接着重启防火墙使得配置生效
+ /etc/init.d/iptables restart
+ 实在不行，关闭防火墙
+ /etc/init.d/iptables stop
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>经过检查是防火墙的原因，解决后可以在真机中可以正常访问</p>
+
+<h2 id="最后一步">最后一步</h2>
+
+<p>其余的web服务需要用到端口的做一下端口转发即可，不再一一列举,一般MySQL的3306也会被防火墙阻止，做上述同样的处理即可,同时可以用Navicat来连接虚拟机里的MySQL，方便数据库的管理,也可以安装管理面板方便部署。</p>
+
+<p>虚拟机在启动时以无界面形式启动效果更佳#^_^#</p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

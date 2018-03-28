@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,jekyll"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="重写博客留言板"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>重写博客留言板-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">重写博客留言板</h1>
+		
+		<div class="main"><p>最近畅言好像要强制绑定手机号了，就想找下替代品</p>
+
+<p>发现了两个比较好的静态页面评论评论系统</p>
+
+<ol>
+  <li>
+    <p><a href="https://github.com/imsun/gitment">gitment</a></p>
+
+    <p>利用github的issue做评论，前提是必须要登陆github账号才能评论</p>
+  </li>
+  <li>
+    <p><a href="https://github.com/gitalk/gitalk">gitalk</a></p>
+
+    <p>和上面一样，优点是更加漂亮</p>
+
+    <p><img src="1.jpg" alt="01" /></p>
+  </li>
+</ol>
+
+<p>找了很久都没有找到适合的，最后开始找支持JavaScript请求的云数据库</p>
+
+<p>最终使用Bmob云实现了本博客的评论系统，不过缺点很明显，你的key全部都曝露在js文件里面了</p>
+
+<h2 id="预览">预览</h2>
+
+<p><img src="2.jpg" alt="02" /></p>
+
+<p><img src="3.jpg" alt="03" /></p>
+
+<h2 id="实现">实现</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Bmob.initialize("xxx", "xxx");
+//区分文章
+var url = window.location.host + window.location.pathname + window.location.search;
+var Comment = Bmob.Object.extend("Comment");
+var count = 0;
+var now = 0;
+var pageSize = 10;
+var reg = new RegExp("^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$");
+var more = document.getElementsByClassName('comment-list-loadmore')[0];
+var list = document.getElementsByClassName('comment-list')[0].getElementsByTagName('ul')[0];
+var inputs = document.getElementsByClassName('comment-input');
+
+//根据url加载评论条目
+var c_count = new Bmob.Query(Comment);
+c_count.equalTo("url", url);
+c_count.count({
+    success: function (c) {
+        count = c;
+        if (c &gt; 0) {
+            count = c;
+            loadMore(0, pageSize);
+        }
+
+    },
+    error: function (error) {
+        alert('查询总条数失败')
+    }
+});
+
+//根据时间降序列出前15条
+function loadMore(skip, size) {
+    var c_find = new Bmob.Query(Comment);
+    c_find.equalTo("url", url);
+    c_find.descending("time"); //时间降序排列
+    c_find.skip(skip);
+    c_find.limit(size);
+    c_find.find({
+        success: function (results) {
+            now += results.length;
+            if (now == count) {
+                more.style.display = 'none';
+            } else {
+                more.style.display = 'block';
+            }
+            for (var i = 0; i &lt; results.length; i++) {
+                var li = document.createElement('li');
+                var website = results[i].get('website');
+                if (website !== '') {
+                    website = " href='" + website + "'";
+                }
+                li.innerHTML = "&lt;div class='comment-list-title'&gt;&lt;a " + website + " target='_blank'&gt;" +
+                    results[i].get('nickName') + "&lt;/a&gt;&lt;span&gt;" + results[i].get('time') +
+                    "&lt;/span&gt;&lt;/div&gt;&lt;div class='comment-list-content'&gt;&lt;/div&gt;";
+                li.getElementsByClassName('comment-list-content')[0].innerText = results[i].get(
+                    'content');
+                list.appendChild(li);
+            }
+        },
+        error: function (error) {
+            alert("拉取评论信息失败");
+        }
+    });
+}
+
+//加载下一页
+inputs[5].onclick = function () {
+    loadMore(now, pageSize);
+}
+
+//提交评论
+inputs[4].onclick = function () {
+    var content = inputs[0].value.trim();
+    var nickName = inputs[1].value.trim();
+    var email = inputs[2].value.trim();
+    var website = inputs[3].value.trim();
+
+    // 校验....
+
+    var c_insert = new Comment();
+    c_insert.set("url", url);
+    c_insert.set("nickName", nickName);
+    c_insert.set("email", email);
+    c_insert.set("website", website);
+    c_insert.set("time", new Date());
+    c_insert.set("content", content);
+    c_insert.save(null, {
+        success: function (object) {
+            window.location.href = window.location.href;
+        },
+        error: function (model, error) {
+            alert("数据存储失败");
+        }
+    });
+}
+</code></pre></div></div>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

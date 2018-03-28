@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,javascript"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="JS的事件委托"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>JS的事件委托-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">JS的事件委托</h1>
+		
+		<div class="main"><p>在用jQuery的时候就知道对于表格的行或者列表的项添加事件的时候要使用on而不是直接添加事件。因为列表项和表格的内容经常是或被更新的,如果对一个位置添加事件,当这个位置的html被替换后,之前添加的时间也会消失的</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$(selector).on(event,childSelector,data,function)
+</code></pre></div></div>
+
+<p>后来才知道这个叫做事件委托-_-</p>
+
+<p>最近再写播放器的时候也遇到了使用的场景,就是播放器的播放列表的点击事件，由于是使用原生JS写的,所以查阅了下关于JS时间委托的内容</p>
+
+<p><img src="2-1.png" alt="2-1" /></p>
+
+<p>JS时间委托的原理很简单,就是利用了事件冒泡,对于table、ul、ol来说，里面的tr和li是经常变化的，而最外层的table、ul、ol是不变的，所以可以设置事件在table、ul、ol身上，当事件传播到上层的时候可以判断子元素有没有被委托的事件，有就执行，就是这么简单。。。</p>
+
+<p>错误代码,为好多元素添加了事件，而且不能适li的动态变化</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var lis = document.getElementById('ul').getElementsByTagName('li');
+for (var i = 0; i &lt; lis.length; i++) {
+    lis[i].onclick = function () {
+        alert('ok');
+    }
+}
+</code></pre></div></div>
+
+<p>事件触发的DOM的Event对象提供了一个属性叫target,代表事件触发位置的DOM</p>
+
+<p>所以可以这么写</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var ul = document.getElementById('ul');
+ul.addEventListener("click", function (ev) {
+    var ev = ev || window.event;
+    var target = ev.target || ev.srcElement;
+    if (target.nodeName.toLowerCase() === 'li') {
+        alert('ok');
+    }
+});
+</code></pre></div></div>
+
+<p>但是对于下面的情况,当点击a或者p标签的时候,上面的方法并不执行，因为target.nodeName为a或p并不是li</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;ul id="ul"&gt;
+    &lt;li&gt;
+        &lt;a&gt;45&lt;/a&gt;
+        &lt;p&gt;12&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li&gt;2&lt;/li&gt;
+    &lt;li&gt;3&lt;/li&gt;
+    &lt;li&gt;4&lt;/li&gt;
+    &lt;li&gt;5&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre></div></div>
+
+<p>所以改造代码如下</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var ul = document.getElementById('ul');
+ul.addEventListener("click", function (ev) {
+    var ev = ev || window.event;
+    var target = ev.target || ev.srcElement;
+    while (target !== ul) {
+        if (target.tagName.toLowerCase() === 'li') {
+            alert('ok');
+            break;
+        }
+        target = target.parentNode;
+    }
+});
+</code></pre></div></div>
+
+<p>或者下面,path是冒泡的路径</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var ul = document.getElementById('ul');
+ul.addEventListener("click", function (ev) {
+    var ev = ev || window.event;
+    var path = ev.path;
+    for (var i = 0; i &lt; path.length; i++) {
+        if (path[i] == ul) {
+            break;
+        }
+        if (path[i].nodeName.toLowerCase() === 'li') {
+            alert('ok');
+        }
+    }
+});
+</code></pre></div></div>
+
+<h2 id="参考">参考</h2>
+
+<p><a href="https://www.cnblogs.com/liugang-vip/p/5616484.html">js中的事件委托或是事件代理详解</a></p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

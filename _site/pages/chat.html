@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="google-site-verification" content="ckhUaoa05QCmWoE1FafzTBcqYI4yBOy-UJKopXDS18M" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="description" content="coding change world"/>
+		<meta name="keywords" content="Java,ELK,Spark,Scala,Hadoop,Solr,Lucene"/>
+		<meta name="author" content="Qin Dong Liang" />
+		
+			<link rel="stylesheet" href="/static/css/common.css">
+		
+		
+			<script type="text/javascript" src="/static/js/common.js"></script>
+		
+			<script type="text/javascript" src="/static/js/bmob-min.js"></script>
+		
+			<script type="text/javascript" src="/static/js/chat.js"></script>
+		
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>留言板-秦东亮的个人驿站 </title>
+	</head>
+<body>
+<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div class="comment">
+    <div class="comment-title">
+        <h1>留言板</h1>
+        <p>添加友链，内容交流，都可以在这里留下你的足迹....</p>
+    </div>
+    <div class="comment-content">
+        <p>评论内容(300字以内)*</p>
+        <textarea class="comment-input"></textarea>
+    </div>
+    <span class="comment-name">
+        <p>姓名(昵称)*</p>
+        <input type="text" class="comment-input">
+    </span>
+    <span class="comment-email">
+        <p>电子邮件(不会公开)</p>
+        <input type="text" class="comment-input">
+    </span>
+    <span class="comment-website">
+        <p>你的站点(http(s)://开头)</p>
+        <input type="text" class="comment-input">
+    </span>
+    <div class="comment-submit">
+        <input type="button" class="comment-input" value="提交">
+    </div>
+    <div class="comment-list">
+        <h2>所有评论</h2>
+        <ul>
+        </ul>
+        <div class="comment-list-loadmore">
+            <input type="button" class="comment-input" value="加载更多">
+        </div>
+    </div>
+</div>
+<style>
+    .comment {
+        /*50% 50% 不换行*/
+        font-size: 0;
+    }
+
+    .comment p {
+        padding: 0;
+        margin: 5px 0px;
+    }
+
+    .comment * {
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -o-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        box-sizing: border-box;
+        font-family: "Open Sans", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", Arial, Verdana, Tahoma, sans-serif;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .comment-input {
+        margin: 0;
+        padding: 0;
+        text-indent: 0;
+        outline: 0;
+        border: none;
+        border: 1px solid #AAA;
+        width: 100%;
+        padding: 6px;
+    }
+
+    .comment-title {
+        margin-bottom: 20px;
+    }
+
+    .comment-title h1 {
+        font-size: 18px;
+    }
+
+    .comment-content textarea {
+        height: 80px;
+        resize: none;
+    }
+
+    .comment-name {
+        display: inline-block;
+        width: 33%;
+    }
+
+    .comment-email {
+        display: inline-block;
+        width: 33%;
+        padding: 0 10px;
+    }
+
+    .comment-website {
+        display: inline-block;
+        width: 33%;
+    }
+
+    .comment-submit {
+        margin-top: 10px;
+    }
+
+    .comment-submit input {
+        border: 0;
+        width: 100px;
+        background-color: #222222;
+        color: #f9f9f9;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .comment-list h2 {
+        padding: 20px 0px 10px 0px;
+        border-bottom: 1px solid #666;
+    }
+
+    .comment-list ul {
+        margin-top: 12px;
+        padding: 0;
+        list-style: none;
+    }
+
+    .comment-list li {
+        margin-bottom: 20px;
+        border-left: 3px solid #ccc;
+        padding-left: 10px;
+        animation-duration: 1s;
+	    animation-fill-mode: both;
+	    animation-name: fadeInLeft;
+    }
+
+    .comment-list-title {
+        position: relative;
+    }
+
+    .comment-list-title a {
+        display: inline-block;
+        max-width: 170px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .comment-list-title span {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    .comment-list-content {
+        max-height: 100px;
+        overflow: auto;
+    }
+
+    .comment-list-loadmore {
+        margin-top: 25px;
+        text-align: center;
+        display: none;
+    }
+
+    .comment-list-loadmore input {
+        width: 80px;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background-color: #fff;
+        cursor: pointer;
+    }
+
+    @media screen and (max-width: 470px) {
+        .comment-name {
+            width: 100%;
+        }
+        .comment-email {
+            width: 100%;
+            padding: 0;
+        }
+
+        .comment-website {
+            width: 100%;
+        }
+    }
+</style>
+<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

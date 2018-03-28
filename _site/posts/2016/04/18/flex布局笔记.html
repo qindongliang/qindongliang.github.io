@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,html/css"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="flex布局笔记"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>flex布局笔记-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">flex布局笔记</h1>
+		
+		<div class="main"><h2 id="概念">概念</h2>
+
+<p>Flex 是 Flexible Box 的缩写，意为”弹性布局”，用来为盒状模型提供最大的灵活性。传统的布局，基于盒状模型，依赖display属性 + position属性 + float属性。它对于那些特殊布局非常不方便，比如，垂直居中就不容易实现。于是乎2009年，W3C提出了Flex布局，可以简便、完整、响应式地实现各种页面布局。</p>
+
+<p>首先采用Flex布局的元素，称为Flex容器（flex container），简称”容器”。它的所有子元素自动成为容器成员，称为Flex项目（flex item），简称”项目”。</p>
+
+<p>容器默认存在两根轴：水平的主轴（main axis）和垂直的交叉轴（cross axis）。主轴的开始位置（与边框的交叉点）叫做main start，结束位置叫做main end；交叉轴的开始位置叫做cross start，结束位置叫做cross end。项目默认沿主轴排列。单个项目占据的主轴空间叫做main size，占据的交叉轴空间叫做cross size。</p>
+
+<p><img src="01.png" alt="p1" /></p>
+
+<h2 id="语法">语法</h2>
+
+<h3 id="声明为flex布局">声明为flex布局</h3>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.box</span><span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="n">flex</span><span class="p">;</span>
+  <span class="c">/*Webkit 内核的浏览器，必须加上-webkit前缀*/</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="n">-webkit-flex</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c">/*也可以设置为行内的flex属性*/</span>
+<span class="nc">.box</span><span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="n">inline-flex</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>注意，设为Flex布局以后，子元素的float、clear和vertical-align属性将失效。</strong></p>
+
+<p><img src="02.png" alt="p2" /></p>
+
+<h3 id="flex容器的属性">flex容器的属性</h3>
+
+<ul>
+  <li>
+    <p>flex-direction</p>
+
+    <p>决定主轴的方向（即项目的排列方向），相对的另外一条轴就是交叉轴</p>
+
+    <p>取值：row（默认）主轴为水平方向，起点在左端，row-reverse，column，column-reverse</p>
+  </li>
+  <li>
+    <p>flex-wrap</p>
+
+    <p>默认情况下，项目都排在一条线（又称”轴线”）上。flex-wrap属性定义，如果一条轴线排不下，如何换行。</p>
+
+    <p>取值：nowrap（影响到项目的宽度），wrap， wrap-reverse（超出的换到上面）</p>
+  </li>
+  <li>
+    <p>flex-flow</p>
+
+    <p>flex-flow属性是flex-direction属性和flex-wrap属性的简写形式，默认值为row nowrap。</p>
+
+    <p><code class="highlighter-rouge">flex-flow: row nowrap</code></p>
+  </li>
+  <li>
+    <p>justify-content</p>
+
+    <p>定义了项目在主轴上的对齐方式</p>
+
+    <p>取值：flex-start，flex-end，center，space-between，space-around</p>
+  </li>
+  <li>
+    <p>align-items</p>
+
+    <p>定义项目在交叉轴上如何对齐</p>
+
+    <p>取值：flex-start，flex-end，center，baseline，stretch(子容器沿交叉轴方向的尺寸拉伸至与父容器一致)</p>
+
+    <p><img src="03.png" alt="p3" /></p>
+
+    <p>这里的baseline默认是指首行文字，下图中2号格子设置了paddingTop，可以看出效果</p>
+
+    <p><img src="04.jpg" alt="p4" /></p>
+
+    <p>取值为center时</p>
+
+    <p><img src="05.jpg" alt="p5" /></p>
+  </li>
+</ul>
+
+<p><strong>上面的属性只是针对一个主轴时，即只有一行，一行的所有元素在交叉轴上的排列时的范围是父元素的高度，当有多行即多个主轴时，按照行分派高度，每行的项目的活动范围是所在行分配到的高度</strong></p>
+
+<ul>
+  <li>
+    <p>align-content</p>
+
+    <p>当有多个主轴即多行时每行之间的对齐效果</p>
+
+    <p>取值：flex-start，flex-end，center，space-between，space-around，stretch</p>
+  </li>
+</ul>
+
+<h3 id="flex项目的属性">flex项目的属性</h3>
+
+<ul>
+  <li>
+    <p>order</p>
+
+    <p>定义项目的排列顺序。数值越小，排列越靠前，默认为0</p>
+  </li>
+  <li>
+    <p>flex-grow</p>
+
+    <p>定义项目的放大比例，默认为0，即如果存在剩余空间，也不放大，width属性将会失效</p>
+
+    <p>如果所有项目的flex-grow属性都相等，则它们将等分剩余空间（如果有的话）。如果一个项目的flex-grow属性为2，其他项目都为1，则前者占据的剩余空间将比其他项多一倍。</p>
+  </li>
+  <li>
+    <p>flex-shrink</p>
+
+    <p>定义了项目的缩小比例，默认为1，即如果空间不足，该项目将缩小，当设置flex-wrap为nowrap时效果就出来了</p>
+
+    <p>如果所有项目的flex-shrink属性都为1，当空间不足时，都将等比例缩小。如果一个项目的flex-shrink属性为0，其他项目都为1，则空间不足时，前者不缩小。<strong>负值对该属性无效</strong></p>
+  </li>
+  <li>
+    <p>flex-basis</p>
+
+    <p>项目占据的主轴空间（main size），它的默认值为auto，即项目的本来大小。浏览器根据这个属性，计算主轴是否有多余空间</p>
+
+    <p>取值为auto或者长度值</p>
+  </li>
+  <li>
+    <p>flex</p>
+
+    <p>flex属性是flex-grow, flex-shrink 和 flex-basis的简写，默认值为0 1 auto。后两个属性可选</p>
+  </li>
+  <li>
+    <p>align-self</p>
+
+    <p>align-self属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性。默认值为auto，表示继承父元素的align-items属性，如果没有父元素，则等同于stretch。</p>
+
+    <p>取值：auto，flex-start，flex-end，center，baseline，stretch</p>
+  </li>
+</ul>
+
+<h2 id="实例">实例</h2>
+
+<p>左侧固定宽度，右侧宽度随浏览器宽度自动改变，右侧内部方格大固定，会自动换行</p>
+
+<p><img src="06.jpg" alt="p6" /></p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">#main</span><span class="p">{</span>
+    <span class="nl">border</span><span class="p">:</span> <span class="m">1px</span> <span class="nb">dashed</span> <span class="no">red</span><span class="p">;</span>
+    <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
+    <span class="nl">height</span><span class="p">:</span> <span class="m">400px</span><span class="p">;</span>
+    <span class="nl">display</span><span class="p">:</span> <span class="n">flex</span><span class="p">;</span>
+    <span class="nl">flex-flow</span><span class="p">:</span> <span class="n">row</span> <span class="nb">nowrap</span><span class="p">;</span>
+    <span class="nl">justify-content</span><span class="p">:</span> <span class="n">flex-start</span><span class="p">;</span>
+    <span class="nl">align-items</span><span class="p">:</span> <span class="n">stretch</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nf">#left</span><span class="p">{</span>
+    <span class="nl">flex-basis</span><span class="p">:</span> <span class="m">100px</span><span class="p">;</span>
+    <span class="nl">flex-shrink</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+    <span class="nl">background</span><span class="p">:</span> <span class="no">pink</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nf">#right</span><span class="p">{</span>
+    <span class="nl">flex-grow</span><span class="p">:</span> <span class="m">1</span><span class="p">;</span>
+    <span class="nl">flex-shrink</span><span class="p">:</span> <span class="m">1</span><span class="p">;</span>
+    <span class="nl">background-color</span><span class="p">:</span> <span class="m">#00aa9a</span><span class="p">;</span>
+    <span class="nl">display</span><span class="p">:</span> <span class="n">inline-flex</span><span class="p">;</span>
+    <span class="nl">flex-flow</span><span class="p">:</span> <span class="n">row</span> <span class="n">wrap</span><span class="p">;</span>
+    <span class="nl">align-content</span><span class="p">:</span> <span class="n">flex-start</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nf">#right</span> <span class="nt">div</span><span class="p">{</span>
+    <span class="nl">background-color</span><span class="p">:</span> <span class="m">#5e6e5e</span><span class="p">;</span>
+    <span class="nl">margin</span><span class="p">:</span> <span class="m">10px</span><span class="p">;</span>
+    <span class="nl">flex-basis</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
+    <span class="nl">flex-shrink</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+    <span class="nl">height</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="参考">参考</h2>
+
+<p><a href="http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html">Flex 布局教程：语法篇</a></p>
+
+<p><a href="http://www.ruanyifeng.com/blog/2015/07/flex-examples.html">Flex 布局教程：实例篇</a></p>
+
+<p><a href="http://blog.csdn.net/magneto7/article/details/70854472">一劳永逸的搞定 flex 布局</a></p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

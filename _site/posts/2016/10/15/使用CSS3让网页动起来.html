@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,html/css"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="使用CSS3让网页动起来"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>使用CSS3让网页动起来-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">使用CSS3让网页动起来</h1>
+		
+		<div class="main"><p>之前的笔记介绍了<a href="/posts/2016/08/20/css3-变换-渐变-动画.html">css3-变换-渐变-动画</a>的基本使用</p>
+
+<p>这介绍几个具体的实例</p>
+
+<h2 id="使用过渡">使用过渡</h2>
+
+<p>CSS3的transition只有在应用的元素上的属性发生变化时才会生效，所以可以把状态写在clss中，然后使用js再来改变class</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;style&gt;</span>
+    <span class="nf">#div1</span><span class="p">{</span>
+        <span class="nl">width</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
+        <span class="nl">height</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
+        <span class="nl">margin-left</span><span class="p">:</span> <span class="m">200px</span><span class="p">;</span>
+        <span class="nl">background-color</span><span class="p">:</span> <span class="m">#00aa9a</span><span class="p">;</span>
+        <span class="c">/*为所有属性添加过渡效果*/</span>
+        <span class="nl">transition</span><span class="p">:</span> <span class="n">all</span> <span class="m">500ms</span> <span class="n">ease</span> <span class="m">0ms</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nc">.myAnimate</span><span class="p">{</span>
+        <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+        <span class="nl">transform</span><span class="p">:</span> <span class="n">translateX</span><span class="p">(</span><span class="m">50px</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="nt">&lt;/style&gt;</span>
+
+<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">value=</span><span class="s">"出去"</span> <span class="na">onclick=</span><span class="s">"aniOut()"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">value=</span><span class="s">"进来"</span> <span class="na">onclick=</span><span class="s">"aniIn()"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"div1"</span><span class="nt">&gt;&lt;/div&gt;</span>
+
+<span class="nt">&lt;script&gt;</span>
+<span class="kd">function</span> <span class="nx">aniOut</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"div1"</span><span class="p">).</span><span class="nx">className</span><span class="o">=</span><span class="s2">"myAnimate"</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">aniIn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"div1"</span><span class="p">).</span><span class="nx">className</span><span class="o">=</span><span class="s2">""</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p><img src="01.gif" alt="p01" /></p>
+
+<h2 id="使用动画">使用动画</h2>
+
+<p>同样也可以使用CSS3的动画来实现上述效果，好处是进入，进出动画的控制比较自由</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;style&gt;</span>
+    <span class="nf">#div1</span><span class="p">{</span>
+        <span class="nl">width</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
+        <span class="nl">height</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
+        <span class="nl">margin-left</span><span class="p">:</span> <span class="m">200px</span><span class="p">;</span>
+        <span class="nl">background-color</span><span class="p">:</span> <span class="m">#00aa9a</span><span class="p">;</span>
+        <span class="c">/*添加动画*/</span>
+        <span class="nl">animation-duration</span><span class="p">:</span> <span class="m">1s</span><span class="p">;</span>
+        <span class="nl">animation-fill-mode</span><span class="p">:</span> <span class="nb">both</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nc">.myAnimateOut</span><span class="p">{</span>
+        <span class="nl">animation-name</span><span class="p">:</span> <span class="n">out</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nc">.myAnimateIn</span><span class="p">{</span>
+        <span class="nl">animation-name</span><span class="p">:</span> <span class="n">in</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c">/*右侧飞出*/</span>
+    <span class="k">@keyframes</span> <span class="n">out</span> <span class="p">{</span>
+        <span class="nt">0</span><span class="o">%</span><span class="p">{</span>
+            <span class="nl">opacity</span><span class="p">:</span> <span class="m">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nt">100</span><span class="o">%</span> <span class="p">{</span>
+            <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+            <span class="nl">transform</span><span class="p">:</span> <span class="n">translateX</span><span class="p">(</span><span class="m">50px</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c">/*左侧飞入*/</span>
+    <span class="k">@keyframes</span> <span class="n">in</span> <span class="p">{</span>
+        <span class="nt">0</span><span class="o">%</span> <span class="p">{</span>
+            <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+            <span class="nl">transform</span><span class="p">:</span> <span class="n">translateX</span><span class="p">(</span><span class="m">-2000px</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nt">100</span><span class="o">%</span> <span class="p">{</span>
+            <span class="nl">opacity</span><span class="p">:</span> <span class="m">1</span><span class="p">;</span>
+            <span class="c">/*移动到左边很远的地方，不然会有滚动条*/</span>
+            <span class="nl">transform</span><span class="p">:</span> <span class="n">translateX</span><span class="p">(</span><span class="m">0px</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="nt">&lt;/style&gt;</span>
+
+<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">value=</span><span class="s">"出去"</span> <span class="na">onclick=</span><span class="s">"aniOut()"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">value=</span><span class="s">"进来"</span> <span class="na">onclick=</span><span class="s">"aniIn()"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"div1"</span><span class="nt">&gt;&lt;/div&gt;</span>
+
+<span class="nt">&lt;script&gt;</span>
+    <span class="kd">var</span> <span class="nx">div1</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"div1"</span><span class="p">);</span>
+
+    <span class="kd">function</span> <span class="nx">aniOut</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="s2">"myAnimateOut"</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kd">function</span> <span class="nx">aniIn</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="s2">"myAnimateIn"</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p><img src="03.gif" alt="p03" /></p>
+
+<h2 id="更简单的animatecss">更简单的Animate.css</h2>
+
+<p>如果自己定义的动画帧不好看，可以使用<a href="https://daneden.github.io/animate.css/">Animate.css</a>，里面定义好了了大量的动画，使用时只需要添加类就可以了</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span>
+    <span class="kd">var</span> <span class="nx">div1</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"div1"</span><span class="p">);</span>
+
+    <span class="kd">function</span> <span class="nx">aniOut</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="s2">"animated bounceOutLeft"</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kd">function</span> <span class="nx">aniIn</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="s2">"animated bounceInLeft"</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<h2 id="一些缺陷">一些缺陷</h2>
+
+<p>上面虽然实现了动画效果，要么是透明度为0，要么是移动到屏幕之外看不到了，然而还会占据空间,但是有时候希望消除元素占用的空间，所以还要为元素设置display:none</p>
+
+<p><img src="02.jpg" alt="p02" /></p>
+
+<p>主要难点就是过渡状态结束的监听</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span>
+    <span class="kd">var</span> <span class="nx">div1</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"div1"</span><span class="p">);</span>
+    <span class="kd">function</span> <span class="nx">aniOut</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">//防止乱点</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">!=</span><span class="s2">"myAnimate hidden"</span><span class="p">){</span>
+            <span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="s2">"myAnimate"</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kd">function</span> <span class="nx">aniIn</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">//先取消hidden再取消myAnimate，不然不会有动画</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">===</span><span class="s2">"myAnimate hidden"</span><span class="p">){</span>
+            <span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="s2">"myAnimate"</span><span class="p">;</span>
+            <span class="nx">setTimeout</span><span class="p">(</span><span class="s2">"div1.className=''"</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">//过渡结束的事件</span>
+    <span class="nx">div1</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">"transitionend"</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">===</span><span class="s2">"myAnimate"</span><span class="p">){</span>
+            <span class="nx">div1</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="s2">"myAnimate hidden"</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">},</span> <span class="kc">true</span><span class="p">);</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<h2 id="进入页面时局部动画实现">进入页面时局部动画实现</h2>
+
+<p>结合Animate.css，实现首次进入/刷新，加完成时，某些局部元素的动画</p>
+
+<p>其实很简单，只要在元素上设置动画类就可以了，并不需要用js动态添加。相反用js动态添加可能会闪一下，再播放动画</p>
+
+<p>还可以监听动画结束</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;ul&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"animated bounceInLeft"</span><span class="nt">&gt;</span>L111111111111111111111111123333333333333321<span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"animated fadeInRight"</span><span class="nt">&gt;</span>L111111111111111111111111123333333333333321<span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"animated rotateInUpLeft"</span><span class="nt">&gt;</span>L111111111111111111111111123333333333333321<span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"animated rollIn"</span><span class="nt">&gt;</span>L111111111111111111111111123333333333333321<span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"animated lightSpeedIn"</span><span class="nt">&gt;</span>L111111111111111111111111123333333333333321<span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;/ul&gt;</span>
+
+<span class="c">&lt;!-- 并不需要 --&gt;</span>
+<span class="nt">&lt;script&gt;</span>
+    <span class="kd">var</span> <span class="nx">lis</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"li"</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="nx">lis</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="nx">lis</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">"webkitAnimationEnd"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+           <span class="k">this</span><span class="p">.</span><span class="nx">className</span><span class="o">=</span><span class="s2">""</span><span class="p">;</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p><img src="04.gif" alt="p04" /></p>
+
+<h2 id="点击冒泡动画">点击冒泡动画</h2>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@keyframes</span> <span class="n">fadeOutUp</span> <span class="p">{</span>
+    <span class="nt">from</span> <span class="p">{</span>
+        <span class="nl">opacity</span><span class="p">:</span> <span class="m">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nt">to</span> <span class="p">{</span>
+        <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+        <span class="nl">transform</span><span class="p">:</span> <span class="n">translate3d</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">-350%</span><span class="p">,</span> <span class="m">0</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">window</span><span class="p">.</span><span class="nx">onclick</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">clickTips</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"富强"</span><span class="p">,</span> <span class="s2">"民主"</span><span class="p">,</span> <span class="s2">"文明"</span><span class="p">,</span> <span class="s2">"和谐"</span><span class="p">,</span> <span class="s2">"自由"</span><span class="p">,</span> <span class="s2">"平等"</span><span class="p">,</span> <span class="s2">"公正"</span> <span class="p">,</span><span class="s2">"法治"</span><span class="p">,</span> <span class="s2">"爱国"</span><span class="p">,</span> <span class="s2">"敬业"</span><span class="p">,</span> <span class="s2">"诚信"</span><span class="p">,</span> <span class="s2">"友善"</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">span</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">'span'</span><span class="p">);</span>
+    <span class="nx">span</span><span class="p">.</span><span class="nx">innerText</span> <span class="o">=</span> <span class="nx">clickTips</span><span class="p">[</span><span class="nb">parseInt</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="o">*</span><span class="nx">clickTips</span><span class="p">.</span><span class="nx">length</span><span class="p">)];</span>
+
+    <span class="nx">span</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s2">"style"</span><span class="p">,</span><span class="s2">"z-index:999;position:absolute;left:"</span><span class="o">+</span><span class="nx">ev</span><span class="p">.</span><span class="nx">pageX</span><span class="o">+</span><span class="s2">"px;top:"</span><span class="o">+</span><span class="p">(</span><span class="nx">ev</span><span class="p">.</span><span class="nx">pageY</span><span class="o">-</span><span class="mi">20</span><span class="p">)</span><span class="o">+</span><span class="s2">"px;animation-duration:1s;"</span> <span class="o">+</span>
+            <span class="s2">"animation-fill-mode:both;animation-name:fadeOutUp;"</span><span class="p">);</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">span</span><span class="p">);</span>
+    <span class="c1">//WebKit</span>
+    <span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">WebkitAnimation</span><span class="o">!=</span><span class="s2">"undefined"</span><span class="p">){</span>
+        <span class="nx">span</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">"webkitAnimationEnd"</span><span class="p">,</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+            <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">removeChild</span><span class="p">(</span><span class="nx">span</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="nx">span</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">"animationend"</span><span class="p">,</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+            <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">removeChild</span><span class="p">(</span><span class="nx">span</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="05.gif" alt="p05" /></p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

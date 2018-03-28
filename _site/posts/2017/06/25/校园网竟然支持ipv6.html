@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,小技巧"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="校园网竟然支持ipv6"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>校园网竟然支持ipv6-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">校园网竟然支持ipv6</h1>
+		
+		<div class="main"><p>昨天宽带突然断掉了，弹出了Google Play中的一个软件的下载地址，竟然可以直接访问！！！赶紧打开Google竟然也可以访问</p>
+
+<p>于是赶紧到控制台ping一下，发现地址竟然是ipv6格式的</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>正在 Ping www.google.com [2404:6800:4008:800::2004] 具有 32 字节的数据:
+来自 2404:6800:4008:800::2004 的回复: 时间=127ms
+来自 2404:6800:4008:800::2004 的回复: 时间=136ms
+
+C:\windows\system32&gt;ping www.youtube.com
+正在 Ping youtube-ui-china.l.google.com [2404:6800:4008:800::200e] 具有 32 字节的数据:
+来自 2404:6800:4008:800::200e 的回复: 时间=136ms
+来自 2404:6800:4008:800::200e 的回复: 时间=133ms
+</code></pre></div></div>
+
+<p>上网查阅了一下发现：我国校园网有可靠的 IPv6 网络环境，速度非常快、稳定，并且大多数高校在网络流量计费时不会限制 IPv6 的流量，也就是免费的。同时<strong>GFW好像没有封ipv6的地址</strong></p>
+
+<p>于是又找了几个支持ipv6的网站试了一下好像都可以访问,比如说维基百科，youtube，Facebook以及Google的全套服务</p>
+
+<h2 id="如何访问更多的ipv6网站">如何访问更多的ipv6网站</h2>
+
+<p>那么问题来了，下如何访问更多的ipv6网站呢？当然是通过DNS服务器了</p>
+
+<p>一些网站时支持ipv6访问的，然而用学校的DNS解析不出来真正的地址，所以只需要使用自己定义的DNS地址即可</p>
+
+<p>在网上搜到了一些ipv6的DNS服务器，只需要把它配置到以太网的ipv6的自定义DNS中，同时要取消ipv4的访问（这时你将无法访问校园网的 IPv4 网关，同时所有流量都在 IPv6 通道上）</p>
+
+<p>但是取消掉ipv4的访问时，出现了宽带连接702错误，没办法只能把DNS设置在以太网上，同时也只能断网的情况下访问了，这样<strong>断网的情况下可访问的ipv6网站就变多了</strong></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 北京邮电大学DNS服务器
+
+2001:da8:202:10::36
+2001:da8:202:10::37
+
+# Google的ipv6DNS服务器
+
+google-public-dns-a.google.com 2001:4860:4860::8888 8.8.8.8
+
+google-public-dns-b.google.com 2001:4860:4860::8844 8.8.4.4
+</code></pre></div></div>
+
+<p>ping一下这些服务器，找一些速度比较快的设置一下即可访问更多的ipv6网站（前期是网站支持）</p>
+
+<p><img src="01.jpg" alt="01" /></p>
+
+<h2 id="如何在宽带连接的情况下访问ipv6网站">如何在宽带连接的情况下访问ipv6网站</h2>
+
+<p>毕竟ipv4的网站还是大多数，我们日常使用的网站都是通过ipv4来访问的</p>
+
+<p>所以还是要连接宽带，但是这时候再ping会发现访问Google时访问的是被墙的那个地址</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\windows\system32&gt;ping www.google.com
+正在 Ping www.google.com [93.46.8.89] 具有 32 字节的数据
+</code></pre></div></div>
+
+<p>为解决上述问题只需要把ipv6的地址写入的hosts文件中即可</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>127.0.0.1       localhost
+
+# google ipv6
+2404:6800:4008:800::2004 www.google.com
+
+# 这个是啥网站
+2400:cb00:2048:1::6819:1f70 t66y.com
+</code></pre></div></div>
+
+<p>配置好之后，你会发现在连接到宽带的情况下可以访问被墙的Google了。所以只要把一些常用的ipv6网站配置到你的hosts文件中即可，不过比较麻烦的是配置文件不支持通配符的格式</p>
+
+<h2 id="利用nat64dns64技术">利用NAT64/DNS64技术</h2>
+
+<p>可以将 IPv4 地址对应的转换为 IPv6 地址，相当于指引向 IPv6 流量，相当于一种代理。它还可以实现 IPv4 和 IPv6 协议的互访</p>
+
+<p>其实现的主要诀窍就是添加其为 DNS 服务器，并在本地停用 IPv4 协议。步骤和上面添加DNS一样。不过这里添加的DNS并不是简单的DNS服务器，可以把它理解为一个代理服务器</p>
+
+<p>此方案虽然可以纯粹使用 IPv6 网络并且免流量，但仍然存在一些不足。例如，访问国内部分网站时因为带宽等的限制会不如之前那么快。并且去哪找这些NAT64/DNS64的地址，网上公布的一些都用不了</p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

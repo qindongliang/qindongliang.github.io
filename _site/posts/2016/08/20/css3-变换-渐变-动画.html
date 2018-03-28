@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,html/css"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="CSS3.0 变换 渐变 动画"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>CSS3.0 变换 渐变 动画-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">CSS3.0 变换 渐变 动画</h1>
+		
+		<div class="main"><h2 id="2d变换">2D变换</h2>
+
+<p>在 2D变换模块中，有一系列不同的变化可以应用到元素上，所有这些变换都被声明为transform属性中的函数</p>
+
+<p>基本语法：<code class="highlighter-rouge">E{transform: function(value);}</code></p>
+
+<p>应用多个变换：<code class="highlighter-rouge">E{transform: function(value) function(value) function(value) ...;}</code></p>
+
+<p>由于尚未标准化，还要考虑到在不同浏览器下 的兼容性</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">E</span><span class="p">{</span>
+    <span class="nl">-moz-transform</span><span class="p">:</span> <span class="n">function</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="nl">-ms-transform</span><span class="p">:</span> <span class="n">function</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="nl">-o-transform</span><span class="p">:</span> <span class="n">function</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="nl">-webkit-transform</span><span class="p">:</span> <span class="n">function</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="nl">transform</span><span class="p">:</span> <span class="n">function</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="旋转">旋转</h3>
+
+<p><code class="highlighter-rouge">E{transform: rotate(value);}</code></p>
+
+<p>这里的value是一个角度值，以deg为单位,正值表示顺时针，比如<code class="highlighter-rouge">45deg</code>表示顺时针旋转45度</p>
+
+<p><strong>元素一旦经过变换就像是把position:relative应用到上面，原始位置隐藏起来但会占据位置，这就意味着变换之后可能会覆盖周围的一些元素</strong></p>
+
+<h3 id="变换中心">变换中心</h3>
+
+<p>规定变换的中心轴</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">transform-origin</span><span class="o">:</span> <span class="nt">50</span><span class="o">%</span> <span class="nt">50</span><span class="o">%;</span>
+<span class="c">/*transform-origin: 0px 0px;*/</span>
+<span class="c">/*transform-origin: left top;*/</span>
+</code></pre></div></div>
+
+<h3 id="平移">平移</h3>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">transform</span><span class="o">:</span> <span class="nt">translate</span><span class="o">(</span><span class="nt">50px</span><span class="o">,</span><span class="nt">50px</span><span class="o">);</span>
+<span class="c">/*transform: translateX(50px) translateY(50px);*/</span>
+</code></pre></div></div>
+
+<h3 id="倾斜">倾斜</h3>
+
+<p><strong>会受transform-origin的影响</strong></p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">/*transform: skew(-45deg,0deg);*/</span>
+<span class="nt">transform</span><span class="o">:</span> <span class="nt">skewX</span><span class="o">(</span><span class="nt">45deg</span><span class="o">)</span> <span class="nt">skewY</span><span class="o">(</span><span class="nt">0deg</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>同时你也可以用倾斜函数来代替旋转函数，只需要把旋转角度赋值给skewX，相反值给skewY</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">transform</span><span class="o">:</span> <span class="nt">skew</span><span class="o">(</span><span class="nt">15deg</span><span class="o">,</span><span class="nt">-15deg</span><span class="o">);</span>
+<span class="c">/*
+等价与
+transform: rotate(-15deg);
+*/</span>
+</code></pre></div></div>
+
+<h3 id="缩放">缩放</h3>
+
+<p>没啥好解释的<strong>会受transform-origin的影响</strong></p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">transform</span><span class="o">:</span> <span class="nt">scaleX</span><span class="o">(</span><span class="nt">0</span><span class="nc">.5</span><span class="o">)</span> <span class="nt">scaleY</span><span class="o">(</span><span class="nt">2</span><span class="o">);</span>
+<span class="c">/*transform: scale(0.5,2);*/</span>
+</code></pre></div></div>
+
+<h3 id="2d矩阵变换">2D矩阵变换</h3>
+
+<p>你可以使用一个最终变换函数，将多个点换应用到一个元素上，这个函数称为matrix。matrix函数接受六个值，通过对值的组合可以实现上面的所有效果，不过比较难理解。</p>
+
+<p>基本语法：<code class="highlighter-rouge">transform: matrix(a,b,c,d,X,Y);</code></p>
+
+<p>比如通过多重变换实现镜像翻转</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">transform</span><span class="o">:</span> <span class="nt">scale</span><span class="o">(</span><span class="nt">1</span><span class="o">,</span><span class="nt">-1</span><span class="o">)</span> <span class="nt">translate</span><span class="o">(</span><span class="nt">0px</span><span class="o">,</span><span class="nt">-80px</span><span class="o">);</span>
+<span class="c">/*通过一个矩阵变换实现多重变换的效果*/</span>
+<span class="nt">transform</span><span class="o">:</span> <span class="nt">matrix</span><span class="o">(</span><span class="nt">1</span><span class="o">,</span><span class="nt">0</span><span class="o">,</span><span class="nt">0</span><span class="o">,</span><span class="nt">-1</span><span class="o">,</span><span class="nt">0</span><span class="o">,</span><span class="nt">80</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="3d变换">3D变换</h2>
+
+<p>CSS3 3D变换模块引入的Z轴，使得CSS3引入了一种真正具有颠覆性的方法，能够在三维中变换元素</p>
+
+<p><img src="01.png" alt="p01" /></p>
+
+<h2 id="透视perspective-origin">透视perspective-origin</h2>
+
+<p>perspective的中文意思是：透视，视角！</p>
+
+<p>perspective属性的存在与否决定了你所看到的是2次元的还是3次元的，也就是是2D transform还是3D transform。这不难理解，没有透视，不成3D。</p>
+
+<p>在CSS3 3D transform的默认透视点是元素正中央法线位置指定距离处，近似就是在浏览器的前方眼睛所在方位！perspective-origin就是设置这个透视点的投影位置的</p>
+
+<p><img src="02.png" alt="p02" /></p>
+
+<p>我们都知道近大远小的道理，translateZ的功能就是让元素在自己的眼前或近或远。比方说，我们在视点在屏幕前200px即<code class="highlighter-rouge">perspective: 200px;</code>,而translateZ则是控制物体在Z轴的移动，<code class="highlighter-rouge">transform: translateZ(0px);</code>表示在原始位置不动，当translateZ值靠近200px时即越来越靠近视点，图像会越来越大（如果父辈元素没有类似overflow:hidden的限制的话），当&gt;=200px时就跑到视点后方了也就看不到了。</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;style&gt;</span>
+<span class="nc">.container</span><span class="p">{</span>
+    <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
+    <span class="nl">border</span><span class="p">:</span> <span class="m">1px</span> <span class="nb">dashed</span> <span class="n">grey</span><span class="p">;</span>
+    <span class="nl">perspective</span><span class="p">:</span> <span class="m">200px</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nc">.box</span><span class="p">{</span>
+    <span class="nl">margin</span><span class="p">:</span> <span class="m">0</span> <span class="nb">auto</span><span class="p">;</span>
+    <span class="nl">height</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
+    <span class="nl">width</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
+    <span class="nl">background-color</span><span class="p">:</span> <span class="m">#00aa9a</span><span class="p">;</span>
+    <span class="nl">transform</span><span class="p">:</span> <span class="n">translateZ</span><span class="p">(</span><span class="m">0px</span><span class="p">);</span>
+    <span class="c">/*transform: translateZ(199px);画面非常大*/</span>
+<span class="p">}</span>
+<span class="nt">&lt;/style&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+<span class="nt">&lt;section</span> <span class="na">class=</span><span class="s">"container"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"box"</span><span class="nt">&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;/section&gt;</span>
+</code></pre></div></div>
+
+<p>perspective属性有两种书写形式，一种用在舞台元素上（动画元素们的共同父辈元素），另一种就是用在当前动画元素上，与transform的其他属性写在一起。当为父元素设置perspective时，视点在父元素的正中央的垂直法线指定距离，所以里面的元素与视点并不时成相同的角度，显示会有不同。而与transform的其他属性写在一起相当于为子元素单独设置视点，且每个视点<strong>相对</strong>元素的位置相同，最终所呈现的效果也一样</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.stage</span> <span class="p">{</span>
+    <span class="nl">perspective</span><span class="p">:</span> <span class="m">600px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nf">#stage</span> <span class="nc">.box</span> <span class="p">{</span>
+    <span class="nl">transform</span><span class="p">:</span> <span class="n">perspective</span><span class="p">(</span><span class="m">600px</span><span class="p">)</span> <span class="n">rotateY</span><span class="p">(</span><span class="m">45deg</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>视点设置在舞台上时的效果，下图实际上是有九个方格的其中一个角度特殊刚好看不到了</p>
+
+<p><img src="03.jpg" alt="p03" /></p>
+
+<h3 id="transform-style-preserve-3d">transform-style: preserve-3d</h3>
+
+<p>transform-style属性也是3D效果中经常使用的，其两个参数，flat或者preserve-3d. 前者flat为默认值，表示平面的；后者preserve-3d表示3D透视。</p>
+
+<p>preserve-3d符合我们真实世界的思维认识。比方说，你让妹子右转了45度，此时妹子脑袋左转45度想你吐舌卖萌，右转之后妹子的脸蛋应该和你是面对面平行的。</p>
+
+<p>应用transform-style: preserve-3d声明的元素确实是这样表现的，但是，如果使用默认的flat值，其效果表现——恕我想象力有限——想不通：妹子的脸还是左转45度的，同时脑袋似乎移到了身体以外的地方！</p>
+
+<p>因此，基本上，我们想要根据现实经验实现一些3D效果的时候，transform-style: preserve-3d是少不了的。一般而言，该声明应用在3D变换的兄弟元素们的父元素上，也就是舞台元素。</p>
+
+<h3 id="backface-visibility">backface-visibility</h3>
+
+<p>属性定义当元素不面向屏幕时是否可见。如果在旋转元素不希望看到其背面时，该属性很有用,比如下面的样式，X轴转120度也就是背面，设置<code class="highlighter-rouge">backface-visibility:hidden</code>时不可见</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.box1</span><span class="p">{</span>
+    <span class="nl">backface-visibility</span><span class="p">:</span><span class="nb">hidden</span><span class="p">;</span>
+    <span class="nl">transform</span><span class="p">:</span> <span class="n">perspective</span><span class="p">(</span><span class="m">100px</span><span class="p">)</span> <span class="n">rotateX</span><span class="p">(</span><span class="m">120deg</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="旋转-1">旋转</h3>
+
+<p>在二维空间中只有一条旋转轴，所以rotate函数只需要一个单独的值。但是在三维中旋转时，有三条轴可以绕着旋转，因此要有三个属性控制</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.box1</span><span class="p">{</span>
+    <span class="nl">transform</span><span class="p">:</span> <span class="n">perspective</span><span class="p">(</span><span class="m">100px</span><span class="p">)</span> <span class="n">rotateX</span><span class="p">(</span><span class="m">25deg</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nc">.box2</span><span class="p">{</span>
+    <span class="nl">transform</span><span class="p">:</span> <span class="n">perspective</span><span class="p">(</span><span class="m">100px</span><span class="p">)</span> <span class="n">rotateY</span><span class="p">(</span><span class="m">25deg</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nc">.box3</span><span class="p">{</span>
+    <span class="nl">transform</span><span class="p">:</span> <span class="n">perspective</span><span class="p">(</span><span class="m">100px</span><span class="p">)</span> <span class="n">rotateZ</span><span class="p">(</span><span class="m">25deg</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nc">.box4</span><span class="p">{</span>
+    <span class="nl">transform</span><span class="p">:</span> <span class="n">perspective</span><span class="p">(</span><span class="m">100px</span><span class="p">)</span> <span class="n">rotateX</span><span class="p">(</span><span class="m">25deg</span><span class="p">)</span> <span class="n">rotateY</span><span class="p">(</span><span class="m">25deg</span><span class="p">)</span> <span class="n">rotateZ</span><span class="p">(</span><span class="m">25deg</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="04.jpg" alt="p04" /></p>
+
+<h3 id="变换原点">变换原点</h3>
+
+<p>规定变换的中心点<code class="highlighter-rouge">transform-origin: x,y,z;</code></p>
+
+<p>前两个值和2D变换中的一样，可以是关键字left，right，center，top，bottom…或者是百分比。第三个值是一个长度值，设置了将发生变换距离Z轴的距离。</p>
+
+<h3 id="平移缩放">平移&amp;缩放</h3>
+
+<p><strong>受transform-origin的影响</strong></p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">/*平移*/</span>
+<span class="c">/*transform: perspective(100px) translateX(20px) translateY(20px) translateZ(20px);*/</span>
+<span class="nt">transform</span><span class="o">:</span> <span class="nt">perspective</span><span class="o">(</span><span class="nt">100px</span><span class="o">)</span> <span class="nt">translate3d</span><span class="o">(</span><span class="nt">20px</span><span class="o">,</span><span class="nt">20px</span><span class="o">,</span><span class="nt">20px</span><span class="o">);</span>
+
+<span class="c">/*缩放*/</span>
+<span class="c">/*
+scaleX(0.5)
+scaleY(1.5)
+scaleZ(0.5)
+scale3d(x,y,z)
+*/</span>
+</code></pre></div></div>
+
+<p>注意scaleZ在没有设置translateZ之前并没小果，必须要先设置scaleZ再设置translateZ才有效果。比如Z轴缩放1.5倍平移10px实际效果为平移15px</p>
+
+<h3 id="3d矩阵变换">3D矩阵变换</h3>
+
+<p>在2D变换中最难懂的就是matrix函数，该函数使用六个值和一些三角几何计算去实现复杂的变换。</p>
+
+<p>在3D变换中，引入了具有16个参数的matrix3d函数(～ o ～)~zZ，,不会用啊，语法如下：</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nt">transform</span><span class="o">:</span> <span class="nt">matrix3d</span><span class="o">(</span>
+    <span class="nt">m01</span><span class="o">,</span><span class="nt">m02</span><span class="o">,</span><span class="nt">m03</span><span class="o">,</span><span class="nt">m04</span><span class="o">,</span>
+    <span class="nt">m05</span><span class="o">,</span><span class="nt">m06</span><span class="o">,</span><span class="nt">m07</span><span class="o">,</span><span class="nt">m08</span><span class="o">,</span>
+    <span class="nt">m09</span><span class="o">,</span><span class="nt">m10</span><span class="o">,</span><span class="nt">m11</span><span class="o">,</span><span class="nt">m012</span><span class="o">,</span>
+    <span class="nt">m13</span><span class="o">,</span><span class="nt">m14</span><span class="o">,</span><span class="nt">m15</span><span class="o">,</span><span class="nt">m16</span>
+<span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="过渡">过渡</h2>
+
+<p>CSS2没有中间状态，当一个属性值发生改变时，是瞬时改变的，比如hover时改变大小时特别生硬。CSS3.0引入了过渡模块，提供了两种状态之间的过渡动画。</p>
+
+<p>主要属性过渡属性，持续时间，计时函数，延迟…比如下面的代码</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.box1{
+    /*那些属性发生改变时要过渡，默认值为all时是全过渡，null时不过度*/
+    transition-property: transform,background-color;
+    /*使用自带的及时函数效果，慢慢开始再块加速再在结尾处降低速度
+    常见的有ease，linear，ease-in，ease-out，ease-in-out
+    如果不能满足需求可以还有立方贝塞尔曲线自定义
+    transition-timing-function: cubic-bezier(x1,y1,x2,y2);
+    */
+    transition-timing-function: ease;
+    /*过渡持续时长，默认是0，等同于不过度。单位有s和ms*/
+    transition-duration: 500ms;
+    /*过渡延迟*/
+    transition-delay: 200ms;
+}
+.box1:hover{
+    background-color: pink;
+    transform: scale(2);
+}
+</code></pre></div></div>
+
+<h3 id="立方贝塞尔曲线">立方贝塞尔曲线</h3>
+
+<p><code class="highlighter-rouge">transition-timing-function: cubic-bezier(x1,y1,x2,y2);</code></p>
+
+<p>线的两个端点是固定的，分别在(0,0),(1,1),通过控制点(x1,y1)(x2,y2)来生成贝塞尔曲线，如下图的红蓝点，动画中下面那个是匀速的，和上边的对比可以看到差异</p>
+
+<p><img src="05.gif" alt="p05" /></p>
+
+<h3 id="简写">简写</h3>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">/*注意顺序*/</span>
+<span class="nt">E</span><span class="p">{</span>
+    <span class="nl">transition</span><span class="p">:</span><span class="n">transition-property</span> <span class="n">transition-duration</span> <span class="n">transition-timing-function</span> <span class="n">transition-delay</span><span class="p">;</span> 
+<span class="p">}</span>
+
+<span class="c">/*上面的代码可以简写为*/</span>
+<span class="nc">.box1</span><span class="p">{</span>
+    <span class="nl">transition</span><span class="p">:</span> <span class="n">transform</span> <span class="m">500ms</span> <span class="n">ease</span> <span class="m">200ms</span><span class="p">,</span><span class="n">background-color</span> <span class="m">500ms</span> <span class="n">ease</span> <span class="m">200ms</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c">/*不同值时的简写，多重过渡*/</span>
+<span class="nc">.box1</span><span class="p">{</span>
+    <span class="nl">transition-property</span><span class="p">:</span> <span class="n">transform</span><span class="p">,</span><span class="n">background-color</span><span class="p">;</span>
+    <span class="nl">transition-duration</span><span class="p">:</span> <span class="m">500ms</span><span class="p">,</span><span class="m">400ms</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="动画">动画</h2>
+
+<p>创建动画的第一步是创建关键帧，在帧中定义元素的属性，最后再应用到动画上。</p>
+
+<p>要注意单个帧上的继承所发挥作用，如果要让一个变化在两个帧上持续，就需要在每一帧中指定它</p>
+
+<div id="htmldemo"></div>
+<style>
+#htmldemo{
+    height: 30px;
+    width: 30px;
+    background-color: #00aa9a;
+    animation-name: moveX;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-fill-mode : both;
+}
+@keyframes moveX {
+    0%{
+        transform: translateX(0px);
+    }
+    100%{
+        transform: translateX(100px);
+    }
+}
+</style>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.box</span><span class="p">{</span>
+    <span class="nl">animation-name</span><span class="p">:</span> <span class="n">moveX</span><span class="p">;</span>
+    <span class="nl">animation-duration</span><span class="p">:</span> <span class="m">1s</span><span class="p">;</span>
+    <span class="nl">animation-timing-function</span><span class="p">:</span> <span class="n">linear</span><span class="p">;</span>
+    <span class="nl">animation-iteration-count</span><span class="p">:</span> <span class="n">infinite</span><span class="p">;</span>
+    <span class="nl">animation-direction</span><span class="p">:</span> <span class="n">alternate</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nc">.box</span><span class="nd">:hover</span><span class="p">{</span>
+    <span class="nl">animation-play-state</span><span class="p">:</span> <span class="n">paused</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">@keyframes</span> <span class="n">moveX</span> <span class="p">{</span>
+    <span class="c">/*from{}*/</span>
+    <span class="nt">0</span><span class="o">%</span><span class="p">{</span>
+        <span class="nl">transform</span><span class="p">:</span> <span class="n">translateX</span><span class="p">(</span><span class="m">0px</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c">/*to{}*/</span>
+    <span class="nt">100</span><span class="o">%</span><span class="p">{</span>
+        <span class="nl">transform</span><span class="p">:</span> <span class="n">translateX</span><span class="p">(</span><span class="m">100px</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="基本属性">基本属性</h3>
+
+<p>动画和过渡一样，大部分的属性都是相似的比如<code class="highlighter-rouge">animation-duration</code>，<code class="highlighter-rouge">nimation-timing-function</code>，<code class="highlighter-rouge">animation-delay</code></p>
+
+<ul>
+  <li>
+    <p>迭代次数 animation-iteration-count</p>
+
+    <p>指定一个数字，来回算两次，infinite时无限重复</p>
+  </li>
+  <li>
+    <p>方向 animation-direction</p>
+
+    <p>有两个值，默认值是normal，动画结束后回到起点。</p>
+
+    <p>alternate则是动画播放结束后再逆向播放一遍</p>
+  </li>
+  <li>
+    <p>状态 animation-play-state</p>
+
+    <p>控制动画的状态，取值running，paused</p>
+  </li>
+  <li>
+    <p>animation-fill-mode</p>
+
+    <p>决定动画播放前后的状态,假设动画时间为2s</p>
+
+    <p>none 不改变默认行为，css样式(-1s)-0%样式(0s)-100%样式(1s)-css样式(2s)</p>
+
+    <p>backwards：0%样式(-1s)-0%样式(0s)-100%样式(1s)-css样式(2s)</p>
+
+    <p>forwards：css样式(-1s)-0%样式(0s)-100%样式(1s)-100%样式(2s)</p>
+
+    <p>both：0%样式(-1s)-0%样式(0s)-100%样式(1s)-100%样式(2s)</p>
+  </li>
+</ul>
+
+<h3 id="简写及多重动画">简写及多重动画</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>E{
+    animation:animation-name animation-duration 
+    animation-timing-function animation-delay
+    animation-iteration-count animation-direction
+}
+
+上面的demo可以简写为
+.box{
+    animation: moveX 1s linear 0s infinite alternate;
+}
+</code></pre></div></div>
+
+<p>可以使用一个逗号隔开的列表，为元素添加多个动画</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>E{
+    animation-name a,b;
+    animation-duration 1s 2s;
+    ...
+}
+
+在简写形式中定义多重动画
+E{
+    animation:一套动画简写,另一套动画简写
+}
+</code></pre></div></div>
+
+<h2 id="参考">参考</h2>
+
+<blockquote>
+  <p><a href="http://www.zhangxinxu.com/wordpress/2012/09/css3-3d-transform-perspective-animate-transition/">好吧，CSS3 3D transform变换，不过如此！ «  张鑫旭-鑫空间-鑫生活</a></p>
+</blockquote>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

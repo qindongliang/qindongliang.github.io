@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Start With Spring Boot"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Start With Spring Boot-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Start With Spring Boot</h1>
+		
+		<div class="main"><div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+</code></pre></div></div>
+
+<p>Spring Boot是由Pivotal团队提供的全新框架，其设计目的是用来简化新Spring应用的初始搭建以及开发过程。</p>
+
+<p>个人理解Spring Boot相较于框架的概念来言，它更像一套规范。</p>
+
+<p>她提供了一套规范，按照这个规范开发能够让我们少些好多代码。项目仍然是Spring项目，只是它们正好用到了Spring Boot的起步依赖和自动配置而已。并不用学习新的技术，那些你早已熟悉的从头创建Spring项目的技术或工具，都能用于Spring Boot项目。</p>
+
+<h2 id="起步配置">起步配置</h2>
+
+<p>Spring推荐使用Maven和Gradle构建项目，这里是以Maven为例</p>
+
+<p>Spring Boot的依赖配置很简单，因为Spring为你提供了起步依赖,需要不同的功能加入不同的起步依赖即可。</p>
+
+<p>Spring Boot起步依赖基本都以spring-boot-starter打头，随后是直接代表其功能的名字，比如web、 test等。比如想要使用freemarker来渲染视图只需要加入spring-boot-starter-freemarker依赖即可</p>
+
+<p>下面是Spring Boot最基本的一个依赖，提供了web开发最简单的脚手架。里面包含了spring-boot-starter、spring-boot-starter-tomcat、spring-boot-web、spring-webmvc等依赖，但是这些细节并不需要关注</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+	<span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+	<span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;version&gt;</span>1.5.6.RELEASE<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>如果想要更简单可以加上父工程,它统一指定了版本，在依赖中及不需要指定了，会统一使用父工程的版本，使得jar包不会出现冲突</p>
+
+<p>同时父工程也提供了合适的默认设置，<strong>在后面的打包步骤提供了很大的便捷</strong></p>
+
+<ol>
+  <li>默认编译级别为Java 1.6</li>
+  <li>源码编码为UTF-8</li>
+  <li>一个依赖管理节点，允许你省略普通依赖的 <version>标签，继承自spring-boot-dependenciesPOM</version></li>
+  <li>合适的资源过滤</li>
+  <li>合适的插件配置（exec插件，surefire，Git commitID，shade）</li>
+  <li>针对 application.properties和application.yml 的资源过滤</li>
+</ol>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;parent&gt;
+	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+	&lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+	&lt;version&gt;1.5.6.RELEASE&lt;/version&gt;
+&lt;/parent&gt;
+</code></pre></div></div>
+
+<h2 id="简单的controller编写">简单的Controller编写</h2>
+
+<p>Spring Boot大量使用使用注解，因为使用注解能够极大的简化开发</p>
+
+<p>下面是一个简单的Controller，可以看出和SpringMVC并没有区别，顺便使用了参数绑定</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//等价于@Controller，@ResponseBody</span>
+<span class="nd">@RestController</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloController</span> <span class="o">{</span>
+
+	<span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+	<span class="kd">public</span> <span class="n">String</span> <span class="nf">home</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+		<span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">getRequestURL</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+		<span class="n">str</span><span class="o">+=</span><span class="s">"\n\nHello World"</span><span class="o">;</span>
+		<span class="k">return</span> <span class="n">str</span><span class="o">;</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>下面是一个返回视图的Controller，这里使用的渲染引擎是freemarker，只要把模版文件放到指定的目录即可，找到page.ftl文件然后反馈到页面</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@Controller
+public class PageController {
+	
+	@RequestMapping("/page")
+	public String hello(Model model) {
+		model.addAttribute("name", "hello");
+		return "page";
+	}
+}
+
+<span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;title&gt;</span>hello<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">"Content-Type"</span> <span class="na">content=</span><span class="s">"text/html; charset=UTF-8"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+${name}
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span> 
+</code></pre></div></div>
+
+<p>下面是一个符合RESTful规范的Controller</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RestController
+@RequestMapping("/api/user")
+public class UserApi {
+	
+	@Autowired
+	private UserDao userDao;
+	
+	//GET列出所有
+	@GetMapping({"","/"})
+	public List&lt;User&gt; listAll() {
+		return userDao.findAll();
+	}
+	
+	//GET查询一个
+	@GetMapping("/id/{id}")
+	public User findById(@PathVariable("id") Integer id) {
+		return userDao.findOne(id);
+	}
+
+	//PUT添加一个User
+	@PutMapping("/{name}/{score}")
+	public User add(@PathVariable("name") String name,@PathVariable("score") Integer score) {
+		User user = new User();
+		user.setName(name);
+		user.setScore(score);
+		return userDao.save(user);
+	}
+	
+	//POST更新一个User
+	@PostMapping("/{id}/{name}/{score}")
+	public User update(@PathVariable("id") Integer id,@PathVariable("name") String name,@PathVariable("score") Integer score) {
+		User user = new User();
+		user.setId(id);
+		user.setName(name);
+		user.setScore(score);
+		return userDao.save(user);
+	}
+	//DELETE更新一个User
+	@DeleteMapping("/id/{id}")
+	public void delete(@PathVariable("id") Integer id){
+		userDao.delete(id);
+	}
+
+}
+</code></pre></div></div>
+
+<p>综上，你会发现这不就是SpringMVC(Spring Boot 依赖里面包含了springmvc)吗？这是一个挺好的事情，因为并没有改变我们的代码编写习惯。</p>
+
+<p>这这说明Controller并不是springboot的核心</p>
+
+<h2 id="视图渲染">视图渲染</h2>
+
+<p>Spring钦定了Thymeleaf</p>
+
+<p>除了Thymeleaf，Spring Boot还支持Freemarker、 Velocity和基于Groovy的模板。无论选择哪种模板，你要做的就是添加合适的起步依赖，在Classpath根部的templates/目录里编写模板。自动配置会处理剩下的事情</p>
+
+<p>比如</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+	<span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+	<span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-freemarker<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;version&gt;</span>1.5.6.RELEASE<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>待续…..</p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

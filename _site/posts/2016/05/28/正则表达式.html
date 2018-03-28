@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java,javascript"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="正则表达式"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>正则表达式-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">正则表达式</h1>
+		
+		<div class="main"><h2 id="正则表达式">正则表达式</h2>
+
+<p>正则表达式(Regular Expression)是一种文本模式，包括普通字符（例如，a 到 z 之间的字母）和特殊字符（称为”元字符”）。</p>
+
+<p>正则表达式使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。</p>
+
+<h3 id="常用规则">常用规则</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">字符</th>
+      <th style="text-align: left">描述</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">\d</td>
+      <td style="text-align: left">匹配一个数字字符。等价于 [0-9]</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\D</td>
+      <td style="text-align: left">匹配一个非数字字符。等价于 [^0-9]</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\w</td>
+      <td style="text-align: left">匹配包括下划线的任何单词字符。等价于[A-Za-z0-9_]</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\W</td>
+      <td style="text-align: left">匹配任何非单词字符。等价于 ‘[^A-Za-z0-9_]’</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">[xyz]</td>
+      <td style="text-align: left">字符集合，匹配所包含的任意一个字符</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="highlighter-rouge">x|y</code></td>
+      <td style="text-align: left">匹配 x 或 y</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">[^xyz]</td>
+      <td style="text-align: left">字符取反集合,匹配未包含的任意字符</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">[a-z]</td>
+      <td style="text-align: left">字符范围。匹配指定范围内的任意字符</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">.</td>
+      <td style="text-align: left">匹配除 “\n” 之外的任何单个字符。要匹配包括 ‘\n’ 在内的任何字符可以用”(.</td>
+      <td>\n)”</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="限定符">限定符</h3>
+
+<p>限定符用来指定正则表达式的一个给定组件必须要出现多少次才能满足匹配</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">字符</th>
+      <th style="text-align: left">描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="highlighter-rouge">*</code></td>
+      <td style="text-align: left">匹配前面的子表达式零次或多次，等价于{0,}</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="highlighter-rouge">+</code></td>
+      <td style="text-align: left">匹配前面的子表达式一次或多次，等价于 {1,}</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">?</td>
+      <td style="text-align: left">匹配前面的子表达式零次或一次，等价于 {0,1}</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{n}</td>
+      <td style="text-align: left">n是一个非负整数。匹配确定的n次</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{n,}</td>
+      <td style="text-align: left">n是一个非负整数。至少匹配n次</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{n,m}</td>
+      <td style="text-align: left">m,n为非负整数n &lt;= m,最n-m次,在逗号和两个数之间不能有空格</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">()</td>
+      <td style="text-align: left">把括号内的作为一个整体，比如(ab){2},匹配abab</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="定位符">定位符</h3>
+
+<p>定位符用来描述字符串或单词的边界</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">字符</th>
+      <th style="text-align: left">描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">^</td>
+      <td style="text-align: left">匹配输入字符串开始的位置。如果设置了RegExp对象的 Multiline 属性，还会与 \n 或 \r 之后的位置匹配</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">$</td>
+      <td style="text-align: left">匹配输入字符串结尾的位置。如果设置了 RegExp 对象的 Multiline 属性，$ 还会与 \n 或 \r 之前的位置匹配</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\b</td>
+      <td style="text-align: left">匹配一个字边界，即字与空格间的位置</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\B</td>
+      <td style="text-align: left">非字边界匹配</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="非打印字符">非打印字符</h3>
+
+<p>非打印字符也可以是正则表达式的组成部分。下表列出了表示非打印字符的转义序列</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">字符</th>
+      <th style="text-align: left">描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">\cx</td>
+      <td style="text-align: left">匹配由x指明的控制字符。例如， \cM 匹配一个 Control-M 或回车符。x 的值必须为 A-Z 或 a-z 之一。否则，将 c 视为一个原义的 ‘c’ 字符</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\f</td>
+      <td style="text-align: left">匹配一个换页符。等价于 \x0c 和 \cL</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\n</td>
+      <td style="text-align: left">匹配一个换行符。等价于 \x0a 和 \cJ</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\r</td>
+      <td style="text-align: left">匹配一个回车符。等价于 \x0d 和 \cM</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\s</td>
+      <td style="text-align: left">匹配任何空白字符，包括空格、制表符、换页符等等。等价于 [ \f\n\r\t\v]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\S</td>
+      <td style="text-align: left">匹配任何非空白字符。等价于 [^ \f\n\r\t\v]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\t</td>
+      <td style="text-align: left">匹配一个制表符。等价于 \x09 和 \cI</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">\v</td>
+      <td style="text-align: left">匹配一个垂直制表符。等价于 \x0b 和 \cK</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="贪婪非贪婪">贪婪非贪婪</h2>
+
+<p>*、+和?限定符都是贪婪的，因为它们会尽可能多的匹配文字，只有在它们的后面加上一个?就可以实现非贪婪或最小匹配</p>
+
+<p>比如有一段文字<code class="highlighter-rouge">&lt;p&gt;6666&lt;/p&gt;</code></p>
+
+<p>如果使用<code class="highlighter-rouge">&lt;.+&gt;</code>是默认的贪婪匹配，会匹配到<code class="highlighter-rouge">&lt;p&gt;6666&lt;/p&gt;</code></p>
+
+<p>而使用<code class="highlighter-rouge">&lt;.+?&gt;</code>就变成了非贪婪匹配，会匹配到<code class="highlighter-rouge">&lt;p&gt;</code>和<code class="highlighter-rouge">&lt;/p&gt;</code></p>
+
+<h2 id="在java中使用正则">在Java中使用正则</h2>
+
+<p>在Java 正则表达式很方便</p>
+
+<p>主要使用java.util.regex包下的几个类</p>
+
+<h3 id="pattern">Pattern</h3>
+
+<p>Pattern对象是一个正则表达式的编译表示。Pattern类没有构造方法。要创建一个 Pattern 对象，你必须首先调用其公共静态的compile编译方法要么传入一个正则表达式或者传入一个表达式和规则，比如不区分大小写….</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Pattern pattern = Pattern.compile("&lt;.+?&gt;");
+Pattern pattern = Pattern.compile("&lt;.+?&gt;",Pattern.CASE_INSENSITIVE);
+</code></pre></div></div>
+
+<h3 id="matcher">Matcher</h3>
+
+<p>Matcher对象是对输入字符串进行解释和匹配操作的引擎。与Pattern 类一样，Matcher 也没有公共构造方法。你需要调用 Pattern 对象的 matcher 方法来获得一个 Matcher 对象。</p>
+
+<p>matches：方法尝试将整个输入序列与该模式匹配</p>
+
+<p>lookingAt：尝试将输入序列从头开始与该模式匹配</p>
+
+<p>groupCount：返回正则表达式中组的个数<code class="highlighter-rouge">()</code></p>
+
+<p>group:以正则表达是中的某个组来匹配</p>
+
+<p>find：部分匹配，方法扫描输入序列以查找与该模式匹配的下一个子序列</p>
+
+<p>start,end:find之后返回为真后才可以用，返回的是匹配到的开始和结束，可用group来取出结果</p>
+
+<p>reset:清除find后保存的开始结束位置</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Pattern pattern = Pattern.compile("&lt;.+?&gt;");
+
+Matcher matcher = pattern.matcher("&lt;p&gt;6666&lt;/p&gt;123");
+
+while(matcher.find()){
+	System.out.println(matcher.start()+","+matcher.end()+matcher.group());
+}
+</code></pre></div></div>
+
+<h3 id="其他">其他</h3>
+
+<p>在字符串上可以直接使用正则表达式</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>String pat = "&lt;.+?&gt;";
+
+System.out.println("123&lt;p&gt;6666&lt;/p&gt;123".matches(pat));//整串匹配，false
+
+for(String str:"123&lt;p&gt;6666&lt;/p&gt;123".split(pat)){
+    System.out.println(str);
+}
+
+false
+123
+6666
+123
+</code></pre></div></div>
+
+<h2 id="在javascript中使用正则">在JavaScript中使用正则</h2>
+
+<p>在js里使用正则表达式依靠RegExp对象</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var patt=new RegExp(pattern,modifiers);//表达式，修饰符
+//或者更简单的方式
+var patt=/pattern/modifiers;
+</code></pre></div></div>
+
+<p>修饰符有三种</p>
+
+<p>i 执行对大小写不敏感的匹配</p>
+
+<p>g 执行全局匹配（查找所有匹配而非在找到第一个匹配后停止）。</p>
+
+<p>m 执行多行匹配。</p>
+
+<h3 id="常用方法">常用方法</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>patt.test(str)//测试字符串是否符合模式
+
+str.split(patt)//分割字符串
+
+分组
+
+var re = /^(\d{3})-(\d{3,8})$/;
+re.exec('010-12345'); // ['010-12345', '010', '12345']
+re.exec('010 12345'); // null
+
+var s = 'JavaScript, VBScript, JScript and ECMAScript';
+var re=/[a-zA-Z]+Script/g;
+
+// 使用全局匹配:
+re.exec(s); // ['JavaScript']
+re.lastIndex; // 10
+
+re.exec(s); // ['VBScript']
+re.lastIndex; // 20
+
+re.exec(s); // ['JScript']
+re.lastIndex; // 29
+
+re.exec(s); // ['ECMAScript']
+re.lastIndex; // 44
+
+re.exec(s); // null，直到结束仍没有匹配到
+
+str.match(pat)//返回数组，数组的内容依赖于 regexp 是否具有全局标志g，否则是第一个匹配的
+
+"&lt;p&gt;666&lt;/p&gt;"
+s.match(/&lt;.+?&gt;/);
+["&lt;p&gt;"]
+s.match(/&lt;.+?&gt;/g);
+["&lt;p&gt;", "&lt;/p&gt;"]
+</code></pre></div></div>
+
+<h2 id="参考">参考</h2>
+
+<p><a href="http://www.runoob.com/regexp/regexp-tutorial.html">正则表达式 - 教程</a></p>
+
+<p><a href="https://www.liaoxuefeng.com/wiki/001434446689867b27157e896e74d51a89c25cc8b43bdb3000/001434499503920bb7b42ff6627420da2ceae4babf6c4f2000">廖雪峰的官方网站</a></p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

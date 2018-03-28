@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="自己实现Object转Json"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>自己实现Object转Json-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">自己实现Object转Json</h1>
+		
+		<div class="main"><p>之前公司里写项目，前台需要用到ajax请求json数据</p>
+
+<p>但是后台方面禁止添加额外的jar，所以没办法只能自己写一个工具类</p>
+
+<p>还好是生成json而不是解析json，用递归实现起来应该不难</p>
+
+<h2 id="类型转换的坑">类型转换的坑</h2>
+
+<p>Integer[] =&gt; Object =&gt; Object[]的转换过程是没有问题</p>
+
+<p>但是int[] =&gt; Object =&gt; Object[]会出错，基本上所有的基本类型的数组这转换都会出问题</p>
+
+<p>解决方法是重新构建Object[]，把每一项通过反射拿到再放进去</p>
+
+<p>还要注意[][]…多维数组的生成</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static Object[] fmtArrayToObjectArray(Object obj) {
+    int length = Array.getLength(obj);
+    Object[] o = new Object[length];
+    for (int i = 0; i &lt; o.length; i++) {
+        if (Array.get(obj, i) == null) {
+            o[i] = null;
+        } else if (Array.get(obj, i).getClass().isArray()) {
+            //多维数组
+            o[i] = fmtArrayToObjectArray(Array.get(obj, i));
+        } else {
+            o[i] = Array.get(obj, i);
+        }
+    }
+    return o;
+}
+</code></pre></div></div>
+
+<h2 id="反射获取属性的坑">反射获取属性的坑</h2>
+
+<p>要获取定义了get方法的属性，但是要注意到有些是通过继承获得的</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/**
+ * 获取一个类自身和继承获得的所有Field
+ * 
+ * @param obj
+ * @return
+ */
+private static List&lt;Field&gt; listAllField(Object obj) {
+   List&lt;Field&gt; resultList = new ArrayList&lt;Field&gt;();
+    Class&lt;?&gt; clazz = obj.getClass();
+    while (clazz != null) {
+        for (Field field : clazz.getDeclaredFields()) {
+            resultList.add(field);
+        }
+        clazz = clazz.getSuperclass();
+    }
+    return resultList;
+}
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/**
+ * 通过反射执行对象的get方法
+ * 
+ * @param name
+ * @param obj
+ * @return
+ */
+private static Object invokeGet(String name, Object obj) {
+    String methodName = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+    Class&lt;?&gt; clazz = obj.getClass();
+    Object result = null;
+    try {
+        result = clazz.getMethod(methodName).invoke(obj);
+    } catch (Exception e) {
+        result = null;
+    }
+    return result;
+}
+</code></pre></div></div>
+
+<h2 id="转换的代码">转换的代码</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static String jsonGenerater(Object value) {
+
+    // 不处理null
+    boolean ignoreNullValue = true;
+
+    // 日期的格式
+    String datePattern = "yyyy/MM/dd HH:mm:ss";
+
+    // null
+    if (value == null) {
+        if (ignoreNullValue) {
+            return "";
+        }
+        return "null";
+    }
+
+	// 数值,布尔
+    if (value instanceof Byte || value instanceof Integer || value instanceof Float || value instanceof Long || value instanceof Boolean) {
+        return String.valueOf(value);
+    }
+
+    // 字符串
+    if (value instanceof String) {
+        String v = (String) value;
+        // 注意转义问题
+        return "\"" + v.replace("\n", "\\n").replace("\"", "\\\"") + "\"";
+    }
+
+    // 日期
+    if (value instanceof Date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
+        String result = null;
+        try {
+            result = sdf.format(value);
+        } catch (Exception e) {
+            result = jsonGenerater(e.getMessage());
+        }
+        return jsonGenerater(result);
+    }
+
+    // 数组
+    if (value.getClass().isArray()) {
+        StringBuilder sb = new StringBuilder("[");
+        Object[] arr = fmtArrayToObjectArray(value);
+        for (int i = 0; i &lt; arr.length; i++) {
+            sb.append(jsonGenerater(arr[i]) + ",");
+        }
+        if (sb.charAt(sb.length() - 1) == ',') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    // 列表
+    if (value instanceof List) {
+        StringBuilder sb = new StringBuilder("[");
+        List&lt;?&gt; list = (List&lt;?&gt;) value;
+        for (int i = 0; i &lt; list.size(); i++) {
+            sb.append(jsonGenerater(list.get(i)) + ",");
+        }
+        if (sb.charAt(sb.length() - 1) == ',') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    // 字典
+    if (value instanceof Map) {
+        StringBuilder sb = new StringBuilder("{");
+        Map&lt;?, ?&gt; map = (Map&lt;?, ?&gt;) value;
+        Iterator&lt;?&gt; entries = map.entrySet().iterator();
+        while (entries.hasNext()) {
+            Map.Entry&lt;?, ?&gt; entry = (Entry&lt;?, ?&gt;) entries.next();
+            if (ignoreNullValue &amp;&amp; entry.getValue() == null) {
+                continue;
+            }
+            sb.append("\"" + entry.getKey().toString() + "\":" + jsonGenerater(entry.getValue()) + ",");
+        }
+        if (sb.charAt(sb.length() - 1) == ',') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    // 在此之前添加其他类型的处理规则
+
+    // 到这里基本就是自定义类型了
+    StringBuilder sb = new StringBuilder("{");
+    List&lt;Field&gt; list = listAllField(value);
+
+    for (int i = 0; i &lt; list.size(); i++) {
+        String fName = list.get(i).getName();
+        Object rflectValue = invokeGet(fName, value);
+
+        if (ignoreNullValue &amp;&amp; rflectValue == null) {
+            continue;
+        }
+        sb.append("\"" + fName + "\":" + jsonGenerater(rflectValue) + ",");
+    }
+    if (sb.charAt(sb.length() - 1) == ',') {
+        sb.deleteCharAt(sb.length() - 1);
+    }
+    sb.append("}");
+    return sb.toString();
+}
+</code></pre></div></div>
+
+<h2 id="测试">测试</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static void main(String[] args) throws Exception {
+    Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
+    map.put("date", new Date());
+    map.put("string", "123 abc \" 123\n789");
+    int[][] arr = { { 1, 2 }, { 3, 4 } };
+    map.put("arr", arr);
+    map.put("null", null);
+    User u = new User();
+    u.setAge(18);
+    u.setName("张三");
+    map.put("user", u);
+    try {
+        System.out.println(jsonGenerater(map));
+    } catch (Exception e) {
+        System.out.println("{\"error\":" + jsonGenerater(e.toString()) + "}");
+    }
+}
+</code></pre></div></div>
+
+<p>输出</p>
+
+<p>没毛病</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{"date":"2018/03/04 16:00:17","arr":[[1,2],[3,4]],"string":"123 abc \" 123\n789","user":{"name":"张三","age":18}}
+</code></pre></div></div>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

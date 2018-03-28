@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="用maven构建项目"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>用maven构建项目-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">用maven构建项目</h1>
+		
+		<div class="main"><p>Maven是一个项目管理工具，它包含了一个项目对象模型 (Project Object Model)，一组标准集合，一个项目生命周期(Project Lifecycle)，一个依赖管理系统(Dependency Management System)，和用来运行定义在生命周期阶段(phase)中插件(plugin)目标(goal)的逻辑。当你使用Maven的时候，你用一个明确定义的项目对象模型来描述你的项目，然后Maven可以应用横切的逻辑，这些逻辑来自一组共享的（或者自定义的）插件。</p>
+
+<p>此外，Maven能够很方便的帮你管理项目报告，生成站点，管理JAR文件，等等</p>
+
+<h2 id="maven基础">maven基础</h2>
+
+<h3 id="下载">下载</h3>
+
+<p>到官网<a href="http://maven.apache.org/">Apache Maven</a>去下载</p>
+
+<h3 id="pomxml文件">pom.xml文件</h3>
+
+<p>pom作为项目对象模型。通过xml表示maven项目，使用pom.xml来实现。主要描述了项目：包括配置文件；开发者需要遵循的规则，缺陷管理系统，组织和licenses，项目的url，项目的依赖性，以及其他所有的项目相关因素。</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;project&gt;</span>
+	<span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+	<span class="nt">&lt;groupId&gt;</span>net.tmaize<span class="nt">&lt;/groupId&gt;</span>
+	<span class="nt">&lt;artifactId&gt;</span>mvn-web<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;version&gt;</span>0.0.1-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+	<span class="nt">&lt;packaging&gt;</span>war<span class="nt">&lt;/packaging&gt;</span>
+
+	<span class="nt">&lt;build&gt;</span>
+		<span class="nt">&lt;plugins&gt;</span>
+			....
+		<span class="nt">&lt;/plugins&gt;</span>
+	<span class="nt">&lt;/build&gt;</span>
+	<span class="nt">&lt;dependencies&gt;</span>
+		....
+	<span class="nt">&lt;/dependencies&gt;</span>
+<span class="nt">&lt;/project&gt;</span>
+</code></pre></div></div>
+
+<h3 id="标准目录结构">标准目录结构</h3>
+
+<p>使用maven就必须遵守maven的目录结构，不然会编译失败的</p>
+
+<p>java项目结构如下</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>src
+    main
+	    java
+		resource
+	test
+		java
+		resource
+	target
+pom.xml
+</code></pre></div></div>
+
+<p>web项目结构如下</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>src
+    main
+	    java
+		resource
+		webapp
+			WEN-INF
+				web.xml
+	test
+		java
+		resource
+	target
+pom.xml
+</code></pre></div></div>
+
+<h3 id="常用命令">常用命令</h3>
+
+<ul>
+  <li>
+    <p>mvn clean</p>
+
+    <p>将项目根目录下target目录清理掉</p>
+  </li>
+  <li>
+    <p>mvn compile</p>
+
+    <p>将项目中的java文件编译为class文件</p>
+  </li>
+  <li>
+    <p>mvn test</p>
+
+    <p>单元测试，测试类名有要求XxxxTest.java</p>
+
+    <p>项目根目录下src/test/java目录下的单元测试类都会执行</p>
+  </li>
+  <li>
+    <p>mvn package</p>
+
+    <p>项目打包，生成的包在target的根目录。web项目会打成war包，java项目会打成jar包</p>
+  </li>
+  <li>
+    <p>mvn install:安装</p>
+
+    <p>将项目打包并安装到本地仓库，方便在其他项目上用。好处是如果项目有变动，只需要再次安装即可，其他的项目都不需要变动依赖</p>
+  </li>
+</ul>
+
+<h3 id="生命周期">生命周期</h3>
+
+<p>所谓的生命周期就是在一套生命周期内，执行后面的命令前面的操作会自动执行</p>
+
+<p>在Maven中存在三套生命周期，同时每一套生命周期相互独立互不影响</p>
+
+<p>注意每个生命周期里面又有好多步骤，但是可以总结为下面几个主要步骤</p>
+
+<p>CleanLifeCyle：清理生命周期,命令有clean</p>
+
+<p>defaultLifeCyle：默认生命周期,命令有compile，test，package，install，deploy</p>
+
+<p>siteLifeCyle：站点生命周期,命令有site</p>
+
+<h3 id="依赖范围">依赖范围</h3>
+
+<p><img src="01.png" alt="01" /></p>
+
+<p>比如说servlet-api，在做项目的时候需要，但是把它打成war包发布到tomcat时不能把它编译进应为在tomcat里面已经有了servlet-api了，会有jar包冲突，所以要将servlet-api的依赖范围设置为provided</p>
+
+<p><img src="02.png" alt="02" /></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;dependency&gt;
+	&lt;groupId&gt;javax.servlet&lt;/groupId&gt;
+	&lt;artifactId&gt;javax.servlet-api&lt;/artifactId&gt;
+	&lt;version&gt;3.0.1&lt;/version&gt;
+	&lt;scope&gt;provided&lt;/scope&gt;
+&lt;/dependency&gt;
+</code></pre></div></div>
+
+<h3 id="解决依赖冲突">解决依赖冲突</h3>
+
+<ul>
+  <li>有时候jar包会有冲突。首先maven有一套自己的冲突解决方案</li>
+</ul>
+
+<ol>
+  <li>
+    <p>声明者优先原则 ，如果有冲突，优先用以最先依赖加进来的jar</p>
+  </li>
+  <li>
+    <p>路径近者优先原则 直接依赖高于传递依赖</p>
+  </li>
+</ol>
+
+<p>如果通过上面两个步骤无法解决依赖问题还可以手动排除依赖</p>
+
+<ul>
+  <li>或者手动排除依赖，得到自己想要的</li>
+</ul>
+
+<p>比如下图，我想使用高版本的commons-logging，但是又想把我的高版本commons-logging放在spring-webmvc后面，可以通过exclude手动排除jar包</p>
+
+<p><img src="03.png" alt="03" /></p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+	<span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+	<span class="nt">&lt;artifactId&gt;</span>spring-webmvc<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;version&gt;</span>4.1.6.RELEASE<span class="nt">&lt;/version&gt;</span>
+	<span class="nt">&lt;exclusions&gt;</span>
+		<span class="nt">&lt;exclusion&gt;</span>
+			<span class="nt">&lt;groupId&gt;</span>commons-logging<span class="nt">&lt;/groupId&gt;</span>
+			<span class="nt">&lt;artifactId&gt;</span>commons-logging<span class="nt">&lt;/artifactId&gt;</span>
+		<span class="nt">&lt;/exclusion&gt;</span>
+	<span class="nt">&lt;/exclusions&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>再或者使用版本锁定</li>
+</ul>
+
+<p>这样的话最终使用的jar包是我指定的哪个版本</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependencyManagement&gt;</span>
+	<span class="nt">&lt;dependencies&gt;</span>
+		<span class="nt">&lt;dependency&gt;</span>
+			<span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+			<span class="nt">&lt;artifactId&gt;</span>spring-context<span class="nt">&lt;/artifactId&gt;</span>
+			<span class="nt">&lt;version&gt;</span>4.3.10.RELEASE<span class="nt">&lt;/version&gt;</span>
+		<span class="nt">&lt;/dependency&gt;</span>
+	<span class="nt">&lt;/dependencies&gt;</span>
+<span class="nt">&lt;/dependencyManagement&gt;</span>
+
+<span class="nt">&lt;dependencies&gt;</span>
+	<span class="nt">&lt;dependency&gt;</span>
+		<span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+		<span class="nt">&lt;artifactId&gt;</span>spring-context<span class="nt">&lt;/artifactId&gt;</span>
+	<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</code></pre></div></div>
+
+<p>或者更规范一些,把版本集中起来，方便管理</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+	<span class="nt">&lt;junit-version&gt;</span>4.12<span class="nt">&lt;/junit-version&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+
+<span class="nt">&lt;dependencyManagement&gt;</span>
+	<span class="nt">&lt;dependencies&gt;</span>
+		<span class="nt">&lt;dependency&gt;</span>
+			<span class="nt">&lt;groupId&gt;</span>junit<span class="nt">&lt;/groupId&gt;</span>
+			<span class="nt">&lt;artifactId&gt;</span>junit<span class="nt">&lt;/artifactId&gt;</span>
+			<span class="nt">&lt;version&gt;</span>${junit-version}<span class="nt">&lt;/version&gt;</span>
+		<span class="nt">&lt;/dependency&gt;</span>
+	<span class="nt">&lt;/dependencies&gt;</span>
+<span class="nt">&lt;/dependencyManagement&gt;</span>
+</code></pre></div></div>
+
+<p><img src="04.jpg" alt="04" /></p>
+
+<h3 id="小技巧">小技巧</h3>
+
+<p><code class="highlighter-rouge">mvn archetype:generate </code>插件可以使用不同的模版快速生成一个maven项目</p>
+
+<p><code class="highlighter-rouge">mvn help:effective-pom</code> 显示项目完整的依赖</p>
+
+<p><code class="highlighter-rouge">mvn cobertura:cobertura</code> 生成代码测试的覆盖率</p>
+
+<p>为不同的环境配置不同的数据库连接信息</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;profiles&gt;</span>
+	<span class="nt">&lt;profile&gt;</span>
+		<span class="nt">&lt;id&gt;</span>dev<span class="nt">&lt;/id&gt;</span>
+		<span class="nt">&lt;activation&gt;</span>
+			<span class="c">&lt;!-- 代表当前为dev环境 --&gt;</span>
+			<span class="nt">&lt;activeByDefault&gt;</span>true<span class="nt">&lt;/activeByDefault&gt;</span>
+		<span class="nt">&lt;/activation&gt;</span>
+		<span class="nt">&lt;properties&gt;</span>
+			<span class="nt">&lt;url&gt;</span>jdbc:mysql://127.0.0.1:3306/dev?characterEncoding=utf-8<span class="nt">&lt;/url&gt;</span>
+		<span class="nt">&lt;/properties&gt;</span>
+	<span class="nt">&lt;/profile&gt;</span>
+	<span class="nt">&lt;profile&gt;</span>
+		<span class="nt">&lt;id&gt;</span>run<span class="nt">&lt;/id&gt;</span>
+		<span class="nt">&lt;properties&gt;</span>
+			<span class="nt">&lt;url&gt;</span>jdbc:mysql://127.0.0.1:3306/book?characterEncoding=utf-8<span class="nt">&lt;/url&gt;</span>
+		<span class="nt">&lt;/properties&gt;</span>
+	<span class="nt">&lt;/profile&gt;</span>
+<span class="nt">&lt;/profiles&gt;</span>
+
+<span class="c">&lt;!-- 添加要过滤的目录 --&gt;</span>
+<span class="nt">&lt;build&gt;</span>
+	<span class="nt">&lt;resources&gt;</span>
+		<span class="nt">&lt;resource&gt;</span>
+			<span class="nt">&lt;directory&gt;</span>${project.basedir}/src/main/resources<span class="nt">&lt;/directory&gt;</span>
+			<span class="nt">&lt;filtering&gt;</span>true<span class="nt">&lt;/filtering&gt;</span>
+		<span class="nt">&lt;/resource&gt;</span>
+	<span class="nt">&lt;/resources&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+</code></pre></div></div>
+
+<p>在数据库的配置文件一行<code class="highlighter-rouge">url=${url}</code>,在项目运行的时候会根据pom中指定的环境替换<code class="highlighter-rouge">${url}</code>,只需要改变activeByDefault的位置即可</p>
+
+<h2 id="在eclipse使用maven">在eclipse使用maven</h2>
+
+<p>m2e插件，eclipse自带，只需要配置一下即可</p>
+
+<p>默认也自带maven，一般不使用，使用自己下载的即可</p>
+
+<h3 id="基本配置">基本配置</h3>
+
+<p>找到maven的安装目录，在conf/settings.xml里面配置本地仓库位置</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;localRepository&gt;</span>E:/apache-maven-3.3.9/local-repo<span class="nt">&lt;/localRepository&gt;</span>
+</code></pre></div></div>
+
+<p>在eclipse里面安装设置maven</p>
+
+<p><img src="05.png" alt="05" /></p>
+
+<p><img src="06.png" alt="06" /></p>
+
+<p>刷新设文件，在本地仓库建立索引</p>
+
+<p><img src="07.png" alt="07" /></p>
+
+<h3 id="建立项目">建立项目</h3>
+
+<p>注意不要再建立Java Project了，要建立Maven Project</p>
+
+<p>先选择项目位置,最上面勾选了会跳过模板选择界面，使用最简单的项目目录骨架</p>
+
+<p><img src="08.png" alt="08" /></p>
+
+<p>Packaging决定了是web项目还是java项目，选错了没关系，在pom.xml文件里面都可以更改的</p>
+
+<p><img src="09.png" alt="09" /></p>
+
+<p><img src="10.png" alt="10" /></p>
+
+<h3 id="项目依赖插件配置">项目依赖/插件配置</h3>
+
+<p>一般eclipse会自动分析pom.xml里面的依赖，并自动构建，比如下载jar文件</p>
+
+<p>也可以在项目上右键 Maven-update project 重新构建项目,如果项目出现感叹号的时候可以重新构建一下</p>
+
+<p><img src="11.png" alt="11" /></p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c">&lt;!-- 插件 --&gt;</span>
+<span class="nt">&lt;build&gt;</span>
+	<span class="nt">&lt;plugins&gt;</span>
+		<span class="nt">&lt;plugin&gt;</span>
+			<span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+			<span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+			<span class="nt">&lt;version&gt;</span>3.1<span class="nt">&lt;/version&gt;</span>
+			<span class="nt">&lt;configuration&gt;</span>
+				<span class="nt">&lt;source&gt;</span>1.8<span class="nt">&lt;/source&gt;</span>
+				<span class="nt">&lt;target&gt;</span>1.8<span class="nt">&lt;/target&gt;</span>
+				<span class="nt">&lt;encoding&gt;</span>utf-8<span class="nt">&lt;/encoding&gt;</span>
+			<span class="nt">&lt;/configuration&gt;</span>
+		<span class="nt">&lt;/plugin&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+<span class="c">&lt;!-- 依赖 --&gt;</span>
+<span class="nt">&lt;dependencies&gt;</span>
+	<span class="nt">&lt;dependency&gt;</span>
+		<span class="nt">&lt;groupId&gt;</span>javax.servlet<span class="nt">&lt;/groupId&gt;</span>
+		<span class="nt">&lt;artifactId&gt;</span>javax.servlet-api<span class="nt">&lt;/artifactId&gt;</span>
+		<span class="nt">&lt;version&gt;</span>3.0.1<span class="nt">&lt;/version&gt;</span>
+		<span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+	<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</code></pre></div></div>
+
+<h3 id="项目的运行">项目的运行</h3>
+
+<p>java项目直接运行，对于web项目有下面两种方式运行</p>
+
+<p>第一个Maven Build 是直接使用上次命令运行，第二个Maven Build…是输入命令运行</p>
+
+<p><img src="12.jpg" alt="12" /></p>
+
+<ol>
+  <li>
+    <p>直接运行tomcat:run</p>
+
+    <p>maven内置了tomcat,可以直接运行</p>
+
+    <p><img src="13.png" alt="13" /></p>
+
+    <p>如果需要使用较新版本的tomcat，比如使用注解</p>
+
+    <p>可以通过插件的方式安装tomcat7，运行命令也就变成了tomcat7:run,配置如下</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;plugin&gt;
+     &lt;groupId&gt;org.apache.tomcat.maven&lt;/groupId&gt;
+     &lt;artifactId&gt;tomcat7-maven-plugin&lt;/artifactId&gt;
+     &lt;version&gt;2.1&lt;/version&gt;
+     &lt;configuration&gt;
+         &lt;path&gt;/&lt;/path&gt;
+         &lt;contextReloadable&gt;true&lt;/contextReloadable&gt;
+         &lt;uriEncoding&gt;UTF-8&lt;/uriEncoding&gt;
+     &lt;/configuration&gt;
+ &lt;/plugin&gt;
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>使用eclipse的配置好的tomcat</p>
+
+    <p>build之后会有war包，可以工具会自动扫描项目里面的war包，然后部署到自己的tomcat上面</p>
+
+    <p><img src="14.png" alt="14" /></p>
+  </li>
+</ol>
+
+<h2 id="通过maven对项目进行拆分">通过maven对项目进行拆分</h2>
+
+<p>比如将web项目的三层从一个项目拆分成三个项目</p>
+
+<p>每个项目完成后通过模块的方式再和主项目进行组合</p>
+
+<p>主项目并不写代码，只是把依赖配置好，然后每个子模块再添加主项目这个依赖</p>
+
+<p>最后运行主项目即可</p>
+
+<ol>
+  <li>
+    <p>创建父工程(Maven Project)，配置pom.xml</p>
+  </li>
+  <li>
+    <p>把父工程install到本地仓库</p>
+  </li>
+  <li>
+    <p>创建子工程(Maven Module),设置选择父工程，设置打包方式为jar</p>
+  </li>
+  <li>
+    <p>解决子工程间的类依赖，只需要把依赖的子项目install后再添加依赖即可</p>
+  </li>
+</ol>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh-parent
+	ssh-dao
+	ssh-service
+	ssh-web
+</code></pre></div></div>
+
+<h2 id="私服的安装">私服的安装</h2>
+
+<p>即在本地搭建一个和apache的中心仓库很想的本地Maven仓库管理器</p>
+
+<p>可以供局域网使用，先到本地仓库找jar包，再到私服找jar包，最后才到互联网上的中心仓库寻找</p>
+
+<p>Nexus是一个强大的Maven仓库管理器，它极大地简化了自己内部仓库的维护和外部仓库的访问。
+利用Nexus你可以只在一个地方就能够完全控制访问 和部署在你所维护仓库中的每个Artifact。
+Nexus是一套“开箱即用”的系统不需要数据库，它使用文件系统加Lucene来组织数据…..</p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

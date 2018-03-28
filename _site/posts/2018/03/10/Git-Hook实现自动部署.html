@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,小技巧"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Git&Hook实现自动部署"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Git&Hook实现自动部署-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Git&Hook实现自动部署</h1>
+		
+		<div class="main"><h2 id="搭建git服务">搭建git服务</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#安装Git依赖</span>
+yum <span class="nb">install </span>curl-devel expat-devel gettext-devel openssl-devel zlib-devel perl-devel
+<span class="c">#安装Git</span>
+yum <span class="nb">install</span> <span class="nt">-y</span> gityum <span class="nb">install</span> <span class="nt">-y</span> git
+</code></pre></div></div>
+
+<h2 id="创建git用户">创建git用户</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adduser git
+</code></pre></div></div>
+
+<p>一般为了安全会禁止git用户登陆系统</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nano /etc/passwd
+
+<span class="c"># 修改git用户的shell</span>
+<span class="c"># 设置为git-shell后，git用户可以正常通过ssh使用git，但无法登录shell，因为每次一登录就自动退出</span>
+git:x:502:504::/home/git:/usr/bin/git-shell
+
+<span class="nb">cd</span> /home/git/
+<span class="nb">mkdir</span> .ssh
+<span class="nb">touch</span> .ssh/authorized_keys
+
+<span class="c"># 生成公钥私钥</span>
+<span class="c"># 把私钥下载到自己电脑放到C:\Users\用户名\.ssh</span>
+<span class="c"># 把公钥的内容拷贝到authorized_keys（新加一行）</span>
+ssh-keygen <span class="nt">-t</span> rsa
+</code></pre></div></div>
+
+<p>使用Xshell测试一下</p>
+
+<p><img src="01.png" alt="" /></p>
+
+<p>注意，如果提示：“所选的用户密钥未在远程主机上注册” ，搜了百度发现很多都说是：检查服务器的selinux及iptables是否开启，没有然和卵用，全是关的</p>
+
+<p>后来看到说要把.ssh目录设置为700 ，公钥authorized_keys也是600的权限 就可以了</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod 700 /home/git/.ssh 
+chmod 600 /home/git/.ssh/authorized_keys 
+
+# 顺便把ssh服务重启一下 
+/etc/init.d/sshd restart
+</code></pre></div></div>
+
+<p>由于设置了自动退出，使用Xshell登陆之后会自动退出，这里只是说明能够通过ssh连接到主机</p>
+
+<p><img src="02.png" alt="02" /></p>
+
+<h2 id="创建git仓库">创建git仓库</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd /
+mkdir git-repository
+cd git-repository/
+# test.gits实际上是个文件夹，不显示项目文件的裸仓库
+git init --bare test.git
+</code></pre></div></div>
+
+<p>然后本地克隆项目</p>
+
+<p>地址为<code class="highlighter-rouge">ssh://用户名@主机地址:git项目位置</code></p>
+
+<p><img src="03.png" alt="03" /></p>
+
+<h2 id="创建hook">创建Hook</h2>
+
+<p>目前服务端只是一个裸仓库，并不能看到项目的资源文件</p>
+
+<p>可以通过hook，让每次项目push之后把某个分支自动checkout到某个目录(比如web目录)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/git-repository/test.git/hooks
+touch post-receive
+chmod +x post-receive
+# 最好给下读写权限
+chmod -R 777 /git-repository/
+</code></pre></div></div>
+
+<p>post-receive的内容</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 注意/www.tmaize.net/test.tmaize.net/git/的权限</span>
+git <span class="nt">--work-tree</span><span class="o">=</span>/www.tmaize.net/test.tmaize.net/git/ checkout <span class="nt">-f</span>
+</code></pre></div></div>
+
+<p>然后本地push，至此即可完成自动化部署</p>
+
+<p>对于其他语言，比如java需要编译之类的，可以通过在post-receive写复杂的脚本来实现</p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,小技巧"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="GitHub配置SSH登陆"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>GitHub配置SSH登陆-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">GitHub配置SSH登陆</h1>
+		
+		<div class="main"><h2 id="https-和-ssh-的区别">https 和 SSH 的区别</h2>
+
+<p>两者都可以克隆项目到本地，使用https比较方便，直接就clone到本地了，而使用SSH clone却需要先配置和添加好SSH key</p>
+
+<ol>
+  <li>
+    <p>前者可以随意克隆github上的项目，而不管是谁的；而后者则是你必须是你要克隆的项目的拥有者或管理员，且需要先添加 SSH key ，否则无法克隆</p>
+  </li>
+  <li>
+    <p>https url 在push的时候是需要验证用户名和密码的；而 SSH 在push的时候，是不需要输入用户名的，如果配置SSH key的时候设置了密码，则需要输入密码的，否则直接是不需要输入密码的。</p>
+  </li>
+</ol>
+
+<h2 id="基本步骤">基本步骤</h2>
+
+<h3 id="生成公钥私钥">生成公钥私钥</h3>
+
+<ol>
+  <li>
+    <p>windows下打开Git安装目录，找到git-bash.exe即可使用ssh-keygen命令</p>
+  </li>
+  <li>
+    <p>windows下或者使用XShell自带的图形工具。工具-新建密钥生成向导</p>
+  </li>
+  <li>
+    <p>linux下直接使用ssh-keygen命令</p>
+  </li>
+</ol>
+
+<p>命令<code class="highlighter-rouge">#ssh-keygen -t [rsa|dsa] [-C "email"]</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh-keygen -t rsa -C "1772314831@qq.com"
+#提示输入文件名,直接回车，如果设置文件名可能比较麻烦
+#提示输入密码
+#重复输入密码
+</code></pre></div></div>
+
+<p>如果出现下面的图形，则说明生成成功。在<code class="highlighter-rouge">C:\Users\宇明\.ssh</code>目录就可以看到多了两个文件，一个是id_rsa一个是id_rsa.pub</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The key's randomart image is:
++---[RSA 2048]----+
+|  ..=oo.+oo      |
+| ..O o.o o.= o   |
+|. E.B. .++O.+ .  |
+| . *.+ ++*+. .   |
+|    = +.S  .     |
+|     + . o       |
+|      . =        |
+|       o o       |
+|        .        |
++----[SHA256]-----+
+</code></pre></div></div>
+
+<h3 id="将公钥内容复制并上传于github">将公钥内容复制并上传于github</h3>
+
+<ol>
+  <li>
+    <p>在个人信息设置SSH and GPG keys为所有项目设置一个统一的</p>
+  </li>
+  <li>
+    <p>在单个项目的设置里面设置Deploy keys，记得勾选Allow write access</p>
+  </li>
+</ol>
+
+<h3 id="测试连接">测试连接</h3>
+
+<p>通过下面的命令如果成功说明可以了</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ssh -T git@github.com
+The authenticity of host 'github.com (192.30.255.113)' can't be established.
+RSA key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'github.com,192.30.255.113' (RSA) to the list of known hosts.
+Enter passphrase for key '/c/Users/宇明/.ssh/id_rsa':
+Hi TMaize! You've successfully authenticated, but GitHub does not provide shell access.
+</code></pre></div></div>
+
+<h3 id="项目测试">项目测试</h3>
+
+<p>将你的项目通过ssh clone到本地，如果为密钥设置了密码，会提示输入密钥密码，在push的时候会再次提示输入密钥的密码。如果在建立公钥私钥的时候没有设置密码，那么在clone push的在整个过程中都无需密码。</p>
+
+<h2 id="一些问题">一些问题</h2>
+
+<h3 id="使用tortoisegit失败">使用TortoiseGit失败</h3>
+
+<p>在使用TortoiseGit图形界面clone时老是失败，只需要修改TortoiseGit的设计即可</p>
+
+<p>在设置-网络里配置SSH客户端为<code class="highlighter-rouge">E:\Git\usr\bin\ssh.exe</code>即可</p>
+
+<p><img src="01.jpg" alt="p01" /></p>
+
+<h3 id="将本地项目的远端https修改为ssh">将本地项目的远端https修改为ssh</h3>
+
+<p>方法有三种：</p>
+
+<ol>
+  <li>
+    <p>修改命令</p>
+
+    <p><code class="highlighter-rouge">git remote origin set-url [url]</code></p>
+  </li>
+  <li>
+    <p>先删后加</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> git remote rm origin
+ git remote add origin [url]
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>直接修改<code class="highlighter-rouge">项目目录/.git/config</code>文件</p>
+  </li>
+</ol>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

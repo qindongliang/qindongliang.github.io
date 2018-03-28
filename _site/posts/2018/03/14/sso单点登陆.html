@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,系统设计"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="SSO单点登陆"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>SSO单点登陆-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">SSO单点登陆</h1>
+		
+		<div class="main"><p>何为单点登陆，就是在一个站点登陆过后，打开该站点的周边站点时都不用再次登陆，同样的只要一个系统退出，其他的都会退出</p>
+
+<p>最常见的解释百度搜索和百度贴吧了,只要在任意一个站点登陆<code class="highlighter-rouge">baidu.com</code> 和 <code class="highlighter-rouge">tieba.baidu.com</code>，另一个站点再打开时就不用再次登陆，默认就是已登陆</p>
+
+<h2 id="登陆状态存储">登陆状态存储</h2>
+
+<p>其实这并不是本篇文章要详细介绍的，但是有不可避免的要说下</p>
+
+<p>如果是单系统，常见的就是session了，如果是多个服务，那么要做的就是session的持久化，以及在多个系统之间快速的查询和共享</p>
+
+<p>一般Redis存储是一个非常不错的Session持久化解决方案，当然MySQL也可以，追求效率的话甚至可以放到内存中去</p>
+
+<p>用mysql存储可以设计一个简单的表，比如session表(sid,user,失效时间，…)</p>
+
+<h2 id="验证逻辑">验证逻辑</h2>
+
+<p>其实状态的检测和单系统的一样，主要的就是多个系统间登陆标记传递到后台，后台对标记有效性进行检测</p>
+
+<ol>
+  <li>
+    <p>进入系统（携带有Cookie）</p>
+  </li>
+  <li>
+    <p>检查</p>
+
+    <ol>
+      <li>
+        <p>Cookie为空未登陆</p>
+      </li>
+      <li>
+        <p>数据库查询不到/失效为未登陆</p>
+      </li>
+      <li>
+        <p>不空，数据库有效为已登录</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>若登陆状态有效，渲染相应页面</p>
+  </li>
+  <li>
+    <p>若登陆状态无效，重新登陆，登陆成功后，写入cookie，服务端做状态持久化</p>
+  </li>
+</ol>
+
+<h2 id="和顶级域名共享cookie">和顶级域名共享cookie</h2>
+
+<p>最简单的一种，就是通过和顶级域名共享cookie</p>
+
+<p><code class="highlighter-rouge">test.com</code>、<code class="highlighter-rouge">a.test.com</code>、<code class="highlighter-rouge">b.test.com</code>是可以共享test.com下path为/的cookie信息的</p>
+
+<p><img src="01.png" alt="01" /></p>
+
+<p>代码很简单</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//新建cookie</span>
+<span class="n">Cookie</span> <span class="n">cookie</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Cookie</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="s">"asdasdasdad"</span><span class="o">);</span>
+<span class="c1">//js脚本将无法读取到cookie信息</span>
+<span class="n">cookie</span><span class="o">.</span><span class="na">setHttpOnly</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="c1">//有效期为1小时</span>
+<span class="n">cookie</span><span class="o">.</span><span class="na">setMaxAge</span><span class="o">(</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="o">);</span><span class="c1">//</span>
+<span class="c1">// *.test.com/* 下面都是共享的</span>
+<span class="n">cookie</span><span class="o">.</span><span class="na">setPath</span><span class="o">(</span><span class="s">"/"</span><span class="o">);</span>
+<span class="c1">//注意是.开口</span>
+<span class="n">cookie</span><span class="o">.</span><span class="na">setDomain</span><span class="o">(</span><span class="s">".test.com"</span><span class="o">);</span>
+<span class="c1">//写入客户端</span>
+<span class="n">response</span><span class="o">.</span><span class="na">addCookie</span><span class="o">(</span><span class="n">cookie</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="不同域名">不同域名</h2>
+
+<p>不用想就知道在<code class="highlighter-rouge">a.com</code>的后台进行<code class="highlighter-rouge">cookie.setDomain(".b.com")</code>是肯定无效的,不然的话我岂不是可以修改任意一个网站的cookie了!</p>
+
+<p>所以要解决<code class="highlighter-rouge">a.com</code>已登录，打开<code class="highlighter-rouge">b.com</code>也登陆用上面的方法是不行的</p>
+
+<p>可以多个域名之间公用一个登陆系统</p>
+
+<ol>
+  <li>
+    <p><code class="highlighter-rouge">a.com/xxx.html</code>点击登陆跳转到<code class="highlighter-rouge">login.com</code>（记住reference为<code class="highlighter-rouge">a.com/xxx.html</code>）</p>
+  </li>
+  <li>
+    <p>登陆成功<code class="highlighter-rouge">login.com</code>写入cookie到<code class="highlighter-rouge">login.com</code></p>
+  </li>
+  <li>
+    <p>同时重定向到<code class="highlighter-rouge">a.com/sso</code>（url携带之前的reference<code class="highlighter-rouge">a.com/xxx.html</code>，和<code class="highlighter-rouge">login.com</code>登陆成功的cookie信息…）</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">a.com</code>拿到信息，再写入cookie到<code class="highlighter-rouge">a.com</code>再根据一直传递的reference再重定向到起始页面</p>
+  </li>
+</ol>
+
+<p>第三方应用使用QQ登陆的oAuth授权认证就是这个原理</p>
+
+<p><img src="02.png" alt="02" /></p>
+
+<h2 id="不同域名的改进">不同域名的改进</h2>
+
+<p>通过重定向方式的缺点相比第一种顶级域名共享cookie很明显，用户需要手动触发一次登陆，虽然是自动完成登陆，但是还是要点一下登陆很是麻烦</p>
+
+<p>如果就几个系统的话，其实还可以优化</p>
+
+<p>登陆成功后可以，类似轮询吧，把所有应用站点自动登录下，不管是否访问这个站点</p>
+
+<p>跳到<code class="highlighter-rouge">a.com</code>写入cookie</p>
+
+<p>跳到<code class="highlighter-rouge">b.com</code>写入cookie</p>
+
+<p>跳到<code class="highlighter-rouge">c.com</code>写入cookie</p>
+
+<p>跳回起始页面</p>
+
+<h2 id="总结">总结</h2>
+
+<p>有时候概念听起来高大上，其实也不难，主要是一个SSO概念的理解和如何实现客户端多个应用共享同一个状态</p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

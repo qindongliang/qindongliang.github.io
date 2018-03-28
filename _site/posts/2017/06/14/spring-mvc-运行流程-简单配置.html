@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="SpringMVC 运行流程及基本配置代码"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>SpringMVC 运行流程及基本配置代码-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">SpringMVC 运行流程及基本配置代码</h1>
+		
+		<div class="main"><h2 id="spring-web-mvc概述">Spring Web MVC概述</h2>
+
+<p>Spring为Web层(struts之类的)提供了自己的解决方案，即Spring Web MVC</p>
+
+<p>它是一种基于Java的实现了Web MVC设计模式的请求驱动类型的轻量级Web框架，即使用了MVC架构模式的思想，将web层进行职责解耦，基于请求驱动指的就是使用请求-响应模型，框架的目的就是帮助我们简化开发，Spring Web MVC也是要简化我们日常Web开发的</p>
+
+<p><img src="01.jpg" alt="p01" /></p>
+
+<h3 id="bs系统中mvc架构">B/S系统中MVC架构</h3>
+
+<p>在Web MVC模式下，模型无法主动推数据给视图，如果用户想要视图更新，需要再发送一次请求（即请求-响应模型）</p>
+
+<p><img src="02.jpg" alt="p02" /></p>
+
+<h3 id="spring-web-mvc核心架构">Spring Web MVC核心架构</h3>
+
+<p><img src="03.jpg" alt="p03" /></p>
+
+<blockquote>
+  <p>Spring’s web MVC framework is, like many other web MVC frameworks, request-driven, designed
+around a central Servlet that dispatches requests to controllers and offers other functionality that
+facilitates the development of web applications. Spring’s DispatcherServlet however, does more
+than just that. It is completely integrated with the Spring IoC container and as such allows you to use
+every other feature that Spring has</p>
+</blockquote>
+
+<h3 id="spring-web-mvc的执行流程">Spring Web MVC的执行流程</h3>
+
+<ol>
+  <li>
+    <p>首先用户发送请求——&gt;DispatcherServlet，前端控制器收到请求后自己不进行处理，而是委托给其他的解析器进行处理，作为统一访问点，进行全局的流程控制</p>
+  </li>
+  <li>
+    <p>DispatcherServlet——&gt;HandlerMapping，HandlerMapping将会把请求映射为HandlerExecutionChain对象（包含一个Handler处理器（页面控制器）对象、多个HandlerInterceptor拦截器）对象，通过这种策略模式，很容易添加新的映射策略</p>
+  </li>
+  <li>
+    <p>DispatcherServlet——&gt;HandlerAdapter，HandlerAdapter将会把处理器包装为适配器，从而支持多种类型的处理器，即适配器设计模式的应用，从而很容易支持很多类型的处理器</p>
+  </li>
+  <li>
+    <p>HandlerAdapter——&gt;处理器功能处理方法的调用，HandlerAdapter将会根据适配的结果调用真正的处理器的功能处理方法，完成功能处理；并返回一个ModelAndView对象（包含模型数据、逻辑视图名）</p>
+  </li>
+  <li>
+    <p>ModelAndView的逻辑视图名——&gt; ViewResolver， ViewResolver将把逻辑视图名解析为具体的View，通过这种策略模式，很容易更换其他视图技术</p>
+  </li>
+  <li>
+    <p>View——&gt;渲染，View会根据传进来的Model模型数据进行渲染，此处的Model实际是一个Map数据结构，因此很容易支持其他视图技术；</p>
+  </li>
+  <li>
+    <p>返回控制权给DispatcherServlet，由DispatcherServlet返回响应给用户，到此一个流程结束</p>
+  </li>
+</ol>
+
+<h2 id="基本代码编写">基本代码编写</h2>
+
+<h3 id="原理">原理</h3>
+
+<ul>
+  <li>
+    <p>前端控制器DispatcherServlet，由于接受请求，响应结果，相当于转发器,减少了其他组件间的耦合性（不需要程序员开发）</p>
+  </li>
+  <li>
+    <p>处理器映射器HandlerMapping，根据URL查找Handler（不需要程序员开发）</p>
+  </li>
+  <li>
+    <p>处理器Handler，要按照HandlerAdapter的规则去编写，这样适配器才能正确执行Handler（需要程序员开发）</p>
+  </li>
+  <li>
+    <p>处理器适配器HandlerAdapter，按照特定的规则去执行Handler（不需要程序员开发）</p>
+  </li>
+  <li>
+    <p>视图解析器ViewResolver，进行视图解析，根据逻辑视图名解析成真正的视图（View）（不需要程序员开发）</p>
+  </li>
+  <li>
+    <p>视图View，View是一个接口，支持类实现不同的View类型(jsp,freemarker,pdf…)（需要写相关view的界面代码）</p>
+  </li>
+</ul>
+
+<p>根据上面的介绍，及运行流程很容易就能够写出一个简单的Demo</p>
+
+<h3 id="导入相关jar包">导入相关jar包</h3>
+
+<p><img src="04.jpg" alt="04" /></p>
+
+<h3 id="配置dispatcherservlet">配置DispatcherServlet</h3>
+
+<p>在web.xml中配置前端控制器DispatcherServlet</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- springMVC前端控制器 --&gt;</span>
+<span class="nt">&lt;servlet&gt;</span>
+	<span class="nt">&lt;servlet-name&gt;</span>DispatcherServlet<span class="nt">&lt;/servlet-name&gt;</span>
+	<span class="nt">&lt;servlet-class&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="nt">&lt;/servlet-class&gt;</span>
+	<span class="c">&lt;!-- 配置要加载的配置文件 --&gt;</span>
+	<span class="nt">&lt;init-param&gt;</span>
+		<span class="nt">&lt;param-name&gt;</span>contextConfigLocation<span class="nt">&lt;/param-name&gt;</span>
+		<span class="nt">&lt;param-value&gt;</span>classpath:spring-mvc.xml<span class="nt">&lt;/param-value&gt;</span>
+	<span class="nt">&lt;/init-param&gt;</span>
+<span class="nt">&lt;/servlet&gt;</span>
+
+<span class="nt">&lt;servlet-mapping&gt;</span>
+	<span class="nt">&lt;servlet-name&gt;</span>DispatcherServlet<span class="nt">&lt;/servlet-name&gt;</span>
+	<span class="c">&lt;!-- 
+		*.action，访问以*.action的由DispatcherServlet解析
+		/ ，所有地址都由DispatcherServlet解析，对于静态文件的解析需要再做处理
+		/* ，这样配置不对，当转发到一个jsp页面时仍会再次解析，不能根据jsp页面找到handler会报错
+	--&gt;</span>
+	<span class="nt">&lt;url-pattern&gt;</span>/<span class="nt">&lt;/url-pattern&gt;</span>
+<span class="nt">&lt;/servlet-mapping&gt;</span>
+</code></pre></div></div>
+
+<h3 id="配置handlermapping">配置HandlerMapping</h3>
+
+<p>再web.xml文件中配置DispatcherServlet时给定了springmvc配置文件的路径</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">"http://www.springframework.org/schema/beans"</span>
+	<span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="na">xmlns:aop=</span><span class="s">"http://www.springframework.org/schema/aop"</span>
+	<span class="na">xmlns:tx=</span><span class="s">"http://www.springframework.org/schema/tx"</span> <span class="na">xmlns:context=</span><span class="s">"http://www.springframework.org/schema/context"</span>
+	<span class="na">xmlns:mvc=</span><span class="s">"http://www.springframework.org/schema/mvc"</span> <span class="na">xmlns:task=</span><span class="s">"http://www.springframework.org/schema/task"</span>
+	<span class="na">xsi:schemaLocation=</span><span class="s">"
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task.xsd"</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!--处理器映射器 --&gt;</span>
+	<span class="c">&lt;!-- BeanNameUrlHandlerMapping能够将浏览器的url与配置的handler的name进行映射 --&gt;</span>
+	<span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"</span><span class="nt">&gt;&lt;/bean&gt;</span>
+<span class="nt">&lt;/beans&gt;</span>
+</code></pre></div></div>
+
+<h3 id="配置handleradapter">配置HandlerAdapter</h3>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!--处理器适配器 --&gt;</span>
+<span class="c">&lt;!--一个实现HandlerAdapter接口的类，能够处理实现Controller接口的handler --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"</span><span class="nt">&gt;&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<h3 id="配置viewresolver">配置ViewResolver</h3>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!--视图解析器 --&gt;</span>
+<span class="c">&lt;!-- 支持jsp，默认使用jstl标签 --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"org.springframework.web.servlet.view.InternalResourceViewResolver"</span><span class="nt">&gt;&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<h3 id="开发handler">开发Handler</h3>
+
+<p>由于采用了SimpleControllerHandlerAdapter</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SimpleControllerHandlerAdapter</span> <span class="kd">implements</span> <span class="n">HandlerAdapter</span> <span class="o">{</span>
+
+	<span class="nd">@Override</span>
+	<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">supports</span><span class="o">(</span><span class="n">Object</span> <span class="n">handler</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//说明此适配器能够处理Controller接口的Handler</span>
+		<span class="k">return</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">Controller</span><span class="o">);</span>
+	<span class="o">}</span>
+
+    <span class="o">....</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>所以编写的Handler要符合SimpleControllerHandlerAdapter的规范，即实现Controller接口</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ItemController</span> <span class="kd">implements</span> <span class="n">Controller</span><span class="o">{</span>
+
+	<span class="nd">@Override</span>
+	<span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">handleRequest</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+	
+    	<span class="c1">//调用service查找数据库,这里用静态数据模拟</span>
+		
+		<span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+		<span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="n">Item</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="s">"商品1"</span><span class="o">));</span>
+		<span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="n">Item</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="s">"商品2"</span><span class="o">));</span>
+		
+		<span class="c1">//创建ModelAndView</span>
+		<span class="n">ModelAndView</span> <span class="n">modelAndView</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModelAndView</span><span class="o">();</span>
+		
+		<span class="c1">//相当于request的setAttribute</span>
+		<span class="n">modelAndView</span><span class="o">.</span><span class="na">addObject</span><span class="o">(</span><span class="s">"list"</span><span class="o">,</span> <span class="n">list</span><span class="o">);</span>
+		
+		<span class="c1">//指定视图</span>
+		<span class="n">modelAndView</span><span class="o">.</span><span class="na">setViewName</span><span class="o">(</span><span class="s">"/WEB-INF/jsp/itemList.jsp"</span><span class="o">);</span>
+		
+		<span class="k">return</span> <span class="n">modelAndView</span><span class="o">;</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="配置handler的访问路径">配置Handler的访问路径</h3>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- handler BeanNameUrlHandlerMapping--&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">name=</span><span class="s">"/listItem"</span> <span class="na">class=</span><span class="s">"controller.ItemController"</span><span class="nt">&gt;&lt;/bean&gt;</span>
+</code></pre></div></div>
+
+<h3 id="页面编写">页面编写</h3>
+
+<p>再Handler中指定了路径<code class="highlighter-rouge">modelAndView.setViewName("/WEB-INF/jsp/itemList.jsp")</code>，所以在这个路径下编写ViewResolver所支持的界面，这里的是jsp页面，并且使用了jstl标签库</p>
+
+<pre><code class="language-jsp">&lt;%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%&gt;
+&lt;%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%&gt;
+&lt;!DOCTYPE&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+&lt;title&gt;Insert title here&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;ul&gt;
+		&lt;c:forEach items="${list}" var="item"&gt;
+			&lt;li&gt;${item.id}---${item.name}&lt;/li&gt;
+		&lt;/c:forEach&gt;
+	&lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h2 id="测试">测试</h2>
+
+<p>启动项目时报错，发现是缺少commons-logging包，导入即可</p>
+
+<p>访问<a href="http://localhost:8080/springmvc/listItem">http://localhost:8080/springmvc/listItem</a>得到结果页面</p>
+
+<p><img src="05.jpg" alt="p05" /></p>
+
+<h2 id="参考">参考</h2>
+
+<p><a href="http://jinnianshilongnian.iteye.com/blog/1752171">跟我学SpringMVC目录</a></p>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

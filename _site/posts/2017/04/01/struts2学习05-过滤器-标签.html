@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Struts2学习-05 拦截器 自带的标签库"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Struts2学习-05 拦截器 自带的标签库-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Struts2学习-05 拦截器 自带的标签库</h1>
+		
+		<div class="main"><h2 id="拦截器">拦截器</h2>
+
+<ol>
+  <li>
+    <p>struts2 是框架，封装了很多功能，里面封装的功能都是在拦截器里面</p>
+  </li>
+  <li>
+    <p>有很多的拦截器，不是所有的都执行，每次执行默认的拦截器</p>
+  </li>
+  <li>
+    <p>执行时间，Action对象创建之后，Action方法执行之前执行</p>
+  </li>
+  <li>
+    <p>struts2 默认拦截器的位置</p>
+
+    <p>struts核心包里面的struts-default.xml定义了默认的拦截器</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;interceptors&gt;</span>
+         <span class="nt">&lt;interceptor</span> <span class="na">name=</span><span class="s">"alias"</span> <span class="na">class=</span><span class="s">"com.opensymphony.xwork2.interceptor.AliasInterceptor"</span><span class="nt">/&gt;</span>
+         <span class="nt">&lt;interceptor</span> <span class="na">name=</span><span class="s">"autowiring"</span> <span class="na">class=</span><span class="s">"com.opensymphony.xwork2.spring.interceptor.ActionAutowiringInterceptor"</span><span class="nt">/&gt;</span>
+         <span class="nt">&lt;interceptor</span> <span class="na">name=</span><span class="s">"chain"</span> <span class="na">class=</span><span class="s">"com.opensymphony.xwork2.interceptor.ChainingInterceptor"</span><span class="nt">/&gt;</span>
+         <span class="c">&lt;!-- ............ --&gt;</span>
+         <span class="nt">&lt;interceptor-stack</span> <span class="na">name=</span><span class="s">"defaultStack"</span><span class="nt">&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"exception"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"alias"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"servletConfig"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"i18n"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"prepare"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"chain"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"scopedModelDriven"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"modelDriven"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"fileUpload"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"checkbox"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"datetime"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"multiselect"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"staticParams"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"actionMappingParams"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"params"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"conversionError"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"validation"</span><span class="nt">&gt;</span>
+                 <span class="nt">&lt;param</span> <span class="na">name=</span><span class="s">"excludeMethods"</span><span class="nt">&gt;</span>input,back,cancel,browse<span class="nt">&lt;/param&gt;</span>
+             <span class="nt">&lt;/interceptor-ref&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"workflow"</span><span class="nt">&gt;</span>
+                 <span class="nt">&lt;param</span> <span class="na">name=</span><span class="s">"excludeMethods"</span><span class="nt">&gt;</span>input,back,cancel,browse<span class="nt">&lt;/param&gt;</span>
+             <span class="nt">&lt;/interceptor-ref&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"debugging"</span><span class="nt">/&gt;</span>
+         <span class="nt">&lt;/interceptor-stack&gt;</span>
+         <span class="c">&lt;!-- ............ --&gt;</span>
+ <span class="nt">&lt;/interceptors&gt;</span>
+ <span class="c">&lt;!-- ............ --&gt;</span>
+ <span class="nt">&lt;default-interceptor-ref</span> <span class="na">name=</span><span class="s">"defaultStack"</span><span class="nt">/&gt;</span>
+</code></pre></div>    </div>
+    <h3 id="拦截器原理及执行步骤">拦截器原理及执行步骤</h3>
+  </li>
+  <li>
+    <p>AOP思想:面向切面编程，不修改源代码来拓展功能</p>
+  </li>
+  <li>
+    <p>责任链模式</p>
+  </li>
+  <li>
+    <p>步骤</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//执行Action</span>
+  <span class="n">execute</span><span class="o">.</span><span class="na">executeAction</span><span class="o">(</span><span class="n">request</span><span class="o">,</span><span class="n">response</span><span class="err">，</span><span class="n">map</span><span class="o">)</span>
+
+  <span class="o">...</span>
+  <span class="c1">//使用动态代理创建Action</span>
+  <span class="n">ActionProxy</span> <span class="n">proxy</span> <span class="o">=</span> <span class="n">getContainer</span><span class="o">().</span><span class="na">getInstance</span><span class="o">(</span><span class="n">ActionProxyFactory</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">createActionProxy</span><span class="o">(</span><span class="n">namespace</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">method</span><span class="o">,</span> <span class="n">extraContext</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+ <span class="o">...</span>
+ <span class="n">proxy</span><span class="o">.</span><span class="na">execute</span><span class="o">();</span>
+
+ <span class="c1">//执行很多的拦截器</span>
+ <span class="k">if</span> <span class="o">(</span><span class="n">interceptors</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
+     <span class="o">...</span>
+ <span class="o">}</span>
+
+ <span class="c1">//放行</span>
+ <span class="k">return</span> <span class="n">invocation</span><span class="o">.</span><span class="na">invoke</span><span class="o">();</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="过滤器和拦截器的区别">过滤器和拦截器的区别</h3>
+
+<p>过滤器：理论上可以过滤任意内容，比如 html、jsp、servlet、图片路径</p>
+
+<p>拦截器：只可以拦截Action</p>
+
+<h3 id="自定义拦截器">自定义拦截器</h3>
+
+<p>struts里面的拦截器不能满足需求时，可通过自定义拦截器来实现</p>
+
+<ol>
+  <li>
+    <p>extends AbstractInterceptor</p>
+
+    <p>AbstractInterceptor 实现了Interceptor接口</p>
+
+    <p>有init,destroy，intercept方法，intercept被AbstractInterceptor复写为抽象的，必须要实现
+ 其他两个用哪个就复写哪个</p>
+  </li>
+  <li>
+    <p>extends MethodFilterInterceptor</p>
+
+    <p>在开发中一般使用这个，因为它可以定义Action中的那些方法不要拦截</p>
+
+    <p>其实第一种方式也可以实现，不过要用反射</p>
+  </li>
+</ol>
+
+<h3 id="实现自定义拦截器">实现自定义拦截器</h3>
+
+<ol>
+  <li>
+    <p>自定义拦截器</p>
+
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">LoginInterceptot</span> <span class="kd">extends</span> <span class="n">MethodFilterInterceptor</span> <span class="o">{</span>
+
+     <span class="nd">@Override</span>
+     <span class="kd">protected</span> <span class="n">String</span> <span class="nf">doIntercept</span><span class="o">(</span><span class="n">ActionInvocation</span> <span class="n">invocation</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+            
+         <span class="kt">boolean</span> <span class="n">flag</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            
+         <span class="c1">//invocation.getStack()</span>
+         <span class="c1">//invocation.getInvocationContext().getParameters()</span>
+         <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">=</span> <span class="o">(</span><span class="n">HttpServletRequest</span><span class="o">)</span><span class="n">invocation</span><span class="o">.</span><span class="na">getInvocationContext</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">StrutsStatics</span><span class="o">.</span><span class="na">HTTP_REQUEST</span><span class="o">);</span>
+         <span class="n">HttpServletRequest</span> <span class="n">req</span> <span class="o">=</span> <span class="n">ServletActionContext</span><span class="o">.</span><span class="na">getRequest</span><span class="o">();</span>
+            
+         <span class="c1">//String key = req.getParameter("key");</span>
+            
+         <span class="o">.....</span>
+
+         <span class="k">if</span> <span class="o">(</span><span class="n">flag</span><span class="o">)</span> <span class="o">{</span>
+             <span class="c1">//放行    </span>
+             <span class="k">return</span> <span class="n">invocation</span><span class="o">.</span><span class="na">invoke</span><span class="o">();</span>
+         <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+             <span class="c1">//到action的配置中很据结果找页面</span>
+             <span class="k">return</span> <span class="s">"login"</span><span class="o">;</span>
+         <span class="o">}</span>
+            
+     <span class="o">}</span>
+ <span class="o">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>配置与Action的关联</p>
+
+    <p>在package标签里面声明拦截器</p>
+
+    <p>在具体的action标签里面声明要使用的拦截器</p>
+
+    <p>注意：如果在action中定义了拦截器，那么系统默认的拦截器将不会执行，所以要做下面的配置</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;package</span> <span class="na">name=</span><span class="s">"testdemo"</span> <span class="na">extends=</span><span class="s">"struts-default"</span> <span class="na">namespace=</span><span class="s">"/"</span><span class="nt">&gt;</span>
+     <span class="nt">&lt;interceptors&gt;</span>
+         <span class="nt">&lt;interceptor</span> <span class="na">name=</span><span class="s">"checklogin"</span> <span class="na">class=</span><span class="s">"com.day01.LoginInterceptot"</span><span class="nt">&gt;&lt;/interceptor&gt;</span>
+         <span class="nt">&lt;interceptor-stack</span> <span class="na">name=</span><span class="s">"mydefault"</span><span class="nt">&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"checklogin"</span> <span class="nt">&gt;</span>
+                 <span class="c">&lt;!-- 配置不拦截的方法 --&gt;</span>
+                 <span class="nt">&lt;param</span> <span class="na">name=</span><span class="s">"excludeMethods"</span><span class="nt">&gt;</span>login,other<span class="nt">&lt;/param&gt;</span>
+             <span class="nt">&lt;/interceptor-ref&gt;</span>
+             <span class="c">&lt;!-- 加上默认的拦截器 --&gt;</span>
+             <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"defaultStack"</span> <span class="nt">/&gt;</span>	
+         <span class="nt">&lt;/interceptor-stack&gt;</span>
+     <span class="nt">&lt;/interceptors&gt;</span>
+     <span class="nt">&lt;action</span> <span class="na">name=</span><span class="s">"test"</span> <span class="na">class=</span><span class="s">"com.day01.Test"</span><span class="nt">&gt;</span>
+         <span class="nt">&lt;result</span> <span class="na">name=</span><span class="s">"success"</span><span class="nt">&gt;</span>/WEB-INF/test.jsp<span class="nt">&lt;/result&gt;</span>
+     <span class="nt">&lt;/action&gt;</span>
+     <span class="nt">&lt;action</span> <span class="na">name=</span><span class="s">"login"</span> <span class="na">class=</span><span class="s">"com.day01.Login"</span><span class="nt">&gt;</span>
+         <span class="nt">&lt;result</span> <span class="na">name=</span><span class="s">"success"</span><span class="nt">&gt;</span>/WEB-INF/login.jsp<span class="nt">&lt;/result&gt;</span>
+         <span class="c">&lt;!-- 使用拦截器 --&gt;</span>
+         <span class="nt">&lt;interceptor-ref</span> <span class="na">name=</span><span class="s">"mydefault"</span> <span class="nt">/&gt;</span>
+     <span class="nt">&lt;/action&gt;</span>
+ <span class="nt">&lt;/package&gt;</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="标签库">标签库</h2>
+
+<p>使用需要在jsp中引入标签库<code class="highlighter-rouge">&lt;%@ taglib uri="/struts-tags" prefix="s"%&gt;</code></p>
+
+<h3 id="常用标签">常用标签</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>property:和ognl配合在jsp中显示值栈中的数据
+
+iterator：获取值栈list集合数据
+
+debug：查看值栈结构和数据
+
+a:超链接
+
+if:if...
+</code></pre></div></div>
+
+<h3 id="表单标签">表单标签</h3>
+
+<p>见下面的使用例子</p>
+
+<pre><code class="language-jsp">&lt;%-- 指定修饰的样式，默认是表格&lt;s:form theme="simple"&gt; --%&gt;
+&lt;%-- 默认时提交到当前页面 --%&gt;
+&lt;s:form&gt;
+	&lt;s:textfield name="name" label="userName"&gt;&lt;/s:textfield&gt;
+	&lt;s:password name="password" label="pasword"&gt;&lt;/s:password&gt;
+	
+	&lt;s:radio list="#{'man':'男','woman':'女'}" name="sex" label="性别"&gt;&lt;/s:radio&gt;
+	
+	&lt;s:radio list="{'V1','V2'}" name="other" label="其他"&gt;&lt;/s:radio&gt;
+	
+	&lt;s:checkboxlist list="{'吃饭','睡觉','打豆豆'}" name="love" label="爱好"&gt;&lt;/s:checkboxlist&gt;
+	
+	&lt;s:select list="{1995,1996,1997}" name="year" label="年份"&gt;&lt;/s:select&gt;
+	
+	&lt;s:file name="file" label="文件上传"&gt;&lt;/s:file&gt;
+	
+	&lt;s:hidden name="hidden" value="123"&gt;&lt;/s:hidden&gt;
+	
+	&lt;s:reset value="重置"&gt;&lt;/s:reset&gt;
+	
+	&lt;s:submit value="提交"&gt;&lt;/s:submit&gt;
+&lt;/s:form&gt;
+</code></pre>
+
+<p>显示效果:</p>
+
+<p><img src="01.jpg" alt="p1" /></p>
+
+<p>转换后的html</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;form</span> <span class="na">id=</span><span class="s">"test"</span> <span class="na">name=</span><span class="s">"test"</span> <span class="na">action=</span><span class="s">"/day01/test.action"</span> <span class="na">method=</span><span class="s">"post"</span><span class="nt">&gt;</span>
+	<span class="nt">&lt;table</span> <span class="na">class=</span><span class="s">"wwFormTable"</span><span class="nt">&gt;</span>
+		<span class="nt">&lt;tbody&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdLabel"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_name"</span> <span class="na">class=</span><span class="s">"label"</span><span class="nt">&gt;</span>userName:<span class="nt">&lt;/label&gt;&lt;/td&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdInput"</span><span class="nt">&gt;&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"name"</span> <span class="na">value=</span><span class="s">""</span> <span class="na">id=</span><span class="s">"test_name"</span><span class="nt">&gt;&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdLabel"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_password"</span> <span class="na">class=</span><span class="s">"label"</span><span class="nt">&gt;</span>pasword:<span class="nt">&lt;/label&gt;&lt;/td&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdInput"</span><span class="nt">&gt;&lt;input</span> <span class="na">type=</span><span class="s">"password"</span> <span class="na">name=</span><span class="s">"password"</span> <span class="na">id=</span><span class="s">"test_password"</span><span class="nt">&gt;&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdLabel"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_sex"</span> <span class="na">class=</span><span class="s">"label"</span><span class="nt">&gt;</span>性别:<span class="nt">&lt;/label&gt;&lt;/td&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdInput"</span><span class="nt">&gt;</span>
+					<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"radio"</span> <span class="na">name=</span><span class="s">"sex"</span> <span class="na">id=</span><span class="s">"test_sexman"</span> <span class="na">value=</span><span class="s">"man"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_sexman"</span><span class="nt">&gt;</span>男<span class="nt">&lt;/label&gt;</span>
+					<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"radio"</span> <span class="na">name=</span><span class="s">"sex"</span> <span class="na">id=</span><span class="s">"test_sexwoman"</span> <span class="na">value=</span><span class="s">"woman"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_sexwoman"</span><span class="nt">&gt;</span>女<span class="nt">&lt;/label&gt;</span>
+				<span class="nt">&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdLabel"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_other"</span> <span class="na">class=</span><span class="s">"label"</span><span class="nt">&gt;</span>其他:<span class="nt">&lt;/label&gt;&lt;/td&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdInput"</span><span class="nt">&gt;</span>
+					<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"radio"</span> <span class="na">name=</span><span class="s">"other"</span> <span class="na">id=</span><span class="s">"test_otherV1"</span> <span class="na">value=</span><span class="s">"V1"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_otherV1"</span><span class="nt">&gt;</span>V1<span class="nt">&lt;/label&gt;</span>
+					<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"radio"</span> <span class="na">name=</span><span class="s">"other"</span> <span class="na">id=</span><span class="s">"test_otherV2"</span> <span class="na">value=</span><span class="s">"V2"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_otherV2"</span><span class="nt">&gt;</span>V2<span class="nt">&lt;/label&gt;</span>
+				<span class="nt">&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdLabel"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_love"</span> <span class="na">class=</span><span class="s">"label"</span><span class="nt">&gt;</span>爱好:<span class="nt">&lt;/label&gt;&lt;/td&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdInput"</span><span class="nt">&gt;</span>
+					<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"checkbox"</span> <span class="na">name=</span><span class="s">"love"</span> <span class="na">value=</span><span class="s">"吃饭"</span> <span class="na">id=</span><span class="s">"test_love-1"</span><span class="nt">&gt;</span> <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"test_love-1"</span> <span class="na">class=</span><span class="s">"checkboxLabel"</span><span class="nt">&gt;</span>吃饭<span class="nt">&lt;/label&gt;</span>
+					<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"checkbox"</span> <span class="na">name=</span><span class="s">"love"</span> <span class="na">value=</span><span class="s">"睡觉"</span> <span class="na">id=</span><span class="s">"test_love-2"</span><span class="nt">&gt;</span> <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"test_love-2"</span> <span class="na">class=</span><span class="s">"checkboxLabel"</span><span class="nt">&gt;</span>睡觉<span class="nt">&lt;/label&gt;</span>
+					<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"checkbox"</span> <span class="na">name=</span><span class="s">"love"</span> <span class="na">value=</span><span class="s">"打豆豆"</span> <span class="na">id=</span><span class="s">"test_love-3"</span><span class="nt">&gt;</span> <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"test_love-3"</span> <span class="na">class=</span><span class="s">"checkboxLabel"</span><span class="nt">&gt;</span>打豆豆<span class="nt">&lt;/label&gt;</span>
+					<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">id=</span><span class="s">"__multiselect_test_love"</span> <span class="na">name=</span><span class="s">"__multiselect_love"</span> <span class="na">value=</span><span class="s">""</span><span class="nt">&gt;</span>
+				<span class="nt">&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdLabel"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_year"</span> <span class="na">class=</span><span class="s">"label"</span><span class="nt">&gt;</span>年份:<span class="nt">&lt;/label&gt;&lt;/td&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdInput"</span><span class="nt">&gt;</span>
+					<span class="nt">&lt;select</span> <span class="na">name=</span><span class="s">"year"</span> <span class="na">id=</span><span class="s">"test_year"</span><span class="nt">&gt;</span>
+						<span class="nt">&lt;option</span> <span class="na">value=</span><span class="s">"1995"</span><span class="nt">&gt;</span>1995<span class="nt">&lt;/option&gt;</span>
+						<span class="nt">&lt;option</span> <span class="na">value=</span><span class="s">"1996"</span><span class="nt">&gt;</span>1996<span class="nt">&lt;/option&gt;</span>
+						<span class="nt">&lt;option</span> <span class="na">value=</span><span class="s">"1997"</span><span class="nt">&gt;</span>1997<span class="nt">&lt;/option&gt;</span>
+					<span class="nt">&lt;/select&gt;</span>
+				<span class="nt">&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdLabel"</span><span class="nt">&gt;&lt;label</span> <span class="na">for=</span><span class="s">"test_file"</span> <span class="na">class=</span><span class="s">"label"</span><span class="nt">&gt;</span>文件上传:<span class="nt">&lt;/label&gt;&lt;/td&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"tdInput"</span><span class="nt">&gt;&lt;input</span> <span class="na">type=</span><span class="s">"file"</span> <span class="na">name=</span><span class="s">"file"</span> <span class="na">value=</span><span class="s">""</span> <span class="na">id=</span><span class="s">"test_file"</span><span class="nt">&gt;&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr</span> <span class="na">style=</span><span class="s">"display: none;"</span><span class="nt">&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">colspan=</span><span class="s">"2"</span><span class="nt">&gt;&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"hidden"</span> <span class="na">value=</span><span class="s">"123"</span> <span class="na">id=</span><span class="s">"test_hidden"</span><span class="nt">&gt;&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">colspan=</span><span class="s">"2"</span><span class="nt">&gt;&lt;div</span> <span class="na">class=</span><span class="s">"formButton"</span><span class="nt">&gt;&lt;input</span> <span class="na">type=</span><span class="s">"reset"</span> <span class="na">value=</span><span class="s">"重置"</span><span class="nt">&gt;&lt;/div&gt;&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+			<span class="nt">&lt;tr&gt;</span>
+				<span class="nt">&lt;td</span> <span class="na">colspan=</span><span class="s">"2"</span><span class="nt">&gt;&lt;div</span> <span class="na">class=</span><span class="s">"formButton"</span><span class="nt">&gt;</span> <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">value=</span><span class="s">"提交"</span> <span class="na">id=</span><span class="s">"test_2"</span><span class="nt">&gt;</span> <span class="nt">&lt;/div&gt;&lt;/td&gt;</span>
+			<span class="nt">&lt;/tr&gt;</span>
+		<span class="nt">&lt;/tbody&gt;</span>
+	<span class="nt">&lt;/table&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</code></pre></div></div>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

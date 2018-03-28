@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="Struts2学习-02 配置 注解 Action"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>Struts2学习-02 配置 注解 Action-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">Struts2学习-02 配置 注解 Action</h1>
+		
+		<div class="main"><h2 id="webxml配置">web.xml配置</h2>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;filter&gt;</span>
+      <span class="nt">&lt;filter-name&gt;</span>struts2<span class="nt">&lt;/filter-name&gt;</span>
+      <span class="nt">&lt;filter-class&gt;</span>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter<span class="nt">&lt;/filter-class&gt;</span>
+  <span class="nt">&lt;/filter&gt;</span>
+
+  <span class="nt">&lt;filter-mapping&gt;</span>
+      <span class="nt">&lt;filter-name&gt;</span>struts2<span class="nt">&lt;/filter-name&gt;</span>
+      <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+  <span class="nt">&lt;/filter-mapping&gt;</span>
+</code></pre></div></div>
+
+<p>注意在2.3版本之前class为<code class="highlighter-rouge">org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</code></p>
+
+<h2 id="struts配置">struts配置</h2>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;struts&gt;</span>
+    <span class="nt">&lt;constant</span> <span class="na">name=</span><span class="s">"struts.i18n.encoding"</span> <span class="na">value=</span><span class="s">"UTF-8"</span><span class="nt">&gt;&lt;/constant&gt;</span>
+    <span class="nt">&lt;package</span> <span class="na">name=</span><span class="s">"testdemo"</span> <span class="na">extends=</span><span class="s">"struts-default"</span> <span class="na">namespace=</span><span class="s">"/"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;action</span> <span class="na">name=</span><span class="s">"test"</span> <span class="na">class=</span><span class="s">"com.day01.Test"</span><span class="nt">&gt;</span>
+        	<span class="nt">&lt;result</span> <span class="na">name=</span><span class="s">"ok"</span><span class="nt">&gt;</span>/test.jsp<span class="nt">&lt;/result&gt;</span>
+        <span class="nt">&lt;/action&gt;</span>
+    <span class="nt">&lt;/package&gt;</span>
+<span class="nt">&lt;/struts&gt;</span>
+</code></pre></div></div>
+
+<h3 id="package标签">package标签</h3>
+
+<p>类似java的包，用于区分不同的action。必须先写package标签才能配置action</p>
+
+<ol>
+  <li>
+    <p>name属性和功能无关，起个名字而已。但是多个package的name值不同</p>
+  </li>
+  <li>
+    <p>extends属性，表示一种继承。值是固定的，即struts-default。表示里面的配置具有action的功能</p>
+  </li>
+  <li>
+    <p>namespace属性。url访问路径的前缀，和action的name构成访问路径。可以不写，默认值是/</p>
+  </li>
+</ol>
+
+<h3 id="action标签">action标签</h3>
+
+<p>主要是配置action的访问路径</p>
+
+<ol>
+  <li>
+    <p>name属性，访问路径。可以配置多个action，但name值不同</p>
+  </li>
+  <li>
+    <p>class属性，action类的路径</p>
+  </li>
+  <li>
+    <p>method属性，配置默认执行的方法。一般action默认执行execute方法</p>
+  </li>
+</ol>
+
+<h2 id="result标签">result标签</h2>
+
+<p>根据action的返回值跳到不同的页面/action。如果是页面，需要加上/，表示WebContent的根目录</p>
+
+<ol>
+  <li>
+    <p>name属性，用于对比action的返回值</p>
+  </li>
+  <li>
+    <p>type属性，跳转的方式，重定向/转发…，默认是转发操作</p>
+  </li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>已配置结果类型名</th>
+      <th style="text-align: center">类名</th>
+      <th style="text-align: right">描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>dispatcher</td>
+      <td style="text-align: center">org.apache.struts2.dispatcher.ServletDispatcherResult</td>
+      <td style="text-align: right">默认结果类型，用来呈现JSP页面</td>
+    </tr>
+    <tr>
+      <td>chain</td>
+      <td style="text-align: center">com.opensymphony.xwork2.ActionChainResult</td>
+      <td style="text-align: right">将action和另外一个action链接起来</td>
+    </tr>
+    <tr>
+      <td>freemarker</td>
+      <td style="text-align: center">org.apache.struts2.views.freemarker.FreemarkerResult</td>
+      <td style="text-align: right">呈现Freemarker模板</td>
+    </tr>
+    <tr>
+      <td>httpheader</td>
+      <td style="text-align: center">org.apache.struts2.dispatcher.HttpHeaderResult</td>
+      <td style="text-align: right">返回一个已配置好的HTTP头信息响应</td>
+    </tr>
+    <tr>
+      <td>redirect</td>
+      <td style="text-align: center">org.apache.struts2.dispatcher.ServletRedirectResult</td>
+      <td style="text-align: right">将用户重定向到一个已配置好的URL</td>
+    </tr>
+    <tr>
+      <td>redirectAction</td>
+      <td style="text-align: center">org.apache.struts2.dispatcher.ServletActionRedirectResult</td>
+      <td style="text-align: right">将用户重定向到一个已定义好的action</td>
+    </tr>
+    <tr>
+      <td>stream</td>
+      <td style="text-align: center">org.apache.struts2.dispatcher.StreamResult</td>
+      <td style="text-align: right">将原始数据作为流传递回浏览器端，该结果类型对下载的内容和图片非常有用</td>
+    </tr>
+    <tr>
+      <td>velocity</td>
+      <td style="text-align: center">org.apache.struts2.dispatcher.VelocityResult</td>
+      <td style="text-align: right">呈现Velocity模板</td>
+    </tr>
+    <tr>
+      <td>xslt</td>
+      <td style="text-align: center">org.apache.struts2.views.xslt.XSLTResult</td>
+      <td style="text-align: right">呈现XML到浏览器，该XML可以通过XSL模板进行转换</td>
+    </tr>
+    <tr>
+      <td>plaintext</td>
+      <td style="text-align: center">org.apache.struts2.dispatcher.PlainTextResult</td>
+      <td style="text-align: right">返回普通文本</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="常量配置">常量配置</h3>
+
+<p><code class="highlighter-rouge">&lt;constant name="" value=""&gt;&lt;/constant&gt;</code></p>
+
+<p>name的值来自/org/apache/struts2/default.properties</p>
+
+<p>还有两种配置方式两种方式(1)在src下面建立struts.properties文件(2)在webxml进行配置。
+不过这两种不常用</p>
+
+<h2 id="分模块开发的配置">分模块开发的配置</h2>
+
+<p>为了防止多人对同一个配置文件的修改，可以在核心配置里面引入用户配置，然后每个人修改自己的配置即可。</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- 路径的根是src --&gt;</span>
+<span class="nt">&lt;struts&gt;</span>
+	<span class="nt">&lt;include</span> <span class="na">file=</span><span class="s">""</span><span class="nt">&gt;&lt;/include&gt;</span>	
+<span class="nt">&lt;/struts&gt;</span>
+</code></pre></div></div>
+
+<h2 id="action">Action</h2>
+
+<p>servlet和action的区别，servlet默认在第一次访问时创建，action每次访问都是一个新的对象</p>
+
+<h3 id="action的编写方式">Action的编写方式</h3>
+
+<ol>
+  <li>
+    <p>创建普通类，不继承任何类，不实现任何接口</p>
+  </li>
+  <li>
+    <p>创建类，实现Action接口</p>
+  </li>
+  <li>
+    <p>创建类，继承ActionSupport（一般使用这种）</p>
+  </li>
+</ol>
+
+<p>第二种和第三种可以使用Action接口里面定义的接口
+另外ActionSupport里面有好多定义好的方法，重写就可以用了</p>
+
+<h3 id="通过url访问action的方法">通过url访问Action的方法</h3>
+
+<ol>
+  <li>
+    <p>使用action标签的method属性</p>
+
+    <p><code class="highlighter-rouge">&lt;action name="test" class="com.day01.Test" method="execute"&gt;</code></p>
+
+    <p>缺点：访问同一个action的不同方法需要配置好多的action，推荐第二种通配的方式</p>
+  </li>
+  <li>
+    <p>使用通配符方式实现</p>
+
+    <p>在<action>的name属性中使用*来代表任意字符,当通过url访问user_add时，会执行Action里的add方法</action></p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;action</span> <span class="na">name=</span><span class="s">"user_*"</span>  <span class="na">class=</span><span class="s">"com.day01.Test"</span> <span class="na">method=</span><span class="s">"{1}"</span><span class="nt">&gt;</span>
+     <span class="nt">&lt;result</span> <span class="na">name=</span><span class="s">"add"</span><span class="nt">&gt;</span>/add.jsp<span class="nt">&lt;/result&gt;</span>
+     <span class="nt">&lt;result</span> <span class="na">name=</span><span class="s">"delete"</span><span class="nt">&gt;</span>/add.jsp<span class="nt">&lt;/result&gt;</span>                                    
+ <span class="nt">&lt;/action&gt;</span>                 
+</code></pre></div>    </div>
+    <p>注意在struts2.5以后为了提高安全性按照上述方式配置会有404错误，要在<action>里面加上一句</action></p>
+
+    <p><code class="highlighter-rouge">&lt;allowed-methods&gt;add,delete&lt;/allowed-methods&gt;</code> 方法名之间用逗号隔开</p>
+
+    <p>或者<code class="highlighter-rouge">&lt;allowed-methods&gt;regex:.*&lt;/allowed-methods&gt;</code></p>
+
+    <p>或者在<package>里面全局配置`<global-allowed-methods>regex:.*</global-allowed-methods>`</package></p>
+
+    <p>或者在Action里面采用注解 <code class="highlighter-rouge">@AllowedMethods</code></p>
+  </li>
+  <li>
+    <p>动态访问实现（不用）</p>
+
+    <p>默认是不开启的<code class="highlighter-rouge">struts.enable.DynamicMethodInvocation = false</code>需要在常量中配置为true</p>
+
+    <action>中不用配置method，通过url:actionName!methodName.action的方式访问
+
+</action>
+  </li>
+</ol>
+<h2 id="注解配置action">注解配置Action</h2>
+
+<p>依赖于struts2-convention这个jar包</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import javax.annotation.Resource;
+import org.apache.struts2.convention.annotation.Action;
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.Results;
+import com.opensymphony.xwork2.ActionSupport;
+import dao.UserDao;
+
+@Results({
+	@Result(name="ok",location="/test.jsp"),  
+	@Result(name="failure",location="/failure.jsp")})
+@Action(value="test")
+public class UserAction extends ActionSupport{
+	
+	private static final long serialVersionUID = 1L;
+	
+    //Spring注入
+	@Resource(name="UserDaoImpl")
+	UserDao userDao;
+	
+	@Override
+	public String execute() throws Exception {
+		userDao.sayHello();
+		return "ok";
+	}
+}
+</code></pre></div></div>
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html context="">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="zh-CN" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+		<meta name="keywords" content="Qin Dong Liang,java"/>
+		<meta name="author" content="Qin Dong Liang" />
+		<meta name="description" content="SpringMVC 常见问题"/>
+		<link rel="stylesheet" href="/static/css/common.css">
+		<link rel="stylesheet" href="/static/css/syntax.css">
+		<link rel="stylesheet" href="/static/css/mypost.css">
+		<script type="text/javascript" src="/static/js/common.js"></script>
+		<link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon"/>
+		<title>SpringMVC 常见问题-秦东亮的个人驿站</title>
+	</head>
+<body>
+	<header id="header">
+    <a class="logo" href="/" title="Blog"></a>
+    <div class="title"><a href="/" class="nav-a">秦东亮的个人驿站</a></div>
+    <nav class="nav" id="nav">
+        <ul>
+            <li><a href="/" class="nav-a">Blog</a><span>·</span></li>
+            <li><a href="/pages/categories.html" class="nav-a">Categories</a><span>·</span></li>
+            <li><a href="/pages/search.html" class="nav-a">Search</a><span>·</span></li>
+            <li><a href="/pages/links.html" class="nav-a">Links</a><span>·</span></li>
+            <li><a href="/pages/chat.html" class="nav-a">Chat</a><span>·</span></li>
+            <li><a href="/pages/about.html" class="nav-a">About</a></li>
+        </ul>
+    </nav>
+	<span class="menu-tool" id="menu-tool"><em></em><em></em><em></em><em></em></span>
+</header>
+    <div id="mypost">
+		
+		<h1 class="postinfo">SpringMVC 常见问题</h1>
+		
+		<div class="main"><h2 id="dispatcherservlet的影响">DispatcherServlet的影响</h2>
+
+<p>serlvet的匹配规则：</p>
+
+<ol>
+  <li>
+    <p>路径精确匹配</p>
+  </li>
+  <li>
+    <p>最长路径匹配</p>
+  </li>
+  <li>
+    <p>扩展匹配</p>
+  </li>
+  <li>
+    <p>如果容器定义了一个default servelt（即匹配路径为”/”的servlet），则会将请求交给default servlet</p>
+  </li>
+</ol>
+
+<p>在web.xml为DispatcherServlet配置url-pattern时</p>
+
+<p>如果配置为<code class="highlighter-rouge">/</code>时候,表示未默认servelt，只有当请求没有对应的servlet处理时，才交给它处理，当我们请求jsp时，刚好有从<code class="highlighter-rouge">%TOMCAT_HOME%/conf/web.xml</code>中继承过来的JspServlet会处理对jsp请求的处理，所以会优先访问到jsp页面</p>
+
+<p>配置为<code class="highlighter-rouge">/*</code>，照servlet的匹配规则，则路径匹配会优先于扩展匹,会把所有的请求交给spring,导致对jsp的请求会被拦截掉</p>
+
+<p>当采用<code class="highlighter-rouge">/*</code>的规则时，所有的请求都给Spring，访问1.jsp不会到1.jsp文件而是到controller，由于getRequestDispatcher再forward也是一次匹配过程，由于是<code class="highlighter-rouge">/*</code>，这个匹配过程也是交给spring然后再来到controller，进而报错（使用传统的getRequestDispatcher会陷入死循环耗尽资源，使用spring返回视图名者则会提示错误）</p>
+
+<p>由此可见getRequestDispatcher并不是带上数据到文件，而是再次匹配，然后匹配到文件，中间有一个再次匹配的过程，匹配取决于你的url-pattern</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//p:prefix="/" p:suffix=".jsp"
+@RequestMapping("/1.jsp")
+public String test1() {
+    return "1";//=&gt;1.jsp
+}
+</code></pre></div></div>
+
+<h2 id="解决responsebody乱码">解决@ResponseBody乱码</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;mvc:annotation-driven&gt;
+    &lt;mvc:message-converters register-defaults="true"&gt;
+        &lt;bean class="org.springframework.http.converter.StringHttpMessageConverter"&gt;
+            &lt;constructor-arg value="UTF-8" /&gt;
+            &lt;property name="writeAcceptCharset" value="false" /&gt;
+        &lt;/bean&gt;
+    &lt;/mvc:message-converters&gt;
+&lt;/mvc:annotation-driven&gt;
+</code></pre></div></div>
+
+<h2 id="post请求乱码">POST请求乱码</h2>
+
+<p>post提交表单乱码，在web.xml添加如下配置</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!-- 中文乱码过滤器 --&gt;
+&lt;filter&gt;
+    &lt;filter-name&gt;characterEncoding&lt;/filter-name&gt;
+    &lt;filter-class&gt;org.springframework.web.filter.CharacterEncodingFilter&lt;/filter-class&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;encoding&lt;/param-name&gt;
+        &lt;param-value&gt;UTF-8&lt;/param-value&gt;
+    &lt;/init-param&gt;
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+    &lt;filter-name&gt;characterEncoding&lt;/filter-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+</code></pre></div></div>
+
+<h2 id="解决静态资源404">解决静态资源404</h2>
+
+<p>由于在web.xml中做了如下配置,表示对所有请求进行拦截</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;DispatcherServlet&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+</code></pre></div></div>
+
+<p>可以使用静态资源过滤器来解决</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!-- 过滤静态资源文件 --&gt;
+&lt;mvc:resources location="/static/" mapping="/static/**" /&gt;
+</code></pre></div></div>
+
+<h2 id="静态资源过滤导致controller扫包失效">静态资源过滤导致Controller扫包失效</h2>
+
+<p>有时候配置了静态资源过滤器后，所有的Controller都404了</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>把
+&lt;context:annotation-config&gt;&lt;/context:annotation-config&gt;
+换成
+&lt;mvc:annotation-driven&gt;&lt;/mvc:annotation-driven&gt;
+即可
+</code></pre></div></div>
+
+<h2 id="component-scan位置不当404">component-scan位置不当404</h2>
+
+<p>一开始Spring和SpringMVC的配置都是一个文件，一点问题没有</p>
+
+<p>后来把一个文件拆分成两个文件，分别是applicationContext.xml和spring-mvc.xml，为的是结构清晰，结果导致所有的controller 404</p>
+
+<p>web.xml配置如下</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!-- 配置Spring容器 --&gt;
+&lt;context-param&gt;
+    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+    &lt;param-value&gt;classpath:config/applicationContext.xml&lt;/param-value&gt;
+&lt;/context-param&gt;
+&lt;listener&gt;
+    &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+&lt;/listener&gt;
+
+&lt;!-- 配置SpringMVC --&gt;
+&lt;servlet&gt;
+    &lt;servlet-name&gt;springmvc&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;classpath:config/spring-mvc.xml&lt;/param-value&gt;
+    &lt;/init-param&gt;
+&lt;/servlet&gt;
+
+&lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;springmvc&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+</code></pre></div></div>
+
+<p>原因就是Spring是父容器，Spring MVC是子容器，子容器可以访问父容器的bean，父容器不能访问子容器的bean，而MVC容器默认查找当前容器的Controller，所以界面出现404。</p>
+
+<p>有两种解决方式</p>
+
+<ol>
+  <li>
+    <p>还是使用以前的单文件配置，所有的spring配置在一个文件里,web.xml只需要如下配置即可</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;servlet&gt;
+     &lt;servlet-name&gt;DispatcherServlet&lt;/servlet-name&gt;
+     &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+     &lt;init-param&gt;
+         &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+         &lt;!-- 里面有spring和springMVC的配置 --&gt;
+         &lt;param-value&gt;classpath:spring-mvc.xml&lt;/param-value&gt;
+     &lt;/init-param&gt;
+ &lt;/servlet&gt;
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>分开扫描，springmvc只负责扫描controller</p>
+
+    <p>applicationContext.xml文件</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;!-- 扫包，不用net.tmaize.crm.* --&gt;
+ &lt;context:component-scan base-package="net.tmaize.crm"&gt;
+     &lt;context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" /&gt;
+ &lt;/context:component-scan&gt;
+</code></pre></div>    </div>
+
+    <p>spring-mvc.xml文件</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;!-- 自动扫包 ,Controller --&gt;
+ &lt;context:component-scan base-package="net.tmaize.crm.controller" use-default-filters="false"&gt;
+     &lt;context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" /&gt;
+ &lt;/context:component-scan&gt;
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="拦截器失效">拦截器失效</h2>
+
+<p>为了测试拦截器是否生效，在拦截器里面写了一个输出语句</p>
+
+<p>访问/admin/xx老是不打印那条语句</p>
+
+<p>debug之后才知道拦截器是用来拦截Controller的，我的AdminController并没有一个方法匹配/admin/xx，所以是不会拦截的，即使你的拦截路径是<code class="highlighter-rouge">/admin/**</code></p>
+
+</div>
+	</div>
+	<a href="#" id="totop">Top</a>
+<footer>Copyright ©2018 京ICP备16016174号 <a href="/sitemap.xml">网站地图</a> Powered by <a href="https://github.com/TMaize/tmaize-blog">tmaize-blog</a></footer>
+<script>
+//mta.qq.com 访问统计
+var _mtac = {};
+(function() {
+	var mta = document.createElement("script");
+	mta.src = "http://pingjs.qq.com/h5/stats.js?v2.0.2";
+	mta.setAttribute("name", "MTAH5");
+	mta.setAttribute("sid", "500581966");
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+//百度的自动推送
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+//360的自动推送
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281":"https://jspassport.ssl.qhimg.com/11.0.1.js?0b7f3f19682121293c3e4b62c9740281";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+</body>
+</html>
