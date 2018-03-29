@@ -1,6 +1,6 @@
 ---
 layout: mypost
-title: 如何在elasticsearch里面使用深度分页功能
+title: 如何在Elasticsearch里面使用索引别名
 categories: [elasticsearch]
 ---
 
