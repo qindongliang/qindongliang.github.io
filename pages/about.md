@@ -13,6 +13,6 @@ title: 关于我
 +  我的[github](https://github.com/qindongliang)
 
 
-## 欢迎关注我的公众号（woshigcs）
+## 我的公众号（woshigcs）
 
 ![image](http://dl2.iteye.com/upload/attachment/0104/9948/3214000f-5633-3c17-a3d7-83ebda9aebff.jpg)
