@@ -1,9 +1,9 @@
-
 ---
 layout: mypost
 title: 如何在elasticsearch里面使用深度分页功能
 categories: [elasticsearch]
 ---
+
 在elasticsearch里面给index起一个aliases（别名）能非常优雅的解决两个索引无缝切换的问题，这个功能在某些场景下非常使用。
 
 比如电商的核心商品索引库，除了实时增量数据外，每天都要重建一遍索引，避免index里面的数据和db里面的数据不一致，因为index分shard了，所以要一个一个的shard做全量替换，直到所有的shard替换完毕，才能宣布重建成功。整个过程其实还是风险挺大的，虽然每次只替换一个shard把风险量降到最低，但如果第3个或第4个shard重建有问题，有可能要回滚整个索引，这个问题其实用索引别名的问题就能比较优雅的解决。
