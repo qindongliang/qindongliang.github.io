@@ -175,7 +175,7 @@ GET /_mget?routing=key1
 最后在看下在java api里面如何使用：
 
 
-````
+````java
         //构建一个mget的查询
        MultiGetRequestBuilder  multi_get=  client.prepareMultiGet();
         //添加两条get数据
