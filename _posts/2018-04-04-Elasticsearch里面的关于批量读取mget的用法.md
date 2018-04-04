@@ -1,7 +1,7 @@
 ---
 layout: mypost
-title: elasticsearch里面的关于批量读取mget的用法
-categories: [elasticsearch]
+title: Elasticsearch里面的关于批量读取mget的用法
+categories: [Elasticsearch]
 ---
 
 es的api除了提供了基本的curd操作外，还有两个针对批量的操作分别是：

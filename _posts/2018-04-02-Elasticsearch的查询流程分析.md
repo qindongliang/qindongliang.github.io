@@ -1,7 +1,7 @@
 ---
 layout: mypost
-title: elasticsearch的查询流程分析
-categories: [elasticsearch]
+title: Elasticsearch的查询流程分析
+categories: [Elasticsearch]
 ---
 
 

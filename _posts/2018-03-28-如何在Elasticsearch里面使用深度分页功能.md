@@ -1,7 +1,7 @@
 ---
 layout: mypost
-title: 如何在elasticsearch里面使用深度分页功能
-categories: [elasticsearch]
+title: 如何在Elasticsearch里面使用深度分页功能
+categories: [Elasticsearch]
 ---
 
 前面的文章提到过es默认的from+size的分页方式返回的结果数据集不能超过1万点，超过之后返回的数据越多性能就越低。

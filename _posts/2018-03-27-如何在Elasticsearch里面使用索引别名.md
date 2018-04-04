@@ -1,7 +1,7 @@
 ---
 layout: mypost
 title: 如何在Elasticsearch里面使用索引别名
-categories: [elasticsearch]
+categories: [Elasticsearch]
 ---
 
 在elasticsearch里面给index起一个aliases（别名）能非常优雅的解决两个索引无缝切换的问题，这个功能在某些场景下非常使用。
