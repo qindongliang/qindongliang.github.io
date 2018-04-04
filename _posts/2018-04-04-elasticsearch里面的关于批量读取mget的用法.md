@@ -1,4 +1,3 @@
-
 ---
 layout: mypost
 title: elasticsearch里面的关于批量读取mget的用法
@@ -27,7 +26,7 @@ mget可以批量的根据index，type，id三个字段来获取一批数据，�
 mget可以有三种请求头 
 
 （1）不指定index 
-````js
+````sh
 GET /_mget 
 {
     "docs" : [
@@ -47,7 +46,7 @@ GET /_mget
 
 （2）指定index
 
-````js
+````sh
 GET /test/_mget
 {
     "docs" : [
@@ -65,7 +64,7 @@ GET /test/_mget
 
 （3）指定index和type
 
-````js
+````sh
 GET /test/type/_mget
 {
     "docs" : [
@@ -90,7 +89,7 @@ GET /test/type/_mget
 几种过滤的方式：
 
 使用source过滤
-````js
+````sh
 GET /_mget
 {
     "docs" : [
@@ -122,7 +121,7 @@ GET /_mget
 
 使用fields过滤：
 
-````js
+````sh
 GET /_mget
 {
     "docs" : [
@@ -153,7 +152,7 @@ source和fields的主要区别在于，source默认将整个json存在一起，�
 所以综合考虑，推荐还是使用source字段
 
 在get的时候，还可以使用路由字段，如下：
-````js
+````sh
 GET /_mget?routing=key1
 {
     "docs" : [
@@ -176,7 +175,7 @@ GET /_mget?routing=key1
 最后在看下在java api里面如何使用：
 
 
-````java
+````
         //构建一个mget的查询
        MultiGetRequestBuilder  multi_get=  client.prepareMultiGet();
         //添加两条get数据
