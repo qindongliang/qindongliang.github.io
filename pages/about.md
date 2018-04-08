@@ -13,7 +13,9 @@ title: 关于我
 ## 联系方式
 
 +  我的[github](https://github.com/qindongliang)
-
++  我的[iteye](http://qindongliang.iteye.com/) 
++  我的[csdn](https://blog.csdn.net/u010454030)
++  我的邮箱：18210507492@126.com 
 
 ## 我的公众号（woshigcs）
 
