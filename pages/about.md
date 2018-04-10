@@ -22,8 +22,8 @@ Come On !
 +  我的邮箱：18210507492@126.com 
 
 ## 微信打赏
-
- ![image](/readme/m2.jpg)
+ 
+ <img src="http://8090nixi.com/readme/m2.jpg" align="left" />
  
 ## 我的公众号（woshigcs）
 
