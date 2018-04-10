@@ -21,11 +21,10 @@ Come On !
 +  我的[csdn](https://blog.csdn.net/u010454030)
 +  我的邮箱：18210507492@126.com 
 
-## 支持作者
-<div>
-    <img src="http://8090nixi.com/readme/m1.jpg" style="float:left;">
-    <img src="http://8090nixi.com/readme/m2.jpg" style="float:left;" >
-</div>
+## 微信打赏
+
+ ![image](/readme/m2.jpg)
+ 
 ## 我的公众号（woshigcs）
 
 ![image](http://dl2.iteye.com/upload/attachment/0104/9948/3214000f-5633-3c17-a3d7-83ebda9aebff.jpg)
