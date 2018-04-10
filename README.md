@@ -1,14 +1,14 @@
 # 地址
 
- [我的Blog预览](http://blog.tmaize.net/) 欢迎添加友链
+ [我的Blog预览](http://8090nixi.com/) 欢迎添加友链
 
- [github 地址](https://github.com/TMaize/tmaize-blog) 欢迎star
+ [github 地址](https://github.com/qindongliang/qindongliang.github.io) 欢迎star
 
 # 说明
 
-一款jekyll主题，简洁纯净，支持自适应
+一款jekyll主题，简洁纯净，支持自适应，感谢tmaize同学的模块。
 
-由于一直在这个项目里面修改主题代码，和以前的项目simple-jekyll-theme差异太大，现在把simple-jekyll-theme删除了，只留这一个项目,只有一个master分支
+
 
  
 # 截图
