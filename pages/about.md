@@ -23,8 +23,8 @@ Come On !
 
 ## 支持作者
 <figure class="half">
-    <img src="/readme/m1.jpg">
-    <img src="/readme/m2.jpg">
+    <img src="https://github.com/qindongliang/qindongliang.github.io/blob/master/readme/m1.jpg">
+    <img src="https://github.com/qindongliang/qindongliang.github.io/blob/master/readme/m2.jpg">
 </figure>
 ## 我的公众号（woshigcs）
 
