@@ -23,7 +23,7 @@ Come On !
 
 ## 微信打赏
  
- <img src="http://8090nixi.com/readme/m2.jpg" align="left" />
+ <img src="http://8090nixi.com/readme/m2.jpg"  />
  
 ## 我的公众号（woshigcs）
 
