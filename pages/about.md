@@ -22,8 +22,8 @@ Come On !
 +  我的邮箱：18210507492@126.com 
 
 ## 支持作者
-![image](/readme/wds.jpg)
-![image](/readme/zfs.jpg)
+![image](/readme/m1.jpg)
+![image](/readme/m2.jpg)
 
 ## 我的公众号（woshigcs）
 
