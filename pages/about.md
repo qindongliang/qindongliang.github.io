@@ -21,6 +21,11 @@ Come On !
 +  我的[csdn](https://blog.csdn.net/u010454030)
 +  我的邮箱：18210507492@126.com 
 
+## 支持作者
+![image](/readme/wds.jpg)
+![image](/readme/zfs.jpg)
+
 ## 我的公众号（woshigcs）
 
 ![image](http://dl2.iteye.com/upload/attachment/0104/9948/3214000f-5633-3c17-a3d7-83ebda9aebff.jpg)
+
