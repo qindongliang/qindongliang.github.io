@@ -1,7 +1,7 @@
 ---
 layout: mypost
 title: 在Scala中使用Spark SQL解决特定需求（1）
-categories: [Spark,Spark SQL]
+categories: [Spark SQL]
 ---
 
 
