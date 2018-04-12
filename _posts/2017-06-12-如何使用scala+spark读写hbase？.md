@@ -2,7 +2,7 @@
 layout: mypost
 title: 如何使用scala+spark读写hbase？
 categories: [Spark  Hbase]
-tags: [one two]
+tags: [one , two]
 ---
 
 
