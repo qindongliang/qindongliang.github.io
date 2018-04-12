@@ -1,8 +1,7 @@
 ---
 layout: mypost
-title: 如何使用scala+spark读写hbase？
-categories: [Spark  Hbase]
-tags: [one , two]
+title: 如何使用Scala+Spark读写hbase？
+categories: [Hbase]
 ---
 
 
