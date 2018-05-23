@@ -1,7 +1,7 @@
 ---
 layout: mypost
 title: Python之numpy的ndarray数组使用方法介绍
-categories: [Opencv]
+categories: [Python]
 ---
 
 
