@@ -5,248 +5,193 @@ categories: [Java]
 ---
 
 
-#### NumPy介绍
 
-NumPy的全名为Numeric Python，是一个开源的Python科学计算库，它包括：
+### 前言
 
-（1）一个强大的N维数组对象ndrray；
+当你路过一些商场或者地铁口的时候，有没有被千篇一律的"xx健身，了解一下" 所烦到。
 
-（2）比较成熟的（广播）函数库；
+无论在什么编程语言里面，字符串类型一直都是我们使用频率非常高的一个类型，在Java语言里面也不例外，今天我们不打广告而是重新认识一下我们的老朋友String类。
 
-（3）用于整合C/C++和Fortran代码的工具包；
+String类被封装在java.lang包里面，在Java里面每一个创建出来的字符串它的类型都是String，它最大的特点就是不可变（immutable ），这意味String类一旦创建就不能再修改，如果看过其源码就会发现String Class类是用关键字final修饰的并且其主要的成员变量也都是使用final修饰的。
 
-（4）实用的线性代数、傅里叶变换和随机数生成函数
-
-主要优点：
-
-1.NumPy数组在数值运算方面的效率优于Python提供的list容器。
-
-2.使用NumPy可以在代码中省去很多循环语句，因此其代码比等价的Python代码更为简洁。
+### 什么是不可变对象
+不可变对象一旦创建它的状态就不能再修改，我们常用的基本类型的包装类如Integer，Byte, Short, Float, Double都是不可变的。
 
 
-#### ndarray常用属性介绍
-
-序号|数组 | 解释|([[1,2,3]])|([[1],[2],[3]])
----|---|---|---|----|
-1|shape|tuple方式返回每个维度的size| (1,3)|(3,1)
-2|ndim |直接返回这个数组有多少维|2|2
-3|dtype |元素的类型|int32|int32
-4|size |元素的个数|3|3
-
-
-#### ndarray常用创建方法
-
-这里只介绍最常用的方法，从python的list或者tuple中转化成ndarray，关于empty, empty_like, zeros, zeros_like, ones, ones_like, full, full_like
-这些方法，请参考官网文档。
-
-````python
-def test1():
-    # 通过python的list来构建numpy array
-    list1 = [[1, 2, 3]]
-    list2 = [[1], [2], [3]]
-
-    # 通过python的 tuple来构造
-    tuple3= [(1,2,3)]
-
-    # 使用array方法构造
-    nd1 = np.array(list1)
-    nd2 = np.array(list2)
-    nd3 = np.array(tuple3)
-
-    show_array_properties(nd1)
-    show_array_properties(nd2)
-    show_array_properties(nd3)
-
-
-
-
-
-def show_array_properties(np_array):
-    print("-----------------------")
-    """
-    常用属性介绍
-    :param np_array:
-    :return:
-    """
-    print(np_array.shape) # 代表每一个维度元素的个数
-    print(np_array.ndim)  # 总共多少维度
-    print(np_array.dtype) # 数据类型
-    print(np_array.size) # 数组中元素的个数
-
-
-
-test1()
-````
-
-输出结果：
+下面看一个不可变类的例子：
 
 ````
------------------------
-(1, 3)
-2
-int32
-3
------------------------
-(3, 1)
-2
-int32
-3
------------------------
-(1, 3)
-2
-int32
-3
+public final class MyString
+{
+ final String str;
+ MyString(String s)
+ {
+  this.str = s;
+ }
+ public String get()
+ {
+  return str;
+ }
+}
 ````
 
+在上面这个例子中MyString类就是不可变的，一旦实例化之后str的值就不能变化。
 
-#### ndarray常用数组操作
-
-数组索引下标都是从0开始，不在特意强调
+当然Java里面的String底层是用char数组+UTF-16编码存储的，这个在后面会提到。
 
 
-（1）常用步长访问
+### 创建String类的常用方法
 
-语法：start:stop:step (开始下标，停止下标，步长)
-
-````
-a = np.array([[1,2,3],[3,4,5],[4,5,6]])
-
-print(a[0:3:2]) //start:stop:step
-
-// output
-[[1 2 3]
- [4 5 6]]
-````
-
-（2）使用arange生成数组，并访问元素
-````
-a = np.arange(10)
-
-print(a) # [0 1 2 3 4 5 6 7 8 9]
-
-b = a[5]
-print b
-// 5
-
-b=np.arange(1,6,2)
-
-print(b) # [1 3 5]
+（1）使用字面量创建，是我们最常用的方法
 
 ````
+String str1 = "Hello";
+````
 
-（3）开始到结束
+（2）通过一个String对象
 
 ````
-import numpy as np
-a = np.arange(10)
-print a[2:]
-//output
-[2  3  4  5  6  7  8  9]
+String str2 = new String(str1);
+````
+
+（3）使用new关键词
+````
+String str3 = new String("Java");
+````
+
+（4）使用+号操作符
+````
+String str4 = str1 + str2;
+OR
+String str5 = "hello"+"Java";
+````
+
+### 创建一个String类时发生了什么
+
+每当我们创建一个String字面量时，jvm（java虚拟机）都会先检查字符串池（string pool）里面是否已经存在该字符串，如果已经存在，jvm会返回这个实例的引用，如果在池里不存在那么新的字符串就会被创建，然后添加到string池中，这个string池我们可以理解它是一块常量的字符串池，在JDK7之后是被放在java堆内存里面，当然避免创建重复的实例是jvm层面对字符串创建的一个优化。
+
+下面看下字符串对象时怎么被存储的：
+
+````
+String str= "Hello";
+````
+上面的这段代码创建了一个字符串字面量，如果是第一次创建，这个实例会被存放到字符串常量吃里面：
+
+![image](https://www.studytonight.com/java/images/java-string1.jpg)
+
+紧接着，当我们再次创建一个的字符串时，jvm实际上会把已经存在实例的引用赋值给新的字符串：
+````
+String str2="Hello";
+// check
+System.out.println(str==str2); //true
+````
+![image](https://www.studytonight.com/java/images/java-string2.jpg)
+
+ 当然，如果我们改变字符串的内容，那么他的引用也会对应变化：
+````
+ String str2=str.concat("world");
+````
+
+![image](https://www.studytonight.com/java/images/java-string3.jpg)
+
+
+ ### 字符串连接
+
+ 这里有2种方法可以连接两个或者更多的字符串：
+
+ （1）使用 concat() 方法
+
+````
+ string s = "Hello";
+string str = "Java";
+string str2 = s.concat(str);
+String str1 = "Hello".concat("Java");    //works with string literals too.
 ````
 
 
-（4）指定区间
-````
-import numpy as np
-a = np.arange(10)
-print a[2:5]
-//output
-[2  3  4]
-````
-
-（5）多维数组的范围访问
-````
-import numpy as np
-a = np.array([[1,2,3],[3,4,5],[4,5,6]])
-print a[1:]
-
-//output
-[[3 4 5]
- [4 5 6]]
+ （2）使用 + 操作符
 
 ````
-
-（6）多维数组的列访问
-
-注意下面这种访问情况 冒号可以和三个点号相互替换
-
-````
-a = np.array([[1,2,3],[3,4,5],[4,5,6]])
-
-print a[...,1]  ==> [2 4 5]  取第二列
-等价
-print a[:,1]  ==> [2 4 5]
-
-print a[1,...]  ==> [3 4 5]  取第二行
-print a[...,1:] ==> 取第一列之后的所有的列
-//output
-[[2 3]
- [4 5]
- [5 6]]
+ string str = "Rahul";
+string str1 = "Dravid";
+string str2 = str + str1;
+string st = "Rahul"+"Dravid";
 ````
 
+ ### 字符串比较
 
-（7）排序
+ 字符串比较这里有3种方式：
 
+ （1）使用equals方法
+
+ 注意equals方法比较特殊，因为这个Object类里面的方法，Java里面所有的类都直接或者间接的继承了Object类，如果继承之后没有重写equals方法，那么默认比较的两个对象的内存地址。
+通过观察源码我们能发现String里面的equals方法已经被重写过，它比较的是字符串的内容。
+
+JDK8中的源码如下：
 ````
-a = np.array([[7,2,3],[3,4,5],[4,5,6]])
-print(a[:,0])
-
-# 取每个数组里面里面的第一个元素，排序，返回下标
-np.argsort(a[:,0])  #升序
-[7,3,4]
-
-// np.argsort(-a[:,0]) #降序
-
-#下面这个是按从小到大排序后的索引值
-[1,2,0]
-
-# 取出排序后的元数据
-
-print(a[[1,2,0],:]) 等价 print(a[[1,2,0]])
-
-结果：
-[[3 4 5]
- [4 5 6]
- [7 2 3]]
-
-#取a数组，前2个元素
-print(a[:2,:])
-
-#取a数组，2后面的元素
-print(a[2:,:])
-
-````
-
-（8）reshape转化数组
-
-
-
-
-
+    public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof String) {
+            String anotherString = (String)anObject;
+            int n = value.length;
+            if (n == anotherString.value.length) {
+                char v1[] = value;
+                char v2[] = anotherString.value;
+                int i = 0;
+                while (n-- != 0) {
+                    if (v1[i] != v2[i])
+                        return false;
+                    i++;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 ````
 
-list=[1,2,3,4,5,6,7,8]
-
-array2d=np.array(list)
-
-# 转成 4 行  2列  的 2维数组
-print(array2d.reshape(4,2))
-
-# [[1 2]
-#  [3 4]
-#  [5 6]
-#  [7 8]]
-
+ 根据源码，我们知道内容相等返回true，否则就是false
+````
+ String s = "Hell";
+String s1 = "Hello";
+String s2 = "Hello";
+s1.equals(s2);    //true
+s.equals(s1) ;   //false
 ````
 
+  （2）使用==方法
 
-例子代码可到我github上下载：
+==方法比较的是两个对象的引用，也就是内存地址,如果内存地址一样，就返回true，否则就返回false
 
-<https://github.com/qindongliang/opecv3-study>
+下面看个例子：
+````
+String s1 = "Java";
+String s2 = "Java";
+String s3 = new string ("Java");
+test(s1 == s2)     //true
+test(s1 == s3)      //false
+````
 
-上面只是大概介绍了实际应用常用的一些方法，想要了解详细的朋友可以参考官网文档：
-
-<http://www.numpy.org/>
+细心的朋友可能已经看出来s1和s3有一样的内容，但是却返回false，是因为他们的内存地址不一样，上面说过基于字符串字面量是放在字符串常量池里面，但是如果使用new出来的实例是放在堆内存里面，所以他们的内存指针是不一样的。
 
 
+
+   ![image](https://www.studytonight.com/java/images/not-equals-operator.png)
+
+   （3）使用compareTo方法
+
+   compareTo方法是基于自然顺序（通常指字母表的顺序）比较两个字符串的先后，它返回是int类型的值分别是：-1（排名靠前）,0（排名相等）,1（排名靠后）
+````
+String s1 = "Abhi";
+String s2 = "Viraaj";
+String s3 = "Abhi";
+s1.compareTo(S2);     //return -1 because s1 < s2
+s1.compareTo(S3);     //return 0 because s1 == s3
+s2.compareTo(s1);     //return 1 because s2 > s1
+````
+
+### 总结：
+
+本篇文章介绍了Java语言里面String类的特点和一些常见的基础用法，此外还介绍了创建一个String实例时其在JVM里面的是如何优化执行和存储的，这里面主要涉及关于字符串常量池的知识，这个会在下一篇文章中单独介绍。
